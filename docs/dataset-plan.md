@@ -1,6 +1,6 @@
 # TakeTwo dataset plan
 
-Status: acquisition and annotation strategy only. No recordings, rights clearances, labels or dataset statistics have been collected. Quality and public redistribution rights determine inclusion; the target below is not a claim of available data.
+Status: the Phase 1 import/transformation/annotation/split/validation pipeline is implemented; see the [dataset-engineering guide](dataset-engineering.md) and [schema](dataset-schema-v1.json). No competition recordings, rights clearances, independent labels or dataset statistics have been collected. Quality and public redistribution rights determine inclusion; the target below is not a claim of available data.
 
 ## Compact acquisition target
 
@@ -20,7 +20,9 @@ Preserve originals and source excerpt offsets. Record container, codec, sample r
 
 Controlled alterations may insert a bounded pause, change local tempo while preserving pitch, alter a local gain envelope or compress pitch excursions. Implement only transformations that can be reproduced and independently inspected. Save algorithm/version, seed, parameters, input/output hashes and a piecewise source-to-derivative time map, including inserted/deleted intervals. Whole-file gain and register shifts are invariance stress tests, not delivery-flaw labels. Synthetic material is always `origin=synthetic`; transformation windows are metadata, not automatic perceptual ground truth. Review boundary artifacts and avoid click/noise artifacts becoming unintended detector shortcuts.
 
-## Manifest and annotation contracts (version 1, planned)
+## Manifest and annotation contracts
+
+The table below is the semantic plan. Phase 1 implements version 1 JSONL rows with nested source/transcript/processing records as documented in the engineering guide. Alignment records remain Phase 2 work. The implementation retains the provenance and review distinctions here; it does not fabricate alignment labels.
 
 Use UTF-8 JSONL manifests, JSON annotation files and CSV coverage summaries. Reject unknown versions, missing provenance and invalid intervals. Times are seconds, half-open `[start_s,end_s)`, in the specified recording's own decoded timeline.
 

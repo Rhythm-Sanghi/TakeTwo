@@ -1,6 +1,6 @@
 # TakeTwo risk register
 
-Phase 0 identifies risks; no mitigation is considered proven until its evidence gate passes. Likelihood/impact are qualitative planning judgments. Role owners describe responsibilities, not assigned fictional team members.
+Phase 0 identifies risks; no mitigation is considered proven until its evidence gate passes. Phase 1 adds tested audio/path/schema safeguards, connected-group leakage checks and locked-runtime replay; see [validation evidence](phase1-validation.md). These fixture-based checks do not close real-source rights, human annotation, cross-platform reproducibility or alignment risks. Likelihood/impact are qualitative planning judgments. Role owners describe responsibilities, not assigned fictional team members.
 
 | ID | Risk / likelihood / impact | Practical mitigation and trigger | Owner / evidence gate | Current state |
 | --- | --- | --- | --- | --- |

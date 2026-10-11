@@ -1,6 +1,6 @@
 # TakeTwo architecture
 
-Speech analysis workspace. Status: selected design for implementation; no runtime or compatibility benchmark has been executed. Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
+Speech analysis workspace. Status: Phase 1 dataset modules and CLI are implemented and tested on native Windows; the API, database, alignment, analysis and UI layers below remain planned. No aligner/resource compatibility benchmark has been executed. Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
 
 ## Technology decisions
 
@@ -17,11 +17,13 @@ Speech analysis workspace. Status: selected design for implementation; no runtim
 | Storage | Managed local files under `%LOCALAPPDATA%/TakeTwo` | Original audio immutable; derived artifacts removable/rebuildable |
 | Verification | pytest; Vitest + Testing Library; Playwright | Signal/contract tests, accessible interaction tests and real browser workflows |
 
-No packages are installed in Phase 0. Phase 1 will resolve and lock tested Python/Node versions, licenses and transitive dependencies; Phase 2 will lock the aligner environment and model artifacts separately. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
+Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purpose and license inventory is in [dependencies](dependencies.md). No API/frontend/database packages are installed yet. Librosa's transitive scikit-learn dependency is present but unused for learning. Phase 2 will lock the aligner environment and model artifacts separately; frontend versions are resolved when that phase starts. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
 
 ## Boundaries and data model
 
 Implement cohesive modules only when their phase starts: ingestion, normalization, alignment, features, comparison, region detection, scoring, evaluation, persistence, API and UI. Engine functions accept explicit arrays/artifacts/configuration and do not depend on HTTP or UI state. Evaluation invokes the same engine through a CLI, without a browser.
+
+Phase 1 implements `src/taketwo/dataset/`: schema, errors, safe storage, audio ingestion/normalization, controlled transformations, connected-group splitting, validation, workspace operations and CLI. Tests are in `tests/`. It uses one atomically replaced versioned JSONL manifest and managed local audio directories; SQLite is deferred until application sessions need it. The executable contracts and commands are in [dataset engineering](dataset-engineering.md).
 
 SQLite entities: `recordings` (hash, managed path, origin, quality, transcript ID), `transcripts` (original/normalized text and hash), `pairs` (reference/participant IDs), `alignments` (recording, model/config hash, status, artifact path), `analyses` (pair, rubric/config hash, job state), `rubrics` (immutable versioned JSON), `evaluation_runs` (split/config/report hashes). Dataset manifests additionally contain provenance and annotation records defined in the [dataset plan](dataset-plan.md). Foreign keys enforced, schema migrations numbered, writes short and transactional; enable WAL for local readers with a bounded busy timeout. Do not use a network share for the database.
 

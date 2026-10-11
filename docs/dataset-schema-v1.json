@@ -1,0 +1,1046 @@
+{
+  "$defs": {
+    "Annotation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "pair_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Pair Id",
+          "type": "string"
+        },
+        "recording_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Recording Id",
+          "type": "string"
+        },
+        "transcript_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Transcript Sha256",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "pacing",
+            "pause_behavior",
+            "energy_variation",
+            "pitch_dynamics",
+            "acceptable",
+            "recording_quality",
+            "alignment_uncertainty"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "start_s": {
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "exclusiveMinimum": 0,
+          "title": "End S",
+          "type": "number"
+        },
+        "severity": {
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "title": "Severity",
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "human",
+            "synthetic_recipe"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "review_status": {
+          "enum": [
+            "unreviewed",
+            "reviewed",
+            "adjudicated"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "reviewer_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewer Id"
+        },
+        "rationale": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "uncertainty_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Uncertainty S"
+        },
+        "token_span": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Token Span"
+        },
+        "transformation_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Transformation Sha256"
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes"
+        }
+      },
+      "required": [
+        "id",
+        "pair_id",
+        "recording_id",
+        "transcript_sha256",
+        "category",
+        "start_s",
+        "end_s",
+        "severity",
+        "source",
+        "review_status",
+        "reviewer_id",
+        "rationale",
+        "uncertainty_s",
+        "token_span",
+        "transformation_sha256"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    },
+    "AudioInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "WAV",
+            "FLAC"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "subtype": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Subtype",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "maximum": 96000,
+          "minimum": 8000,
+          "title": "Sample Rate Hz",
+          "type": "integer"
+        },
+        "channels": {
+          "enum": [
+            1,
+            2
+          ],
+          "title": "Channels",
+          "type": "integer"
+        },
+        "frames": {
+          "exclusiveMinimum": 0,
+          "title": "Frames",
+          "type": "integer"
+        },
+        "duration_s": {
+          "exclusiveMinimum": 0,
+          "maximum": 600,
+          "title": "Duration S",
+          "type": "number"
+        },
+        "rms_dbfs": {
+          "title": "Rms Dbfs",
+          "type": "number"
+        },
+        "peak": {
+          "minimum": 0,
+          "title": "Peak",
+          "type": "number"
+        },
+        "clipping_fraction": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Clipping Fraction",
+          "type": "number"
+        }
+      },
+      "required": [
+        "format",
+        "subtype",
+        "sample_rate_hz",
+        "channels",
+        "frames",
+        "duration_s",
+        "rms_dbfs",
+        "peak",
+        "clipping_fraction"
+      ],
+      "title": "AudioInfo",
+      "type": "object"
+    },
+    "Operation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "insert_pause",
+            "shorten_pause",
+            "tempo",
+            "gain",
+            "pitch_shift"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start_s": {
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "exclusiveMinimum": 0,
+          "title": "End S",
+          "type": "number"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "severity": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "title": "Severity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "start_s",
+        "end_s",
+        "value",
+        "severity"
+      ],
+      "title": "Operation",
+      "type": "object"
+    },
+    "Pair": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "reference_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Reference Id",
+          "type": "string"
+        },
+        "participant_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Participant Id",
+          "type": "string"
+        },
+        "transcript_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Transcript Sha256",
+          "type": "string"
+        },
+        "intended_flaw": {
+          "enum": [
+            "pacing",
+            "pause_behavior",
+            "energy_variation",
+            "pitch_dynamics",
+            "acceptable",
+            "recording_quality",
+            "alignment_uncertainty"
+          ],
+          "title": "Intended Flaw",
+          "type": "string"
+        },
+        "intended_severity": {
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "title": "Intended Severity",
+          "type": "integer"
+        },
+        "reviewed_severity": {
+          "anyOf": [
+            {
+              "enum": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewed Severity"
+        },
+        "identity_status": {
+          "enum": [
+            "needs_review",
+            "verified",
+            "derived"
+          ],
+          "title": "Identity Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "reference_id",
+        "participant_id",
+        "transcript_sha256",
+        "intended_flaw",
+        "intended_severity",
+        "identity_status"
+      ],
+      "title": "Pair",
+      "type": "object"
+    },
+    "Processing": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "mono-polyphase-v1",
+          "default": "mono-polyphase-v1",
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "const": 16000,
+          "default": 16000,
+          "title": "Sample Rate Hz",
+          "type": "integer"
+        },
+        "subtype": {
+          "const": "FLOAT",
+          "default": "FLOAT",
+          "title": "Subtype",
+          "type": "string"
+        },
+        "channel": {
+          "anyOf": [
+            {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Channel"
+        },
+        "versions": {
+          "additionalProperties": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Versions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "channel",
+        "versions"
+      ],
+      "title": "Processing",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "work_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Work Id",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Url"
+        },
+        "collection_method": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Collection Method",
+          "type": "string"
+        },
+        "access_date": {
+          "title": "Access Date",
+          "type": "string"
+        },
+        "excerpt_offset_s": {
+          "minimum": 0,
+          "title": "Excerpt Offset S",
+          "type": "number"
+        },
+        "baseline_rationale": {
+          "anyOf": [
+            {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Baseline Rationale"
+        },
+        "consent_evidence": {
+          "anyOf": [
+            {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Consent Evidence"
+        },
+        "rights": {
+          "$ref": "#/$defs/Rights"
+        }
+      },
+      "required": [
+        "source_id",
+        "work_id",
+        "source",
+        "source_url",
+        "collection_method",
+        "access_date",
+        "excerpt_offset_s",
+        "baseline_rationale",
+        "consent_evidence",
+        "rights"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Recipe": {
+      "additionalProperties": false,
+      "properties": {
+        "seed": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "operations": {
+          "items": {
+            "$ref": "#/$defs/Operation"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Operations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "seed",
+        "operations"
+      ],
+      "title": "Recipe",
+      "type": "object"
+    },
+    "Recording": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset_version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Dataset Version",
+          "type": "string"
+        },
+        "family_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Family Id",
+          "type": "string"
+        },
+        "speaker_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Speaker Id",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "source",
+            "self_recorded",
+            "synthetic"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "reference",
+            "participant"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "original_filename": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Original Filename",
+          "type": "string"
+        },
+        "original_path": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Original Path",
+          "type": "string"
+        },
+        "normalized_path": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Normalized Path",
+          "type": "string"
+        },
+        "original_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Original Sha256",
+          "type": "string"
+        },
+        "normalized_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Normalized Sha256",
+          "type": "string"
+        },
+        "sample_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sample Sha256",
+          "type": "string"
+        },
+        "transcript": {
+          "$ref": "#/$defs/Transcript"
+        },
+        "transcript_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Transcript Sha256",
+          "type": "string"
+        },
+        "tokens": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tokens",
+          "type": "array"
+        },
+        "token_offsets": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Token Offsets",
+          "type": "array"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "original_info": {
+          "$ref": "#/$defs/AudioInfo"
+        },
+        "normalized_info": {
+          "$ref": "#/$defs/AudioInfo"
+        },
+        "processing": {
+          "$ref": "#/$defs/Processing"
+        },
+        "transformation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Transformation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quality_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Flags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "dataset_version",
+        "family_id",
+        "speaker_id",
+        "origin",
+        "role",
+        "original_filename",
+        "original_path",
+        "normalized_path",
+        "original_sha256",
+        "normalized_sha256",
+        "sample_sha256",
+        "transcript",
+        "transcript_sha256",
+        "tokens",
+        "token_offsets",
+        "provenance",
+        "original_info",
+        "normalized_info",
+        "processing",
+        "transformation",
+        "quality_flags"
+      ],
+      "title": "Recording",
+      "type": "object"
+    },
+    "Rights": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "cleared"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "holder": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Holder",
+          "type": "string"
+        },
+        "license_name": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "License Name",
+          "type": "string"
+        },
+        "evidence": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "attribution": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Attribution",
+          "type": "string"
+        },
+        "permits_adaptation": {
+          "title": "Permits Adaptation",
+          "type": "boolean"
+        },
+        "permits_redistribution": {
+          "title": "Permits Redistribution",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "status",
+        "holder",
+        "license_name",
+        "evidence",
+        "attribution",
+        "permits_adaptation",
+        "permits_redistribution"
+      ],
+      "title": "Rights",
+      "type": "object"
+    },
+    "SplitReport": {
+      "additionalProperties": false,
+      "properties": {
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "ratios": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Ratios",
+          "type": "array"
+        },
+        "assignments": {
+          "additionalProperties": {
+            "enum": [
+              "train",
+              "validation",
+              "test"
+            ],
+            "type": "string"
+          },
+          "title": "Assignments",
+          "type": "object"
+        },
+        "groups": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Groups",
+          "type": "object"
+        },
+        "membership_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Membership Sha256",
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "seed",
+        "ratios",
+        "assignments",
+        "groups",
+        "membership_sha256",
+        "warnings"
+      ],
+      "title": "SplitReport",
+      "type": "object"
+    },
+    "TimeSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "source_start": {
+          "minimum": 0,
+          "title": "Source Start",
+          "type": "integer"
+        },
+        "source_end": {
+          "minimum": 0,
+          "title": "Source End",
+          "type": "integer"
+        },
+        "output_start": {
+          "minimum": 0,
+          "title": "Output Start",
+          "type": "integer"
+        },
+        "output_end": {
+          "minimum": 0,
+          "title": "Output End",
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "unchanged",
+            "modified",
+            "inserted"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_start",
+        "source_end",
+        "output_start",
+        "output_end",
+        "kind"
+      ],
+      "title": "TimeSegment",
+      "type": "object"
+    },
+    "Transcript": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "language": {
+          "const": "en",
+          "title": "Language",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reviewers": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "type": "string"
+          },
+          "title": "Reviewers",
+          "type": "array"
+        },
+        "verification_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Verification Date"
+        },
+        "revision": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "language",
+        "status",
+        "reviewers",
+        "verification_date",
+        "revision"
+      ],
+      "title": "Transcript",
+      "type": "object"
+    },
+    "Transformation": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "controlled-flaws-v1",
+          "default": "controlled-flaws-v1",
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "parent_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+          "title": "Parent Id",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "recipe": {
+          "$ref": "#/$defs/Recipe"
+        },
+        "recipe_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Recipe Sha256",
+          "type": "string"
+        },
+        "time_map": {
+          "items": {
+            "$ref": "#/$defs/TimeSegment"
+          },
+          "title": "Time Map",
+          "type": "array"
+        },
+        "versions": {
+          "additionalProperties": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Versions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "parent_id",
+        "source_sha256",
+        "recipe",
+        "recipe_sha256",
+        "time_map",
+        "versions"
+      ],
+      "title": "Transformation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "dataset_version": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+      "title": "Dataset Version",
+      "type": "string"
+    },
+    "recordings": {
+      "items": {
+        "$ref": "#/$defs/Recording"
+      },
+      "title": "Recordings",
+      "type": "array"
+    },
+    "pairs": {
+      "items": {
+        "$ref": "#/$defs/Pair"
+      },
+      "title": "Pairs",
+      "type": "array"
+    },
+    "annotations": {
+      "items": {
+        "$ref": "#/$defs/Annotation"
+      },
+      "title": "Annotations",
+      "type": "array"
+    },
+    "split": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SplitReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "dataset_version"
+  ],
+  "title": "Dataset",
+  "type": "object"
+}

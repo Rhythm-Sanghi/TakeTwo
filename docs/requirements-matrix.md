@@ -1,6 +1,6 @@
 # TakeTwo requirements matrix
 
-Speech analysis workspace. Phase 0 defines plans only; no dataset, engine, dashboard or evaluation result exists yet.
+Speech analysis workspace. Phase 1 now provides dataset tooling, documented in [dataset engineering](dataset-engineering.md). No competition dataset, speech-analysis engine, dashboard or evaluation result exists yet. The Planned statuses below refer to complete official behavior/deliverables, not an absence of partial tooling.
 
 Authority: [official Track C specification](../requirments/Track%20C.pdf), all three pages, reviewed on 2026-10-11. Keep its existing path and bytes. SHA-256: `0e621d35e6bfdbb9d9e169b259ebf9d3d923d1efcbab38ba2a4331f6958fb280`.
 

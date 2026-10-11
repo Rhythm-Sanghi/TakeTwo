@@ -8,7 +8,7 @@ The interface follows the Workshop + Gridline + Studio Utility design language. 
 
 ## Project status
 
-Phase 0 contains the architecture and execution plan derived from all three pages of the official [Track C specification](requirments/Track%20C.pdf). Application features, datasets, model downloads, package dependencies and automated application tests have not been implemented. All later-phase acceptance gates and performance targets remain unverified.
+Phase 0 defines the architecture and execution plan derived from all three pages of the official [Track C specification](requirments/Track%20C.pdf). Phase 1 implements a local, tested dataset-engineering CLI for audio import, provenance, controlled synthetic edits, annotations, leakage-resistant splits, validation and export. The real competition dataset and independently reviewed pilot have not been acquired. There is no frontend, forced aligner, model training or speech-scoring engine yet.
 
 Development must preserve the Track C requirements for contrastive datasets, forced alignment, acoustic feature extraction, temporal grounding, explainable rubric-based scoring, reproducibility, a dashboard and deliverables.
 
@@ -22,10 +22,21 @@ Development must preserve the Track C requirements for contrastive datasets, for
 - [Implementation phases, evidence gates and next step](docs/implementation-roadmap.md)
 - [Risks, mitigations and blockers](docs/risk-register.md)
 
-Selected design: local Python/FastAPI processing, NumPy/SciPy/librosa/soundfile, CPU forced alignment with MFA, SQLite and managed audio storage, and React/TypeScript/Vite. Dependencies and model licenses will be resolved and locked when implementation begins; scikit-learn is deferred until a concrete need exists.
+Selected design: local Python/FastAPI processing, NumPy/SciPy/librosa/soundfile, CPU forced alignment with MFA, SQLite and managed audio storage, and React/TypeScript/Vite. Phase 1 uses manifests instead of a database; its Python dependencies are pinned and locked. scikit-learn is present only as a librosa transitive dependency, with no learned scoring or training. The remaining application stack and model licenses are future gates.
 
-The next step is Phase 1 dataset manifests, validation and a rights-cleared pilot. The public dataset, functional dashboard, maximum six-page technical report and 3-10 minute YouTube demonstration remain future deliverables; no placeholder release links or results are provided.
+## Dataset tools
+
+```powershell
+uv sync --locked
+uv run taketwo-dataset --help
+uv run pytest -q
+uv run ruff check src tests
+```
+
+Use Python 3.11. Read the [dataset-engineering guide](docs/dataset-engineering.md) for schema, PowerShell commands, annotation workflow and release checks, and the [dependency inventory](docs/dependencies.md) for purpose/license notes. [Phase 1 validation evidence](docs/phase1-validation.md) separates software tests from actual dataset readiness. Keep local recordings under ignored `local-data/` or outside the checkout.
+
+Next, acquire and independently review the rights-cleared pilot. Phase 2 should then implement the locked native Windows MFA alignment pipeline against that pilot. The public dataset, functional dashboard, maximum six-page technical report and 3-10 minute YouTube demonstration remain future deliverables; no placeholder release links or analysis results are provided.
 
 ## AI assistance
 
-Codex assisted with the product rename, specification review and Phase 0 technical planning. Stack and rubric selections are documented proposals, not empirical validation. AI assistance must continue to be disclosed honestly as the project develops.
+Codex assisted with the product rename, specification review, Phase 0 technical planning and Phase 1 implementation/tests. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.

@@ -1,13 +1,13 @@
 # TakeTwo implementation roadmap
 
-Status on 2026-10-11: Phase 0 planning complete, with documentation checks recorded below; Phases 1-7 unstarted. Nothing below is a claim of implemented behavior or achieved analysis performance. Follow [AGENTS.md](../AGENTS.md) and the [requirements matrix](requirements-matrix.md).
+Status on 2026-10-11: Phase 0 planning complete; Phase 1 software pipeline implemented and tested, with its real-data pilot gate still open; Phases 2-7 unstarted. Software evidence is recorded in [Phase 1 validation](phase1-validation.md). No speech-analysis performance is claimed. Follow [AGENTS.md](../AGENTS.md) and the [requirements matrix](requirements-matrix.md).
 
 Prioritize dataset engineering (official 30%), temporal grounding/explainability (25%) and features (20%). Build the dashboard (15%) around verified artifacts. Reproducibility/code quality (10%) is a gate in every phase, not final cleanup. Implement one complete vertical slice at a time; commit working changes and update status/evidence before proceeding.
 
 | Phase | Scope and dependencies | Completion gate | Required test/evaluation evidence | Status |
 | --- | --- | --- | --- | --- |
 | 0: Plan | Requirements, contracts, dataset, rubric, visual standards, risks | All seven documents cover the full PDF; weights total 100%; links valid; source unchanged; no application code | Full PDF reading/visual review, documentation checks, diff review and commit | Complete |
-| 1: Dataset foundation | Provenance/schema validator, acquisition pilot, canonical transcripts, split grouping; resolve minimal Python test environment | Two cleared real public-speech families plus human near-perfect/severe mirrors; exact text, reviewed temporal labels; no fabricated or unlicensed release items | pytest manifest/interval/hash/split cases; actual pilot QA and permission log; locked environment/license inventory | Not started |
+| 1: Dataset foundation | Provenance/schema validator, acquisition pilot, canonical transcripts, split grouping; resolve minimal Python test environment | Two cleared real public-speech families plus human near-perfect/severe mirrors; exact text, reviewed temporal labels; no fabricated or unlicensed release items | Implemented CLI, locked environment and pytest evidence; actual pilot QA/permission/review log still missing | Pipeline implemented; pilot blocked |
 | 2: Alignment | CPU MFA environment/model lock, transcript preflight, aligner invocation and alignment artifact validation; depends on 1 | Native Windows smoke test on real pilot; no fabricated fallback; manual timing comparison published; missing models/OOV/mismatch recoverable | pytest ordering/coverage/failure tests; manual boundary audit; target median <=100 ms and p90 <=250 ms, otherwise investigate and revise scope transparently | Not started |
 | 3: Acoustic engine | Ingestion/quality validation, normalization, FFT/MFCC/F0/energy/rate/pause features; depends on 2 | Actual features with native timestamps, units/masks and documented normalization; CPU/memory budget measured | Known-signal tests, real contour audit, silence/clipping/channel cases; waveform/derivative timing checks; gain/register invariance; resource log on target PC | Not started |
 | 4: Temporal comparison and rubric | Token/phrase correspondence, evidence-backed flags and scores, exportable report; depends on 3 | Every flag is recomputable from real evidence; missing evidence abstains; scores match hand calculations; no psychological causal claims | Unit/contract fixtures, independent explanation audit, boundary/pause tests and repeat-run reports | Not started |
@@ -31,7 +31,7 @@ Block rather than pretend completion when rights are unresolved, no aligner meet
 
 ## Exact next implementation step
 
-After the user's next development instruction, start Phase 1 with a versioned JSONL dataset manifest and a small Python validator plus pytest checks for provenance, hashes, interval bounds and connected-group split leakage. Resolve a minimal locked Python environment for this work, then acquire and review two rights-cleared public-speech pilot families. Do not build the API, frontend or scoring engine until their dependency gates are met. Phase 0 stops before any of this implementation.
+Resolve the remaining Phase 1 pilot gate: acquire and independently review two rights-cleared public-speech families and human mirrors with exact transcripts and intervals. The dataset CLI and manifest validator are available. After that gate and a new development instruction, Phase 2 should resolve/lock a licensed English MFA model/dictionary and native Windows environment, preflight transcripts/OOVs, run forced alignment, validate word/phone intervals and measure manual boundary error/failures. Do not build the frontend or scoring engine as part of Phase 2. This change stops after Phase 1 tooling.
 
 ## Phase 0 verification record
 
