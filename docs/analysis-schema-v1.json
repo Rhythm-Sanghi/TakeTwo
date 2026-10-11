@@ -1,0 +1,1003 @@
+{
+  "alignment": {
+    "$defs": {
+      "AlignmentConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "backend": {
+            "const": "mfa",
+            "default": "mfa",
+            "title": "Backend",
+            "type": "string"
+          },
+          "command": {
+            "items": {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Command",
+            "type": "array"
+          },
+          "expected_version": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Expected Version",
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/$defs/Resource"
+          },
+          "dictionary": {
+            "$ref": "#/$defs/Resource"
+          },
+          "timeout_s": {
+            "default": 120.0,
+            "exclusiveMinimum": 0,
+            "maximum": 1800,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "replacements": {
+            "additionalProperties": {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Replacements",
+            "type": "object"
+          }
+        },
+        "required": [
+          "command",
+          "expected_version",
+          "model",
+          "dictionary"
+        ],
+        "title": "AlignmentConfig",
+        "type": "object"
+      },
+      "Diagnostic": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "recovery": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Recovery",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "recovery"
+        ],
+        "title": "Diagnostic",
+        "type": "object"
+      },
+      "Interval": {
+        "additionalProperties": false,
+        "properties": {
+          "start_s": {
+            "minimum": 0,
+            "title": "Start S",
+            "type": "number"
+          },
+          "end_s": {
+            "exclusiveMinimum": 0,
+            "title": "End S",
+            "type": "number"
+          },
+          "label": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "token_index": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Token Index"
+          }
+        },
+        "required": [
+          "start_s",
+          "end_s",
+          "label"
+        ],
+        "title": "Interval",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "recording_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id",
+            "type": "string"
+          },
+          "dataset_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "audio_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Audio Sha256",
+            "type": "string"
+          },
+          "sample_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sample Sha256",
+            "type": "string"
+          },
+          "transcript_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256",
+            "type": "string"
+          },
+          "original_text_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Text Sha256",
+            "type": "string"
+          },
+          "transcript_verified": {
+            "title": "Transcript Verified",
+            "type": "boolean"
+          },
+          "versions": {
+            "additionalProperties": {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Versions",
+            "type": "object"
+          },
+          "implementation_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recording_id",
+          "dataset_version",
+          "audio_sha256",
+          "sample_sha256",
+          "transcript_sha256",
+          "original_text_sha256",
+          "transcript_verified",
+          "versions",
+          "implementation_sha256"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "Resource": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          },
+          "version": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          },
+          "license": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "License",
+            "type": "string"
+          },
+          "source_url": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Source Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "version",
+          "license",
+          "source_url"
+        ],
+        "title": "Resource",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "kind": {
+        "const": "alignment",
+        "default": "alignment",
+        "title": "Kind",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": 1,
+        "default": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "provenance": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "config": {
+        "$ref": "#/$defs/AlignmentConfig"
+      },
+      "duration_s": {
+        "exclusiveMinimum": 0,
+        "title": "Duration S",
+        "type": "number"
+      },
+      "original_text": {
+        "maxLength": 100000,
+        "minLength": 1,
+        "title": "Original Text",
+        "type": "string"
+      },
+      "normalized_tokens": {
+        "items": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "title": "Normalized Tokens",
+        "type": "array"
+      },
+      "token_offsets": {
+        "items": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        "title": "Token Offsets",
+        "type": "array"
+      },
+      "status": {
+        "enum": [
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "timeout"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "words": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Words",
+        "type": "array"
+      },
+      "phones": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Phones",
+        "type": "array"
+      },
+      "diagnostics": {
+        "items": {
+          "$ref": "#/$defs/Diagnostic"
+        },
+        "title": "Diagnostics",
+        "type": "array"
+      },
+      "oov": {
+        "items": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "title": "Oov",
+        "type": "array"
+      },
+      "backend_version": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Backend Version"
+      },
+      "output_sha256": {
+        "anyOf": [
+          {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Output Sha256"
+      },
+      "prepared_audio_sha256": {
+        "anyOf": [
+          {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Prepared Audio Sha256"
+      },
+      "log": {
+        "default": "",
+        "title": "Log",
+        "type": "string"
+      },
+      "timing_uncertainty_s": {
+        "default": null,
+        "title": "Timing Uncertainty S",
+        "type": "null"
+      },
+      "independently_reviewed": {
+        "const": false,
+        "default": false,
+        "title": "Independently Reviewed",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "provenance",
+      "config",
+      "duration_s",
+      "original_text",
+      "normalized_tokens",
+      "token_offsets",
+      "status"
+    ],
+    "title": "AlignmentResult",
+    "type": "object"
+  },
+  "features": {
+    "$defs": {
+      "Diagnostic": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "recovery": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Recovery",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "recovery"
+        ],
+        "title": "Diagnostic",
+        "type": "object"
+      },
+      "FeatureConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithm": {
+            "const": "acoustic-v1",
+            "default": "acoustic-v1",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "sample_rate_hz": {
+            "const": 16000,
+            "default": 16000,
+            "title": "Sample Rate Hz",
+            "type": "integer"
+          },
+          "frame_length": {
+            "const": 400,
+            "default": 400,
+            "title": "Frame Length",
+            "type": "integer"
+          },
+          "hop_length": {
+            "const": 160,
+            "default": 160,
+            "title": "Hop Length",
+            "type": "integer"
+          },
+          "n_fft": {
+            "const": 512,
+            "default": 512,
+            "title": "N Fft",
+            "type": "integer"
+          },
+          "pitch_frame_length": {
+            "const": 1024,
+            "default": 1024,
+            "title": "Pitch Frame Length",
+            "type": "integer"
+          },
+          "fmin_hz": {
+            "default": 60.0,
+            "maximum": 250,
+            "minimum": 60,
+            "title": "Fmin Hz",
+            "type": "number"
+          },
+          "fmax_hz": {
+            "default": 500.0,
+            "maximum": 800,
+            "minimum": 300,
+            "title": "Fmax Hz",
+            "type": "number"
+          },
+          "voicing_threshold": {
+            "default": 0.8,
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Voicing Threshold",
+            "type": "number"
+          },
+          "energy_floor": {
+            "const": 1e-06,
+            "default": 1e-06,
+            "title": "Energy Floor",
+            "type": "number"
+          },
+          "activity_drop_db": {
+            "default": 25.0,
+            "exclusiveMinimum": 0,
+            "maximum": 60,
+            "title": "Activity Drop Db",
+            "type": "number"
+          },
+          "minimum_pause_s": {
+            "default": 0.15,
+            "maximum": 1,
+            "minimum": 0.05,
+            "title": "Minimum Pause S",
+            "type": "number"
+          },
+          "maximum_duration_s": {
+            "default": 30.0,
+            "exclusiveMinimum": 0,
+            "maximum": 30,
+            "title": "Maximum Duration S",
+            "type": "number"
+          }
+        },
+        "title": "FeatureConfig",
+        "type": "object"
+      },
+      "Interval": {
+        "additionalProperties": false,
+        "properties": {
+          "start_s": {
+            "minimum": 0,
+            "title": "Start S",
+            "type": "number"
+          },
+          "end_s": {
+            "exclusiveMinimum": 0,
+            "title": "End S",
+            "type": "number"
+          },
+          "label": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "token_index": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Token Index"
+          }
+        },
+        "required": [
+          "start_s",
+          "end_s",
+          "label"
+        ],
+        "title": "Interval",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "recording_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id",
+            "type": "string"
+          },
+          "dataset_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "audio_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Audio Sha256",
+            "type": "string"
+          },
+          "sample_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sample Sha256",
+            "type": "string"
+          },
+          "transcript_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256",
+            "type": "string"
+          },
+          "original_text_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Text Sha256",
+            "type": "string"
+          },
+          "transcript_verified": {
+            "title": "Transcript Verified",
+            "type": "boolean"
+          },
+          "versions": {
+            "additionalProperties": {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Versions",
+            "type": "object"
+          },
+          "implementation_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recording_id",
+          "dataset_version",
+          "audio_sha256",
+          "sample_sha256",
+          "transcript_sha256",
+          "original_text_sha256",
+          "transcript_verified",
+          "versions",
+          "implementation_sha256"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "QualityReport": {
+        "additionalProperties": false,
+        "properties": {
+          "sample_count": {
+            "exclusiveMinimum": 0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "duration_s": {
+            "exclusiveMinimum": 0,
+            "title": "Duration S",
+            "type": "number"
+          },
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "rms": {
+            "minimum": 0,
+            "title": "Rms",
+            "type": "number"
+          },
+          "peak": {
+            "minimum": 0,
+            "title": "Peak",
+            "type": "number"
+          },
+          "clipping_fraction": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Clipping Fraction",
+            "type": "number"
+          },
+          "flags": {
+            "items": {
+              "maxLength": 100000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "spectral_covered_until_s": {
+            "minimum": 0,
+            "title": "Spectral Covered Until S",
+            "type": "number"
+          },
+          "pitch_covered_until_s": {
+            "minimum": 0,
+            "title": "Pitch Covered Until S",
+            "type": "number"
+          }
+        },
+        "required": [
+          "sample_count",
+          "duration_s",
+          "mean",
+          "rms",
+          "peak",
+          "clipping_fraction",
+          "flags",
+          "spectral_covered_until_s",
+          "pitch_covered_until_s"
+        ],
+        "title": "QualityReport",
+        "type": "object"
+      },
+      "Series": {
+        "additionalProperties": false,
+        "properties": {
+          "unit": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Unit",
+            "type": "string"
+          },
+          "frame_length": {
+            "exclusiveMinimum": 0,
+            "title": "Frame Length",
+            "type": "integer"
+          },
+          "hop_length": {
+            "exclusiveMinimum": 0,
+            "title": "Hop Length",
+            "type": "integer"
+          },
+          "start_samples": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Start Samples",
+            "type": "array"
+          },
+          "times_s": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Times S",
+            "type": "array"
+          },
+          "values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "array"
+          }
+        },
+        "required": [
+          "unit",
+          "frame_length",
+          "hop_length",
+          "start_samples",
+          "times_s",
+          "values"
+        ],
+        "title": "Series",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "kind": {
+        "const": "features",
+        "default": "features",
+        "title": "Kind",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": 1,
+        "default": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "provenance": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "config": {
+        "$ref": "#/$defs/FeatureConfig"
+      },
+      "quality": {
+        "$ref": "#/$defs/QualityReport"
+      },
+      "series": {
+        "additionalProperties": {
+          "$ref": "#/$defs/Series"
+        },
+        "title": "Series",
+        "type": "object"
+      },
+      "frequencies_hz": {
+        "items": {
+          "type": "number"
+        },
+        "title": "Frequencies Hz",
+        "type": "array"
+      },
+      "spectrum_power": {
+        "items": {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "title": "Spectrum Power",
+        "type": "array"
+      },
+      "mfcc": {
+        "items": {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "title": "Mfcc",
+        "type": "array"
+      },
+      "waveform": {
+        "items": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        "title": "Waveform",
+        "type": "array"
+      },
+      "activity": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Activity",
+        "type": "array"
+      },
+      "low_energy": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Low Energy",
+        "type": "array"
+      },
+      "voiced_regions": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Voiced Regions",
+        "type": "array"
+      },
+      "unvoiced_regions": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Unvoiced Regions",
+        "type": "array"
+      },
+      "pauses": {
+        "items": {
+          "$ref": "#/$defs/Interval"
+        },
+        "title": "Pauses",
+        "type": "array"
+      },
+      "alignment_sha256": {
+        "anyOf": [
+          {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Alignment Sha256"
+      },
+      "speaking_rate_wpm": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Speaking Rate Wpm"
+      },
+      "articulation_rate_wpm": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Articulation Rate Wpm"
+      },
+      "rate_unavailable_reason": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Rate Unavailable Reason"
+      },
+      "energy_baseline_dbfs": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Energy Baseline Dbfs"
+      },
+      "pitch_baseline_hz": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Pitch Baseline Hz"
+      },
+      "energy_range_db": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Energy Range Db"
+      },
+      "pitch_range_semitones": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Pitch Range Semitones"
+      },
+      "diagnostics": {
+        "items": {
+          "$ref": "#/$defs/Diagnostic"
+        },
+        "title": "Diagnostics",
+        "type": "array"
+      }
+    },
+    "required": [
+      "provenance",
+      "config",
+      "quality",
+      "series",
+      "frequencies_hz",
+      "spectrum_power",
+      "mfcc",
+      "waveform",
+      "activity",
+      "low_energy",
+      "voiced_regions",
+      "unvoiced_regions",
+      "pauses",
+      "alignment_sha256",
+      "speaking_rate_wpm",
+      "articulation_rate_wpm",
+      "rate_unavailable_reason",
+      "energy_baseline_dbfs",
+      "pitch_baseline_hz",
+      "energy_range_db",
+      "pitch_range_semitones",
+      "diagnostics"
+    ],
+    "title": "FeatureResult",
+    "type": "object"
+  }
+}

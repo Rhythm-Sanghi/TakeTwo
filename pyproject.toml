@@ -14,6 +14,7 @@ dependencies = [
   "soundfile==0.13.1",
   "pydantic==2.11.7",
   "librosa==0.11.0",
+  "threadpoolctl==3.7.0",
 ]
 
 [dependency-groups]
@@ -21,6 +22,7 @@ dev = ["pytest==8.4.1", "ruff==0.12.5"]
 
 [project.scripts]
 taketwo-dataset = "taketwo.dataset.cli:main"
+taketwo-analysis = "taketwo.analysis.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -516,6 +516,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "scipy" },
     { name = "soundfile" },
+    { name = "threadpoolctl" },
 ]
 
 [package.dev-dependencies]
@@ -531,6 +532,7 @@ requires-dist = [
     { name = "pydantic", specifier = "==2.11.7" },
     { name = "scipy", specifier = "==1.15.3" },
     { name = "soundfile", specifier = "==0.13.1" },
+    { name = "threadpoolctl", specifier = "==3.7.0" },
 ]
 
 [package.metadata.requires-dev]
