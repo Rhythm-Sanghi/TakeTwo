@@ -1,0 +1,23 @@
+# Workspace design and interaction
+
+TakeTwo — Speech analysis workspace. React/strict TypeScript/Vite implement the [Workshop + Gridline + Studio Utility tokens](design-system.md). System fonts, 4 px spacing, restrained teal/reference and brown/dashed participant signals, 1 px rules and compact native controls remain consistent. The small feature modules are `App`, `ImportForm`, `Timeline`, `TokenOverlay` and `Evidence`; there is no UI framework, icon pack, animation dependency or dashboard generator.
+
+The four connected areas are Recording Library, Analysis Workspace, Rubric and Evidence, and Dataset and Evaluation. The persistent library/history rail identifies real origin, duration and verification state. Imports collect explicit source, rights, rationale/consent and exact text; a UTF-8 text-file upload is also supported. Imported UI text is always unverified. Pairing occurs only through participant import against an existing reference with identical canonical words/family. Mismatch, invalid media and duplicate content preserve existing files and show backend recovery guidance.
+
+History reopens the original reference/pair and saved artifacts. A fresh run retries a failed/cancelled attempt. Corrections require the documented new-dataset-version workflow; no unsafe metadata editing/deletion button is exposed. Evaluation inventory distinguishes synthetic derivatives, human recordings, machine artifacts and independent review assertions. It does not invent approvals or certify corpus completeness from counts.
+
+## Audio and acoustic tools
+
+Native HTML audio supplies accessible play/pause/volume and supported WAV playback; only one track plays at once. Actual sample min/max envelopes are drawn with a small canvas renderer. Zoom/pan operates on native seconds; seek inputs use sample-resolution steps at 16 kHz. Dragging the waveform selects an interval; numeric start/end fields provide the keyboard alternative. Playhead time/sample and selection duration stay visible. Word buttons seek actual automatic alignment intervals and explicitly label them unreviewed.
+
+Reference and participant have separate native axes and cursors. Selecting a grounded region or boundary event seeks both using its independent contract locations, with no invented silence interval. Previous/next inspection uses real region records. When no reviewed correspondence exists, affected synchronization controls are disabled with an adjacent reason. The matched-word overlay appears only after backend eligibility/review gates pass; it plots backend-computed median normalized energy/pitch on canonical word index, with native word-start seeking and an accessible measurement table. It is not a wall-time overlay or a hidden time warp.
+
+uPlot renders actual windowed RMS, dBFS/relative energy, F0/relative pitch, energy-based activity and spectral centroid. Legends, axes, units, native clocks, frame/hop and aggregation labels accompany charts. Pitch retains null gaps; empty pitch is explicitly unavailable. Aligned pause/rate evidence is shown only when returned by the engine; eligible pacing observations appear in the numeric region inspector. No frontend formula detects or scores flaws.
+
+The inspector shows actual input quality/baselines/frame counts/provenance even during abstention. A selected region displays category, severity, both locations/anchors, original observations, deltas/tolerances/excess/penalty/coverage, normalization, eligibility and deterministic engine explanations. Confidence/timing uncertainty remain unavailable until measured. JSON/CSV exports use the validated backend report; null scores are never replaced with zero.
+
+## Accessibility and limits
+
+Semantic landmarks/headings, labeled forms, real table headers, a skip link, focus outlines, keyboard-native controls, navigation heading focus and polite stage announcements support keyboard and assistive use. Canvas/chart information has numeric seek/selection controls and real data tables. Signals use role names and solid/dashed strokes as well as color. Layout reflows below 1250/800 px; reduced-motion preferences disable optional motion. No pointer-only chart action is required for evidence inspection.
+
+Automated axe, browser keyboard/focus/playback checks and visual screenshots are recorded in [Phase 4 validation](phase4-validation.md). Manual screen-reader listening and complete 200% zoom review remain separate gates until performed. Genuine eligible paired-region inspection also remains dependent on human mirror/transcript/timing collection; software fixtures do not establish real speech accuracy.

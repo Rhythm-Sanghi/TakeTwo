@@ -8,7 +8,7 @@ The interface follows the Workshop + Gridline + Studio Utility design language. 
 
 ## Project status
 
-Phase 0 planning and Phase 1 dataset tooling are implemented. Phase 2 now provides native Windows CPU MFA alignment, transcript/OOV preflight, numerical acoustic features, typed derived artifacts and an analysis CLI. Real public-domain audio has been processed. **Phase 1B and Phase 2 acceptance remain partially complete**: human mirrors, independent transcript/timing review and alignment accuracy evidence are missing. Phase 3 now implements evidence-gated comparison, temporal detectors, rubric scoring, review imports and evaluation tooling. Independent real detection accuracy remains unmeasured; there is no frontend.
+Phase 0–3 planning, dataset, native CPU alignment/acoustic extraction, evidence-gated comparison, rubric and evaluation tools are implemented. Phase 4 adds a local FastAPI/SQLite service and React/TypeScript/Vite workspace: real imports, processing jobs, measured timelines/features, evidence, eligibility, history and exports. Genuine archival audio has passed the browser import-to-MFA-to-report/playback/export workflow. **Acceptance remains partially complete:** a legitimate reviewed human pair, independent timing/detection accuracy, full manual accessibility and crash-orphan recovery remain open. See [Phase 4 validation](docs/phase4-validation.md).
 
 Development must preserve the Track C requirements for contrastive datasets, forced alignment, acoustic feature extraction, temporal grounding, explainable rubric-based scoring, reproducibility, a dashboard and deliverables.
 
@@ -22,7 +22,20 @@ Development must preserve the Track C requirements for contrastive datasets, for
 - [Implementation phases, evidence gates and next step](docs/implementation-roadmap.md)
 - [Risks, mitigations and blockers](docs/risk-register.md)
 
-Selected design: local Python/FastAPI processing, NumPy/SciPy/librosa/soundfile, CPU forced alignment with MFA, SQLite and managed audio storage, and React/TypeScript/Vite. Phase 1 uses manifests instead of a database; its Python dependencies are pinned and locked. scikit-learn is present only as a librosa transitive dependency, with no learned scoring or training. The application service/UI remain future work; Phase 2 records the reviewed MFA model/dictionary licenses.
+Selected stack: local Python/FastAPI/Uvicorn, NumPy/SciPy/librosa/soundfile, CPU MFA, SQLite job history, managed audio files and React/TypeScript/Vite with uPlot. The Phase 1 manifest remains the metadata authority; scientific engines are unchanged. Dependencies are pinned in `uv.lock` and `frontend/package-lock.json`. scikit-learn remains a librosa transitive dependency, with no learned scoring/training. MFA model/dictionary hashes and licenses remain separately recorded.
+
+## Open the local application
+
+```powershell
+uv sync --locked
+npm --prefix frontend ci
+npm --prefix frontend run build
+uv run taketwo-web
+```
+
+Open `http://127.0.0.1:8765`. Python 3.11 and Node 24 are required. The default workspace is `%LOCALAPPDATA%/TakeTwo/workspace`; no recordings are seeded. Set `TAKETWO_ALIGNMENT_CONFIG` to a reviewed local MFA configuration to enable alignment. Without it, actual acoustic inspection remains available with explicit abstention. WAV/FLAC imports support up to 100 MiB/600 s; analysis remains bounded to 30 s.
+
+Read [Windows setup and verification commands](docs/windows-setup.md), [backend API/lifecycle](docs/backend-api.md), [frontend interactions](docs/frontend-workspace.md) and [Phase 4 evidence](docs/phase4-validation.md). `scripts/start-local.ps1` builds and launches locally. Two-terminal development uses `uv run taketwo-web` and `npm --prefix frontend run dev`. No cloud account, CUDA or broker is required.
 
 ## Dataset tools
 
@@ -60,8 +73,8 @@ uv run python scripts/check_repository.py
 
 Commands: `compare`, `detect`, `score`, `evidence`, `import-review`, `inspect`, `validate`, `evaluate`, `export`, `schema`. Exit 3 explicitly marks scientific abstention. Unavailable dimensions never receive perfect scores or redistributed weights. Real input remains blocked by absent human mirrors/reviews; generated fixtures establish software behavior only.
 
-Next, close the human pilot/review gates and independently evaluate alignment/detection. Phase 4 will expose the real typed contracts through the local service and React workspace, preserving Workshop + Gridline + Studio Utility. No Phase 4 implementation belongs in this run. The public paired dataset, dashboard, maximum six-page technical report and 3-10 minute YouTube demonstration remain future deliverables.
+Next, collect consented human mirrors and independent transcript/timing/flaw reviews, then verify a legitimate eligible pair and held-out evaluation. The local dashboard is implemented; complete real-pair acceptance remains unverified. Public dataset/code release, maximum six-page submission report and 3-10 minute YouTube demonstration remain separate future deliverables. Phase 4 does not start final submission work.
 
 ## AI assistance
 
-Codex assisted with the product rename, specification review, Phase 0 technical planning and Phase 1, Phase 2 and Phase 3 implementation/tests, rights-source research and actual CPU runs. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.
+Codex assisted with the product rename, specification review, Phase 0 planning and Phase 1–4 implementation/tests, rights-source research, actual CPU runs and browser verification. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.

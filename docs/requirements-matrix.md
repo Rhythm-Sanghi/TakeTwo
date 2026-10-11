@@ -31,8 +31,8 @@ Status **Planned** means specified here, not implemented or verified. IDs R1a-R4
 | R2b / p2 | Acoustic footprint extraction | FFT, MFCC, F0, energy, rate, pauses / 2 | Actual samples produce documented, unit-bearing features; clarity limitations explicit | Signal fixtures and inspected real contours | Implemented; signal tests and real-audio extraction executed |
 | R3a / p2 | Exact start/end times of significant delivery deviations | Region detector / 3 | Region bounds remain in participant time and link to corresponding reference words | Held-out region IoU and boundary-error results | Detectors/matching implemented; reviewed real accuracy unavailable |
 | R3b / p2 | Structured mathematical rationale for each region | Evidence records / 3 | Explanation identifies feature, reference, participant, signed delta and threshold | Independently recomputed evidence audit | Hand-calculated fixtures pass; independent human audit pending |
-| R4a / p2 | Interactive audio and transcript uploads | API, upload workflow / 4 | Valid pair runs through real engine; invalid files/transcripts return recovery guidance | Browser test with real licensed audio plus error cases | Planned |
-| R4b / p2 | Time-series overlay, highlights and explanations | Comparison workspace / 4 | Reference/participant features share explicit correspondence; clicking a region seeks correct audio | Browser seek tests and manual timeline review | Planned |
+| R4a / p2 | Interactive audio and transcript uploads | API, upload workflow / 4 | Valid pair runs through real engine; invalid files/transcripts return recovery guidance | Browser test with real licensed audio plus error cases | Real source import/processing/browser export verified; legitimate reviewed pair remains open |
+| R4b / p2 | Time-series overlay, highlights and explanations | Comparison workspace / 4 | Reference/participant features share explicit correspondence; clicking a region seeks correct audio | Browser seek tests and manual timeline review | Native waveform/play/seek and feature plots verified; eligible real-pair overlays/regions await human evidence |
 | T1 / p2 | Quality before quantity | Dataset QA / 1 | Exclude ambiguous or unlicensed pairs; publish coverage gaps | Inclusion/exclusion ledger and dataset card | Planned |
 | T2 / p2 | Speaker-agnostic pitch/energy normalization | Comparison engine / 2, 3, 5 | Relative pitch/energy retain dynamics while reducing register/gain dependence | Cross-speaker and gain/register stress tests | Implemented; gain/register fixtures pass; cross-speaker evaluation pending |
 | T3 / p2 | Temporal precision sufficient for explanation | Alignment and detector / 2, 3, 5 | Report timing error and abstain when correspondence is unreliable | Manual boundary audit and uncertainty examples | Eligibility/abstention implemented; manual benchmark pending |
@@ -46,8 +46,12 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 | --- | --- | --- | --- | --- | --- |
 | D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Reviewed release commit and public link | Planned |
 | D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Planned |
-| D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Planned |
+| D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
 | D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | PDF page count and visual/content review | Planned |
 | D5 | 3-10 minute YouTube demonstration | Submission video / 6 | Shows collection, spectrum stress tests and specific caught deviations | Public video link, duration and chapter checklist | Planned |
 
 These engineering documents are working specifications, not the six-page submission report. No official deliverable is marked complete merely because Phase 0 is complete.
+
+## Phase 4 integration evidence
+
+[Phase 4 validation](phase4-validation.md) records the real local service/workspace, actual browser audio import/alignment/extraction/playback/export, typed contracts, software tests and remaining acceptance gates. Local success does not complete public dataset/report/video deliverables or establish independent detection accuracy.

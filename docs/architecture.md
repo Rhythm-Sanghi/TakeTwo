@@ -1,6 +1,6 @@
 # TakeTwo architecture
 
-Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment/acoustic modules are implemented. Native Windows CPU MFA and real-audio extraction have run; independent timing/transcript review remains open. See [analysis engine](analysis-engine.md) and [actual validation](phase2-validation.md). Phase 3 comparison/scoring, review evidence and evaluation are implemented; [contracts and workflow](comparison-engine.md) and [validation](phase3-validation.md) are the current authority. API, database and UI remain planned. Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
+Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment/acoustic modules are implemented. Native Windows CPU MFA and real-audio extraction have run; independent timing/transcript review remains open. See [analysis engine](analysis-engine.md) and [actual validation](phase2-validation.md). Phase 3 comparison/scoring, review evidence and evaluation are implemented; [contracts and workflow](comparison-engine.md) and [validation](phase3-validation.md) are the current authority. Phase 4 now provides the FastAPI service, SQLite job history and React workspace; see [HTTP/lifecycle contracts](backend-api.md), [frontend guide](frontend-workspace.md) and [validation](phase4-validation.md). Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
 
 ## Technology decisions
 
@@ -17,7 +17,7 @@ Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment
 | Storage | Managed local files under `%LOCALAPPDATA%/TakeTwo` | Original audio immutable; derived artifacts removable/rebuildable |
 | Verification | pytest; Vitest + Testing Library; Playwright | Signal/contract tests, accessible interaction tests and real browser workflows |
 
-Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purpose and license inventory is in [dependencies](dependencies.md). No API/frontend/database packages are installed yet. Librosa's transitive scikit-learn dependency is present but unused for learning. Phase 2 locks the aligner environment and model artifacts separately in `environments/`; frontend versions are resolved when that phase starts. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
+Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purpose and license inventory is in [dependencies](dependencies.md). Phase 4 locks FastAPI/Uvicorn/multipart and the React/Vite/TypeScript/uPlot workspace; SQLite uses the Python standard library. Librosa's transitive scikit-learn dependency is present but unused for learning. Phase 2 locks the aligner environment and model artifacts separately in `environments/`; frontend versions are resolved when that phase starts. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
 
 ## Boundaries and data model
 
@@ -25,7 +25,7 @@ Implement cohesive modules only when their phase starts: ingestion, normalizatio
 
 Phase 1 implements `src/taketwo/dataset/`: schema, errors, safe storage, audio ingestion/normalization, controlled transformations, connected-group splitting, validation, workspace operations and CLI. Tests are in `tests/`. It uses one atomically replaced versioned JSONL manifest and managed local audio directories; SQLite is deferred until application sessions need it. The executable contracts and commands are in [dataset engineering](dataset-engineering.md).
 
-SQLite entities: `recordings` (hash, managed path, origin, quality, transcript ID), `transcripts` (original/normalized text and hash), `pairs` (reference/participant IDs), `alignments` (recording, model/config hash, status, artifact path), `analyses` (pair, rubric/config hash, job state), `rubrics` (immutable versioned JSON), `evaluation_runs` (split/config/report hashes). Dataset manifests additionally contain provenance and annotation records defined in the [dataset plan](dataset-plan.md). Foreign keys enforced, schema migrations numbered, writes short and transactional; enable WAL for local readers with a bounded busy timeout. Do not use a network share for the database.
+Phase 4 SQLite persists job requests, states, stages, errors and immutable artifact references in schema version 1, with WAL and a five-second busy timeout. The existing dataset manifest remains authoritative for recordings/transcripts/pairs; comparison/analysis artifacts remain authoritative for science. Avoid duplicate mutable recording tables. See [implemented API/storage decisions](backend-api.md).
 
 Store originals, normalized audio, per-recording alignment JSON, versioned feature JSON (current CLI authority; consider non-pickle array sidecars only if measured size requires them), waveform peaks and report JSON separately. Paths are server-generated IDs, never user-provided filesystem paths. Use atomic file publication followed by the DB transaction; recover orphan temporary files on startup. A canonical analysis identity hashes input bytes, transcript, configuration, code version, rubric and model checksums. Reports include artifact versions and validity, not merely a cached score.
 
@@ -35,7 +35,7 @@ Store originals, normalized audio, per-recording alignment JSON, versioned featu
 
 Manual timing/phrase reviews are separate immutable assertions bound to original automatic alignments. Two independent agreeing reviews are required for grounded comparison; manual boundaries never overwrite the machine artifact. The existing verified-transcript gate remains intact. Full support coverage, local clipping and pitch masks operate per region/dimension. Missing mirrors/reviews yield a valid abstention artifact with null scores, not a simulated report. Numeric evidence can still be inspected independently.
 
-The [comparison schema](comparison-schema-v1.json) defines `Report`, `Review` and `Evaluation`; Phase 4 API/UI adapters must use these contracts. Keep proposed HTTP lifecycle errors separate from scientific abstention and display boundary events without invented intervals. API/database/frontend remain outside Phase 3. Full details and commands are in [the technical guide](comparison-engine.md).
+The [comparison schema](comparison-schema-v1.json) defines `Report`, `Review` and `Evaluation`; Phase 4 API/UI adapters must use these contracts. Keep proposed HTTP lifecycle errors separate from scientific abstention and display boundary events without invented intervals. API/database/frontend remained outside Phase 3; Phase 4 adapts these contracts without modifying the engines. Full details and commands are in [the technical guide](comparison-engine.md).
 
 ## Recording-to-report workflow
 
@@ -54,41 +54,13 @@ Phase 2 selected MFA 3.3.9 with English US ARPA model/dictionary release v3.0.0 
 
 If installation, licensing or accuracy blocks MFA, stop the alignment gate and evaluate another maintained CPU aligner on the same manually timed pilot. Do not silently switch engines or rely on removed TorchAudio alignment APIs. A manually annotated pilot enables independent timing evaluation but does not satisfy the automatic alignment requirement by itself.
 
-Future application execution: run one API process plus one separate spawned engine worker. SQLite tracks queued jobs and stage transitions; the API remains responsive during CPU work. Worker stages are `validating -> aligning -> extracting -> comparing -> scoring`; job states are `queued | running | needs_review | succeeded | failed | cancelled | interrupted`. On restart mark unfinished work `interrupted`; retry creates a new attempt referencing the old one. Cancel at stage boundaries or terminate the isolated aligner subprocess; never publish partial artifacts as successful reports. Serialize heavy jobs, cap thread pools and load only one model at a time. Cache by artifact hashes, not filenames. Target peak total application memory below 6 GB; record peak RSS and real-time factor (wall seconds/audio seconds), with no speed claim before measurement.
+Phase 4 runs one API process, one supervisor thread and at most one disposable CPU worker, with three additional queued jobs. States are `queued | running | completed | failed | cancelled`; interruption is a failed job with an explicit interrupted diagnostic. The parent owns the dataset lock, supervises timeout/cancellation and kills the Windows worker/MFA process tree. Validated completed stages publish atomically and survive later failures. Native-time envelopes and windowed features keep browser payloads bounded. Null scientific scores are valid completed reports.
 
-## Proposed API v1 contracts
+## Implemented API v1
 
-All IDs are opaque strings; timestamps are seconds from the decoded recording origin, intervals `[start_s,end_s)`. JSON is UTF-8; finite numbers only, missing evidence is `null` with a reason. Lists use cursor pagination. OpenAPI/Pydantic become the implementation authority; breaking schema changes increment the API/report version.
+[Backend API](backend-api.md) and generated [OpenAPI](api-v1.json) supersede the Phase 0 proposed endpoint outline. Metadata and exact text arrive with multipart recording import; participant import creates a validated pair. HTTP serves actual original dataset/analysis/comparison models, job lifecycle, byte-range WAV, sample-coordinate waveform windows, bounded feature windows, reviewed-word overlays, policy, persisted evaluations/reviews and safe report downloads. TypeScript contracts are generated from these Python schemas; frontend calculations only format units and navigate time.
 
-| Endpoint | Request | Success response |
-| --- | --- | --- |
-| `GET /api/v1/health` | None | 200: service/schema versions, worker and model availability |
-| `POST /api/v1/transcripts` | JSON `{text, language:"en"}` | 201: `{id, sha256, normalized_text, token_count}` |
-| `GET /api/v1/transcripts/{id}` | None | 200: original/normalized text, token mapping and hash |
-| `POST /api/v1/recordings` | Multipart `audio`, `transcript_id`, `origin` (`source`, `self_recorded`, `synthetic`), optional `channel` | 201: `{id, sha256, duration_s, sample_rate_hz, quality_flags}` |
-| `GET /api/v1/recordings` | Optional cursor | 200: `{items, next_cursor}` |
-| `GET /api/v1/recordings/{id}/audio` | Optional HTTP Range | 200/206: local audio stream with correct media type |
-| `GET /api/v1/recordings/{id}/waveform` | `start_s`, `end_s`, `bins` (max 5000) | 200: interval and min/max sample bins |
-| `POST /api/v1/recordings/{id}/alignments` | Reviewed JSON word intervals, token indices and annotation provenance | 201: validated manual alignment ID; immutable original automatic attempt retained |
-| `POST /api/v1/analyses` | JSON `{reference_id, participant_id, rubric_version, config_version}`; optional reviewed `reference_alignment_id` / `participant_alignment_id` and `Idempotency-Key` | 202: `{id, state, stage, report_id:null}`; identical key/body reuses job |
-| `GET /api/v1/analyses/{id}` | None | 200: `{id, state, stage, error, report_id}` |
-| `POST /api/v1/analyses/{id}/cancel` | None | 202: cancellation requested; terminal jobs return 409 |
-| `POST /api/v1/analyses/{id}/retry` | None | 202: new attempt ID; preserves previous error/evidence |
-| `GET /api/v1/analyses/{id}/report` | None | 200: report below; 409 if not ready |
-| `GET /api/v1/analyses/{id}/features` | `recording_id`, `feature`, `start_s`, `end_s`, `max_points` (max 5000) | 200: `{unit, times_s, values, valid_mask, aggregation}`; only pair members allowed |
-| `GET /api/v1/analyses/{id}/export` | `format=json` or `csv` | 200: downloadable report or region rows, with versions |
-| `GET /api/v1/rubrics/{version}` | None | 200: immutable dimension definitions, weights, thresholds |
-| `GET /api/v1/evaluations` | Optional cursor | 200: actual persisted evaluation summaries, empty until CLI runs |
-| `GET /api/v1/evaluations/{id}` | None | 200: metrics, counts, uncertainty, config and failure inventory |
-| `DELETE /api/v1/recordings/{id}` | None | 204 if unused; 409 with dependent IDs otherwise |
-
-Earlier proposed HTTP report outline (Phase 4 must adapt the implemented [comparison schema](comparison-schema-v1.json), which is authoritative): `{schema_version, analysis_id, input_hashes, transcript_id, transcript_hash, config_hash, model_hashes, rubric_version, recording_quality, alignment_quality, dimensions, overall_score, regions, limitations, reproducibility}`. Each dimension contains `{id, score, coverage, reliability, unavailable_reason}`. Each region contains `{id, kind, dimension, participant_interval, participant_anchor_s, reference_interval, token_range, observation_ids, measurements:[{feature, unit, reference, participant, delta, tolerance, excess}], explanation, suggested_review, reliability, timing_uncertainty_s}`. `kind` is `interval` or `boundary_event`; boundary events have a null participant interval and a valid anchor, rather than a fabricated nonzero silence. Numeric timing uncertainty is null until measured on reviewed data. No example numbers here represent analysis results.
-
-Errors: `{error:{code,message,recovery,field,retryable},request_id}` with 400 malformed input, 404 unknown ID, 409 incompatible state/pair/key, 413 size limit, 415 unsupported format, 422 invalid audio/text/config and 503 unavailable worker/model. Background failures use the same structure in job status. Frontend polls job state; progress is a named stage, not a fabricated percentage. Validate origin metadata independently before public dataset inclusion.
-
-Optional imported alignment IDs must match the current recording/transcript hashes and pass interval validation. Without them, the job runs automatic alignment. Any manually recovered report records that origin; evaluation separates automatic and manually assisted runs. Retry can reference corrected transcript/recording IDs through a new analysis request, preserving the failed attempt.
-
-Bind to loopback by default, restrict CORS to the local UI origin, require same-origin mutation requests in the bundled app, reject arbitrary file paths/URLs and escape transcript text. No telemetry or uploaded audio leaves the device. Public hosting/authentication is outside the initial architecture.
+The launcher binds loopback, restricts browser origins/hosts, validates media using actual content and the existing managed-path safeguards, limits resource use and exposes no arbitrary filesystem/model/command/URL API. No private audio/transcript telemetry is added. Abrupt crash-orphan lock recovery and authenticated human review remain explicit limitations. See [Windows operation/recovery](windows-setup.md).
 
 ## Evaluation and reproducibility
 

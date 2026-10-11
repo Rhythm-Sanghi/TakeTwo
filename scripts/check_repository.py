@@ -2,6 +2,7 @@
 
 import json
 import re
+import runpy
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -40,6 +41,7 @@ def main():
             "features": FeatureResult.model_json_schema(),
         },
         "comparison-schema-v1.json": schema(),
+        "api-v1.json": runpy.run_path(str(ROOT / "scripts/export_api.py"))["contract"](),
     }
     for name, contract in expected.items():
         saved = json.loads((ROOT / "docs" / name).read_text(encoding="utf-8"))
