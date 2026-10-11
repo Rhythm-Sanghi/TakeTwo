@@ -52,3 +52,7 @@ These hashes identify local software-test artifacts, not a released dataset. Sam
 Acquire two documented real public-speech references, clear adaptation/public release rights, independently verify transcripts, recruit consented split-disjoint mirror speakers and annotate near-perfect/severe human deliveries. A candidate archive was researched, but no rights clearance, download, reviewer approval or dataset completion is claimed.
 
 After that pilot and a separate instruction, Phase 2 should install/lock a compatible native Windows CPU MFA environment and licensed English model/dictionary, implement transcript/OOV preflight and bounded CLI execution, produce validated word/phone intervals, preserve failed attempts and compare boundaries with independently timed audio. No dashboard, feature-scoring engine or model training belongs in that step.
+
+## Later continuation
+
+The evidence above is historical to Phase 1. Phase 1B/2 development from `cb0dbd7` is recorded in [Phase 2 validation](phase2-validation.md); its authorized scope includes acoustic extraction alongside alignment despite the earlier roadmap numbering. The original 114 tests are preserved.

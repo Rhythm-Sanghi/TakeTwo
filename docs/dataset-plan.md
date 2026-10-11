@@ -1,6 +1,6 @@
 # TakeTwo dataset plan
 
-Status: the Phase 1 import/transformation/annotation/split/validation pipeline is implemented; see the [dataset-engineering guide](dataset-engineering.md) and [schema](dataset-schema-v1.json). No competition recordings, rights clearances, independent labels or dataset statistics have been collected. Quality and public redistribution rights determine inclusion; the target below is not a claim of available data.
+Status: the Phase 1 import/transformation/annotation/split/validation pipeline is implemented; see the [dataset-engineering guide](dataset-engineering.md) and [schema](dataset-schema-v1.json). Two genuine public-domain masters have now been acquired and one draft reference candidate imported; see [pilot collection](pilot-collection.md). Human mirrors, independent labels and a releasable competition corpus remain missing. Quality and public redistribution rights determine inclusion; the target below is not a claim of available data.
 
 ## Compact acquisition target
 
@@ -8,7 +8,7 @@ Aim for 12 independent public-speech excerpt families, each 20-60 seconds, from 
 
 For each family, target one real source reference, one near-perfect human re-recording, three human flawed re-recordings (mild, moderate, severe) and two controlled synthetic alterations: up to 84 files overall. Rotate the dominant flaw among pacing, pause behavior, energy variation and pitch dynamics, balancing categories across splits as far as the small corpus permits. Coverage is reported by dimension/severity/origin; missing cells remain visible. Add more samples only to close important gaps. Separate real and synthetic evaluation tables; a strong synthetic result cannot substitute for human-delivery performance.
 
-Acquire baseline candidates from original publisher/rights-holder archives or explicitly licensed collections. Do not assume a public web page, famous speech, government context or download button grants recording/transcript adaptation and redistribution rights. For each item obtain and archive explicit terms or permission covering the recording, words, excerpts, modifications and public release; record attribution and restrictions. Reject unresolved, no-derivative or incompatible assets. Prefer clearly reusable permissions with attribution that can be met, or direct written permission. No particular candidate is cleared yet. If no effective public-speaker reference can be released, that is an official dataset blocker; self-recordings alone do not silently replace R1a.
+Acquire baseline candidates from original publisher/rights-holder archives or explicitly licensed collections. Do not assume a public web page, famous speech, government context or download button grants recording/transcript adaptation and redistribution rights. For each item obtain and archive explicit terms or permission covering the recording, words, excerpts, modifications and public release; record attribution and restrictions. Reject unresolved, no-derivative or incompatible assets. Prefer clearly reusable permissions with attribution that can be met, or direct written permission. Current item-specific acquisition evidence is in [pilot collection](pilot-collection.md); do not generalize it to other archive items. If no effective public-speaker reference can be released, that is an official dataset blocker; self-recordings alone do not silently replace R1a.
 
 Human mirrors: recruit consenting adults to read the identical verified excerpt, with explicit permission for recording, annotation and public dataset release. Use pseudonymous speaker IDs, retain consent evidence privately and publish only permitted metadata. Recruit distinct mirror speakers for each split, with more than one mirror voice per split where feasible. Record near-perfect and deliberately altered performances without impersonation claims. Human labelers, not scripts, confirm the intended flaw is actually audible and localized.
 
@@ -22,7 +22,7 @@ Controlled alterations may insert a bounded pause, change local tempo while pres
 
 ## Manifest and annotation contracts
 
-The table below is the semantic plan. Phase 1 implements version 1 JSONL rows with nested source/transcript/processing records as documented in the engineering guide. Alignment records remain Phase 2 work. The implementation retains the provenance and review distinctions here; it does not fabricate alignment labels.
+The table below is the semantic plan. Phase 1 implements version 1 JSONL rows with nested source/transcript/processing records as documented in the engineering guide. Phase 2 implements separately versioned alignment artifacts without modifying the dataset v1 schema; see [analysis engine](analysis-engine.md). The implementation retains the provenance and review distinctions here; it does not fabricate alignment labels.
 
 Use UTF-8 JSONL manifests, JSON annotation files and CSV coverage summaries. Reject unknown versions, missing provenance and invalid intervals. Times are seconds, half-open `[start_s,end_s)`, in the specified recording's own decoded timeline.
 

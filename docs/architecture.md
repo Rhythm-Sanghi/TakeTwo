@@ -1,6 +1,6 @@
 # TakeTwo architecture
 
-Speech analysis workspace. Status: Phase 1 dataset modules and CLI are implemented and tested on native Windows; the API, database, alignment, analysis and UI layers below remain planned. No aligner/resource compatibility benchmark has been executed. Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
+Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment/acoustic modules are implemented. Native Windows CPU MFA and real-audio extraction have run; independent timing/transcript review remains open. See [analysis engine](analysis-engine.md) and [actual validation](phase2-validation.md). API, database, comparison/scoring and UI remain planned. Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
 
 ## Technology decisions
 
@@ -11,13 +11,13 @@ Speech analysis workspace. Status: Phase 1 dataset modules and CLI are implement
 | Numerics | NumPy and SciPy | Arrays, FFT, resampling and signal/statistical calculations |
 | Acoustic features | librosa | MFCCs and pitch estimation; benchmark pYIN CPU cost before committing to clip limits |
 | Evaluation | NumPy/SciPy; defer scikit-learn | Deterministic metrics need no learned model; add scikit-learn only if grouped calibration/classification later needs it |
-| Alignment | Montreal Forced Aligner (MFA), separate Conda/Miniforge environment | CPU-first dictionary/acoustic alignment; native Windows installation/model gate in Phase 2 |
+| Alignment | Montreal Forced Aligner (MFA), separate Conda/Miniforge environment | CPU-first dictionary/acoustic alignment; native execution verified, independent timing gate remains open |
 | UI | React, TypeScript, Vite | Local interactive workspace needs no SSR; CSS tokens, native audio, canvas waveform with accessible DOM controls |
 | Metadata | Python sqlite3, SQL migrations | Local single-user persistence with no server or ORM requirement |
 | Storage | Managed local files under `%LOCALAPPDATA%/TakeTwo` | Original audio immutable; derived artifacts removable/rebuildable |
 | Verification | pytest; Vitest + Testing Library; Playwright | Signal/contract tests, accessible interaction tests and real browser workflows |
 
-Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purpose and license inventory is in [dependencies](dependencies.md). No API/frontend/database packages are installed yet. Librosa's transitive scikit-learn dependency is present but unused for learning. Phase 2 will lock the aligner environment and model artifacts separately; frontend versions are resolved when that phase starts. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
+Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purpose and license inventory is in [dependencies](dependencies.md). No API/frontend/database packages are installed yet. Librosa's transitive scikit-learn dependency is present but unused for learning. Phase 2 locks the aligner environment and model artifacts separately in `environments/`; frontend versions are resolved when that phase starts. No paid API, CUDA, cloud inference, message broker or external database is required. Avoid introducing a waveform library until native audio/canvas interaction is shown to be insufficient.
 
 ## Boundaries and data model
 
@@ -42,11 +42,11 @@ Store originals, normalized audio, per-recording alignment JSON, feature arrays 
 
 ## Alignment and Windows execution
 
-Choose MFA with a compatible English pretrained acoustic model and pronunciation dictionary, subject to model-license review and a successful native Windows smoke test. Invoke the locked CLI via argument arrays, never a shell-interpolated command. Use one isolated job directory; capture command/version, logs, timeout and output hashes. Start with one alignment job at a time and at most two CPU subprocesses. Pin the command signature as well as artifacts because upstream model formats/CLI are changing. No automatic model downloads during analysis.
+Phase 2 selected MFA 3.3.9 with English US ARPA model/dictionary release v3.0.0 (CC BY 4.0), verified in native Windows smoke runs. Independent manual timing evaluation remains open. Invoke the locked CLI via argument arrays, never a shell-interpolated command. Use one isolated job directory; capture command/version, logs, timeout and output hashes. Start with one alignment job at a time and at most two CPU subprocesses. Pin the command signature as well as artifacts because upstream model formats/CLI are changing. No automatic model downloads during analysis.
 
 If installation, licensing or accuracy blocks MFA, stop the alignment gate and evaluate another maintained CPU aligner on the same manually timed pilot. Do not silently switch engines or rely on removed TorchAudio alignment APIs. A manually annotated pilot enables independent timing evaluation but does not satisfy the automatic alignment requirement by itself.
 
-Run one API process plus one separate spawned engine worker. SQLite tracks queued jobs and stage transitions; the API remains responsive during CPU work. Worker stages are `validating -> aligning -> extracting -> comparing -> scoring`; job states are `queued | running | needs_review | succeeded | failed | cancelled | interrupted`. On restart mark unfinished work `interrupted`; retry creates a new attempt referencing the old one. Cancel at stage boundaries or terminate the isolated aligner subprocess; never publish partial artifacts as successful reports. Serialize heavy jobs, cap thread pools and load only one model at a time. Cache by artifact hashes, not filenames. Target peak total application memory below 6 GB; record peak RSS and real-time factor (wall seconds/audio seconds), with no speed claim before measurement.
+Future application execution: run one API process plus one separate spawned engine worker. SQLite tracks queued jobs and stage transitions; the API remains responsive during CPU work. Worker stages are `validating -> aligning -> extracting -> comparing -> scoring`; job states are `queued | running | needs_review | succeeded | failed | cancelled | interrupted`. On restart mark unfinished work `interrupted`; retry creates a new attempt referencing the old one. Cancel at stage boundaries or terminate the isolated aligner subprocess; never publish partial artifacts as successful reports. Serialize heavy jobs, cap thread pools and load only one model at a time. Cache by artifact hashes, not filenames. Target peak total application memory below 6 GB; record peak RSS and real-time factor (wall seconds/audio seconds), with no speed claim before measurement.
 
 ## Proposed API v1 contracts
 
@@ -88,7 +88,7 @@ The evaluation CLI reads a frozen split manifest and uses exactly the production
 
 ## Primary technical references
 
-Reviewed 2026-10-11. These inform the design; installation and benchmarking remain pending.
+Reviewed 2026-10-11. These inform the design; actual installed versions and limited CPU measurements are recorded separately in the Phase 2 evidence.
 
 - [FastAPI background-task guidance](https://fastapi.tiangolo.com/tutorial/background-tasks/): heavy computation motivates a separate worker.
 - [MFA installation](https://montreal-forced-aligner.readthedocs.io/en/stable/installation.html) and [alignment workflow](https://montreal-forced-aligner.readthedocs.io/en/stable/user_guide/workflows/alignment.html): isolated Conda environment, model inputs and version-sensitive CLI.

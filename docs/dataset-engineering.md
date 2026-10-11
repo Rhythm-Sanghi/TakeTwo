@@ -1,6 +1,6 @@
 # TakeTwo dataset engineering (Phase 1)
 
-Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **not acquired, independently annotated or ready for publication**. No frontend, forced aligner, learned model or speech-scoring engine is included. [Dataset strategy](dataset-plan.md) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
+Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **incomplete, not independently annotated or ready for publication**. This guide describes the dataset tools. Phase 2 alignment/acoustic tools are documented separately in [analysis engine](analysis-engine.md); no frontend or speech-scoring engine exists. [Dataset strategy](dataset-plan.md) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
 
 ## Install and verify on Windows
 
@@ -139,7 +139,7 @@ Mutations use an exclusive workspace lock and atomic manifest replacement; faile
 
 ## Acquisition status and next action
 
-No rights-cleared reference, consented mirror, independent transcript review or public dataset has been acquired. Automated tests and CLI smoke runs use explicitly labeled generated signal fixtures outside the competition dataset. They establish software behavior only.
+Phase 1 initially had no cleared reference. Phase 1B now has two public-domain source masters and one imported draft candidate; see [pilot collection](pilot-collection.md). No consented mirror, independent transcript review or public dataset exists. Automated tests and CLI smoke runs use explicitly labeled generated signal fixtures outside the competition dataset. They establish software behavior only.
 
 The [FDR Presidential Library audio index](https://www.fdrlibrary.org/utterancesfdr) was inspected as an acquisition lead. Its MP3 downloads and general reference-use notice do not by themselves clear a particular recording for adaptation/public dataset release. No asset was downloaded or marked cleared; obtain item-specific terms/permission and a supported archival WAV/FLAC or document a reviewed external conversion separately. No MP3 dependency was added.
 

@@ -1,4 +1,4 @@
-# Phase 1 dependency inventory
+# TakeTwo dependency inventory
 
 `pyproject.toml` pins direct versions and `uv.lock` locks the full transitive resolution and wheel hashes. Tested interpreter: CPython 3.11.9, native Windows. Python 3.11 is currently the supported minor version. Install with `uv sync --locked`; do not update the lock as part of a normal dataset build.
 
