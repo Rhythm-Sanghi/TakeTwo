@@ -1,0 +1,4680 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TakeTwo",
+    "description": "Speech analysis workspace",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings": {
+      "get": {
+        "summary": "Recordings",
+        "operationId": "recordings_api_v1_recordings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Recording"
+                  },
+                  "type": "array",
+                  "title": "Response Recordings Api V1 Recordings Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Upload",
+        "operationId": "upload_api_v1_recordings_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_api_v1_recordings_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recording"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings/{rid}": {
+      "get": {
+        "summary": "Detail",
+        "operationId": "detail_api_v1_recordings__rid__get",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recording"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings/{rid}/transcript": {
+      "get": {
+        "summary": "Transcript",
+        "operationId": "transcript_api_v1_recordings__rid__transcript_get",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transcript"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pairs": {
+      "get": {
+        "summary": "Pairs",
+        "operationId": "pairs_api_v1_pairs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Pair"
+                  },
+                  "type": "array",
+                  "title": "Response Pairs Api V1 Pairs Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings/{rid}/audio": {
+      "get": {
+        "summary": "Audio",
+        "operationId": "audio_api_v1_recordings__rid__audio_get",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings/{rid}/waveform": {
+      "get": {
+        "summary": "Waveform",
+        "operationId": "waveform_api_v1_recordings__rid__waveform_get",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          },
+          {
+            "name": "start_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 600,
+              "minimum": 0,
+              "default": 0,
+              "title": "Start S"
+            }
+          },
+          {
+            "name": "end_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 600,
+              "exclusiveMinimum": 0,
+              "default": 600,
+              "title": "End S"
+            }
+          },
+          {
+            "name": "bins",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Bins"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Waveform"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses": {
+      "get": {
+        "summary": "History",
+        "operationId": "history_api_v1_analyses_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  },
+                  "type": "array",
+                  "title": "Response History Api V1 Analyses Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit",
+        "operationId": "submit_api_v1_analyses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}": {
+      "get": {
+        "summary": "Status",
+        "operationId": "status_api_v1_analyses__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/cancel": {
+      "post": {
+        "summary": "Cancel",
+        "operationId": "cancel_api_v1_analyses__job_id__cancel_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/report": {
+      "get": {
+        "summary": "Get Report",
+        "operationId": "get_report_api_v1_analyses__job_id__report_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/alignments/{rid}": {
+      "get": {
+        "summary": "Alignment",
+        "operationId": "alignment_api_v1_analyses__job_id__alignments__rid__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlignmentResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/features/{rid}": {
+      "get": {
+        "summary": "Features",
+        "operationId": "features_api_v1_analyses__job_id__features__rid__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "rms",
+              "title": "Name"
+            }
+          },
+          {
+            "name": "start_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0,
+              "title": "Start S"
+            }
+          },
+          {
+            "name": "end_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 600,
+              "exclusiveMinimum": 0,
+              "default": 600,
+              "title": "End S"
+            }
+          },
+          {
+            "name": "max_points",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5000,
+              "minimum": 3,
+              "default": 1200,
+              "title": "Max Points"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureWindow"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rubrics/delivery-v0": {
+      "get": {
+        "summary": "Rubric",
+        "operationId": "rubric_api_v1_rubrics_delivery_v0_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/overlay": {
+      "get": {
+        "summary": "Overlay",
+        "operationId": "overlay_api_v1_analyses__job_id__overlay_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "relative_energy",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evaluations": {
+      "get": {
+        "summary": "Evaluations",
+        "operationId": "evaluations_api_v1_evaluations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Evaluation"
+                  },
+                  "type": "array",
+                  "title": "Response Evaluations Api V1 Evaluations Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "get": {
+        "summary": "Reviews",
+        "operationId": "reviews_api_v1_reviews_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  },
+                  "type": "array",
+                  "title": "Response Reviews Api V1 Reviews Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dataset": {
+      "get": {
+        "summary": "Dataset Summary",
+        "operationId": "dataset_summary_api_v1_dataset_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/export": {
+      "get": {
+        "summary": "Export",
+        "operationId": "export_api_v1_analyses__job_id__export_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "json",
+              "title": "Format"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlignmentConfig": {
+        "properties": {
+          "backend": {
+            "type": "string",
+            "const": "mfa",
+            "title": "Backend",
+            "default": "mfa"
+          },
+          "command": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Command"
+          },
+          "expected_version": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Expected Version"
+          },
+          "model": {
+            "$ref": "#/components/schemas/Resource"
+          },
+          "dictionary": {
+            "$ref": "#/components/schemas/Resource"
+          },
+          "timeout_s": {
+            "type": "number",
+            "maximum": 1800.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Timeout S",
+            "default": 120.0
+          },
+          "replacements": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Replacements"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command",
+          "expected_version",
+          "model",
+          "dictionary"
+        ],
+        "title": "AlignmentConfig"
+      },
+      "AlignmentResult": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "alignment",
+            "title": "Kind",
+            "default": "alignment"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__analysis__contracts__Provenance"
+          },
+          "config": {
+            "$ref": "#/components/schemas/AlignmentConfig"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "original_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Original Text"
+          },
+          "normalized_tokens": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Normalized Tokens"
+          },
+          "token_offsets": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Token Offsets"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "succeeded",
+              "partial",
+              "failed",
+              "cancelled",
+              "timeout"
+            ],
+            "title": "Status"
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Words"
+          },
+          "phones": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Phones"
+          },
+          "diagnostics": {
+            "items": {
+              "$ref": "#/components/schemas/Diagnostic"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          },
+          "oov": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Oov"
+          },
+          "backend_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backend Version"
+          },
+          "output_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Sha256"
+          },
+          "prepared_audio_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prepared Audio Sha256"
+          },
+          "log": {
+            "type": "string",
+            "title": "Log",
+            "default": ""
+          },
+          "timing_uncertainty_s": {
+            "type": "null",
+            "title": "Timing Uncertainty S"
+          },
+          "independently_reviewed": {
+            "type": "boolean",
+            "const": false,
+            "title": "Independently Reviewed",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provenance",
+          "config",
+          "duration_s",
+          "original_text",
+          "normalized_tokens",
+          "token_offsets",
+          "status"
+        ],
+        "title": "AlignmentResult"
+      },
+      "AnalysisRequest": {
+        "properties": {
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reference Id"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "align": {
+            "type": "boolean",
+            "title": "Align",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reference_id"
+        ],
+        "title": "AnalysisRequest"
+      },
+      "ArtifactRef": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Path"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "title": "ArtifactRef"
+      },
+      "AudioInfo": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "WAV",
+              "FLAC"
+            ],
+            "title": "Format"
+          },
+          "subtype": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Subtype"
+          },
+          "sample_rate_hz": {
+            "type": "integer",
+            "maximum": 96000.0,
+            "minimum": 8000.0,
+            "title": "Sample Rate Hz"
+          },
+          "channels": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "title": "Channels"
+          },
+          "frames": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Frames"
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 600.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "rms_dbfs": {
+            "type": "number",
+            "title": "Rms Dbfs"
+          },
+          "peak": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Peak"
+          },
+          "clipping_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Clipping Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "format",
+          "subtype",
+          "sample_rate_hz",
+          "channels",
+          "frames",
+          "duration_s",
+          "rms_dbfs",
+          "peak",
+          "clipping_fraction"
+        ],
+        "title": "AudioInfo"
+      },
+      "Body_upload_api_v1_recordings_post": {
+        "properties": {
+          "audio": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Audio"
+          },
+          "metadata": {
+            "type": "string",
+            "maxLength": 1000000,
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio",
+          "metadata"
+        ],
+        "title": "Body_upload_api_v1_recordings_post"
+      },
+      "DatasetSummary": {
+        "properties": {
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "recordings": {
+            "type": "integer",
+            "title": "Recordings"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "annotations": {
+            "type": "integer",
+            "title": "Annotations"
+          },
+          "origins": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Origins"
+          },
+          "annotation_review": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Annotation Review"
+          },
+          "severity": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Severity"
+          },
+          "split": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SplitReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "competition_dataset_complete": {
+            "type": "boolean",
+            "const": false,
+            "title": "Competition Dataset Complete",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dataset_version",
+          "recordings",
+          "pairs",
+          "annotations",
+          "origins",
+          "annotation_review",
+          "severity",
+          "split"
+        ],
+        "title": "DatasetSummary"
+      },
+      "Diagnostic": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "recovery": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Recovery"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "recovery"
+        ],
+        "title": "Diagnostic"
+      },
+      "DimensionScore": {
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Dimension"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "eligible_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Eligible Count"
+          },
+          "expected_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Count"
+          },
+          "coverage": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Coverage"
+          },
+          "eligible_weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Eligible Weight"
+          },
+          "expected_weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Expected Weight"
+          },
+          "weighted_penalty": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Weighted Penalty"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dimension",
+          "score",
+          "eligible_count",
+          "expected_count",
+          "coverage",
+          "eligible_weight",
+          "expected_weight",
+          "weighted_penalty",
+          "reasons"
+        ],
+        "title": "DimensionScore"
+      },
+      "Eligibility": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "ELIGIBLE",
+              "PARTIALLY_ELIGIBLE",
+              "INELIGIBLE",
+              "REVIEW_REQUIRED"
+            ],
+            "title": "State"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "Eligibility"
+      },
+      "Evaluation": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "evaluation",
+            "title": "Kind",
+            "default": "evaluation"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "config": {
+            "$ref": "#/components/schemas/EvaluationConfig"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Dataset Sha256"
+          },
+          "report_sha256": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "type": "array",
+            "title": "Report Sha256"
+          },
+          "review_sha256": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "type": "array",
+            "title": "Review Sha256"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/Eligibility"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "human",
+              "synthetic",
+              "unavailable"
+            ],
+            "title": "Origin"
+          },
+          "independent_real_validation": {
+            "type": "boolean",
+            "title": "Independent Real Validation"
+          },
+          "policy_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Sha256"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interval_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "boundary_event_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "by_category": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Metrics"
+            },
+            "propertyNames": {
+              "enum": [
+                "pacing",
+                "pause_behavior",
+                "energy_variation",
+                "pitch_dynamics"
+              ]
+            },
+            "type": "object",
+            "title": "By Category"
+          },
+          "by_severity": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Metrics"
+            },
+            "type": "object",
+            "title": "By Severity"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/Match"
+            },
+            "type": "array",
+            "title": "Matches"
+          },
+          "false_positive_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "False Positive Ids"
+          },
+          "false_negative_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "False Negative Ids"
+          },
+          "family_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "Family Ids"
+          },
+          "clean_reviewed_duration_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clean Reviewed Duration S"
+          },
+          "false_flags_in_clean_spans": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "False Flags In Clean Spans"
+          },
+          "false_flags_per_clean_minute": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "False Flags Per Clean Minute"
+          },
+          "severity_spearman": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": -1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Spearman"
+          },
+          "severity_matched_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Severity Matched Count"
+          },
+          "uncertainty": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Uncertainty"
+          },
+          "limitations": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "config",
+          "implementation_sha256",
+          "dataset_sha256",
+          "report_sha256",
+          "review_sha256",
+          "eligibility",
+          "origin",
+          "independent_real_validation",
+          "policy_sha256",
+          "metrics",
+          "interval_metrics",
+          "boundary_event_metrics",
+          "by_category",
+          "by_severity",
+          "matches",
+          "false_positive_ids",
+          "false_negative_ids",
+          "family_ids",
+          "clean_reviewed_duration_s",
+          "false_flags_in_clean_spans",
+          "false_flags_per_clean_minute",
+          "severity_spearman",
+          "severity_matched_count",
+          "uncertainty",
+          "limitations"
+        ],
+        "title": "Evaluation"
+      },
+      "EvaluationConfig": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "pilot",
+              "held_out",
+              "software_fixture"
+            ],
+            "title": "Mode",
+            "default": "pilot"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "validation",
+              "test"
+            ],
+            "title": "Split",
+            "default": "test"
+          },
+          "iou_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Iou Threshold",
+            "default": 0.5
+          },
+          "boundary_tolerance_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Boundary Tolerance S",
+            "default": 0.2
+          },
+          "bootstrap_resamples": {
+            "type": "integer",
+            "const": 1000,
+            "title": "Bootstrap Resamples",
+            "default": 1000
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "default": 17
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EvaluationConfig"
+      },
+      "Explanation": {
+        "properties": {
+          "technical": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Technical"
+          },
+          "plain": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Plain"
+          },
+          "suggested_review": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Suggested Review"
+          },
+          "causal_scope": {
+            "type": "string",
+            "const": "calculation_only",
+            "title": "Causal Scope",
+            "default": "calculation_only"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "technical",
+          "plain",
+          "suggested_review"
+        ],
+        "title": "Explanation"
+      },
+      "FeatureConfig": {
+        "properties": {
+          "algorithm": {
+            "type": "string",
+            "const": "acoustic-v1",
+            "title": "Algorithm",
+            "default": "acoustic-v1"
+          },
+          "sample_rate_hz": {
+            "type": "integer",
+            "const": 16000,
+            "title": "Sample Rate Hz",
+            "default": 16000
+          },
+          "frame_length": {
+            "type": "integer",
+            "const": 400,
+            "title": "Frame Length",
+            "default": 400
+          },
+          "hop_length": {
+            "type": "integer",
+            "const": 160,
+            "title": "Hop Length",
+            "default": 160
+          },
+          "n_fft": {
+            "type": "integer",
+            "const": 512,
+            "title": "N Fft",
+            "default": 512
+          },
+          "pitch_frame_length": {
+            "type": "integer",
+            "const": 1024,
+            "title": "Pitch Frame Length",
+            "default": 1024
+          },
+          "fmin_hz": {
+            "type": "number",
+            "maximum": 250.0,
+            "minimum": 60.0,
+            "title": "Fmin Hz",
+            "default": 60.0
+          },
+          "fmax_hz": {
+            "type": "number",
+            "maximum": 800.0,
+            "minimum": 300.0,
+            "title": "Fmax Hz",
+            "default": 500.0
+          },
+          "voicing_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Voicing Threshold",
+            "default": 0.8
+          },
+          "energy_floor": {
+            "type": "number",
+            "const": 1e-06,
+            "title": "Energy Floor",
+            "default": 1e-06
+          },
+          "activity_drop_db": {
+            "type": "number",
+            "maximum": 60.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Activity Drop Db",
+            "default": 25.0
+          },
+          "minimum_pause_s": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.05,
+            "title": "Minimum Pause S",
+            "default": 0.15
+          },
+          "maximum_duration_s": {
+            "type": "number",
+            "maximum": 30.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Maximum Duration S",
+            "default": 30.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FeatureConfig"
+      },
+      "FeatureWindow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "frame_length": {
+            "type": "integer",
+            "title": "Frame Length"
+          },
+          "hop_length": {
+            "type": "integer",
+            "title": "Hop Length"
+          },
+          "sample_rate_hz": {
+            "type": "integer",
+            "const": 16000,
+            "title": "Sample Rate Hz",
+            "default": 16000
+          },
+          "aggregation": {
+            "type": "string",
+            "enum": [
+              "native_frames",
+              "min_max_with_gap_markers"
+            ],
+            "title": "Aggregation"
+          },
+          "times_s": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Times S"
+          },
+          "values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Values"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityReport"
+          },
+          "pauses": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Pauses"
+          },
+          "speaking_rate_wpm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaking Rate Wpm"
+          },
+          "rate_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Unavailable Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "frame_length",
+          "hop_length",
+          "aggregation",
+          "times_s",
+          "values",
+          "quality",
+          "pauses",
+          "speaking_rate_wpm",
+          "rate_unavailable_reason"
+        ],
+        "title": "FeatureWindow"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "product": {
+            "type": "string",
+            "const": "TakeTwo",
+            "title": "Product",
+            "default": "TakeTwo"
+          },
+          "description": {
+            "type": "string",
+            "const": "Speech analysis workspace",
+            "title": "Description",
+            "default": "Speech analysis workspace"
+          },
+          "api_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Api Version",
+            "default": 1
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "alignment_configured": {
+            "type": "boolean",
+            "title": "Alignment Configured"
+          },
+          "alignment_diagnostics": {
+            "items": {
+              "$ref": "#/components/schemas/Diagnostic"
+            },
+            "type": "array",
+            "title": "Alignment Diagnostics"
+          },
+          "maximum_analysis_duration_s": {
+            "type": "integer",
+            "const": 30,
+            "title": "Maximum Analysis Duration S",
+            "default": 30
+          },
+          "maximum_upload_bytes": {
+            "type": "integer",
+            "const": 104857600,
+            "title": "Maximum Upload Bytes",
+            "default": 104857600
+          },
+          "worker_concurrency": {
+            "type": "integer",
+            "const": 1,
+            "title": "Worker Concurrency",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ready",
+          "alignment_configured",
+          "alignment_diagnostics"
+        ],
+        "title": "Health"
+      },
+      "InputEvidence": {
+        "properties": {
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__analysis__contracts__Provenance"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "source",
+              "self_recorded",
+              "synthetic"
+            ],
+            "title": "Origin"
+          },
+          "family_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Family Id"
+          },
+          "speaker_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Speaker Id"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "features": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "alignment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviews": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "type": "array",
+            "title": "Reviews"
+          },
+          "feature_config": {
+            "$ref": "#/components/schemas/FeatureConfig"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityReport"
+          },
+          "energy_baseline_dbfs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Baseline Dbfs"
+          },
+          "pitch_baseline_hz": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch Baseline Hz"
+          },
+          "spectral_frame_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Spectral Frame Count"
+          },
+          "pitch_valid_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pitch Valid Fraction"
+          },
+          "speaking_rate_wpm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaking Rate Wpm"
+          },
+          "articulation_rate_wpm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Articulation Rate Wpm"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provenance",
+          "origin",
+          "family_id",
+          "speaker_id",
+          "duration_s",
+          "features",
+          "alignment",
+          "reviews",
+          "feature_config",
+          "quality",
+          "energy_baseline_dbfs",
+          "pitch_baseline_hz",
+          "spectral_frame_count",
+          "pitch_valid_fraction",
+          "speaking_rate_wpm",
+          "articulation_rate_wpm"
+        ],
+        "title": "InputEvidence"
+      },
+      "Interval": {
+        "properties": {
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "token_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Index"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s",
+          "label"
+        ],
+        "title": "Interval"
+      },
+      "Job": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "request": {
+            "$ref": "#/components/schemas/AnalysisRequest"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "State"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Path"
+          },
+          "artifacts": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Artifacts"
+          },
+          "cancel_requested": {
+            "type": "boolean",
+            "title": "Cancel Requested",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "request",
+          "state",
+          "stage",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "Job"
+      },
+      "Label": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Category"
+          },
+          "severity": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Severity"
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Span"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "anchor_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor S"
+          },
+          "rationale": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Rationale"
+          },
+          "uncertainty_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "severity",
+          "interval",
+          "rationale"
+        ],
+        "title": "Label"
+      },
+      "Match": {
+        "properties": {
+          "prediction_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Prediction Id"
+          },
+          "label_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Label Id"
+          },
+          "iou": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iou"
+          },
+          "start_error_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start Error S"
+          },
+          "end_error_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Error S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "label_id",
+          "iou",
+          "start_error_s",
+          "end_error_s"
+        ],
+        "title": "Match"
+      },
+      "Metrics": {
+        "properties": {
+          "true_positive": {
+            "type": "integer",
+            "title": "True Positive"
+          },
+          "false_positive": {
+            "type": "integer",
+            "title": "False Positive"
+          },
+          "false_negative": {
+            "type": "integer",
+            "title": "False Negative"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "recall": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall"
+          },
+          "f1": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1"
+          },
+          "median_boundary_error_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Boundary Error S"
+          },
+          "p90_boundary_error_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Boundary Error S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "true_positive",
+          "false_positive",
+          "false_negative",
+          "precision",
+          "recall",
+          "f1",
+          "median_boundary_error_s",
+          "p90_boundary_error_s"
+        ],
+        "title": "Metrics"
+      },
+      "Observation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Dimension"
+          },
+          "detector": {
+            "type": "string",
+            "enum": [
+              "rubric",
+              "sustained_energy",
+              "energy_step",
+              "pitch_contour"
+            ],
+            "title": "Detector"
+          },
+          "token_span": {
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Token Span"
+          },
+          "participant_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Span"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "participant_anchor_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participant Anchor S"
+          },
+          "reference_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Span"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_anchor_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Anchor S"
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Unit"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          },
+          "participant": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participant"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "tolerance": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Tolerance"
+          },
+          "saturation_width": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Saturation Width"
+          },
+          "normalized_deviation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Deviation"
+          },
+          "excess": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excess"
+          },
+          "penalty": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Penalty"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Weight"
+          },
+          "scored": {
+            "type": "boolean",
+            "title": "Scored"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/Eligibility"
+          },
+          "reference_valid_fraction": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Valid Fraction"
+          },
+          "participant_valid_fraction": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participant Valid Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "dimension",
+          "detector",
+          "token_span",
+          "participant_interval",
+          "reference_interval",
+          "unit",
+          "reference",
+          "participant",
+          "delta",
+          "tolerance",
+          "saturation_width",
+          "normalized_deviation",
+          "excess",
+          "penalty",
+          "weight",
+          "scored",
+          "eligibility"
+        ],
+        "title": "Observation"
+      },
+      "Operation": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "insert_pause",
+              "shorten_pause",
+              "tempo",
+              "gain",
+              "pitch_shift"
+            ],
+            "title": "Kind"
+          },
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "severity": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Severity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "start_s",
+          "end_s",
+          "value",
+          "severity"
+        ],
+        "title": "Operation"
+      },
+      "Overlay": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "aggregation": {
+            "type": "string",
+            "const": "reviewed_word_medians",
+            "title": "Aggregation",
+            "default": "reviewed_word_medians"
+          },
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "tokens": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tokens"
+          },
+          "reference_words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Reference Words"
+          },
+          "participant_words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Participant Words"
+          },
+          "reference_values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Reference Values"
+          },
+          "participant_values": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Participant Values"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "unavailable_reason",
+          "tokens",
+          "reference_words",
+          "participant_words",
+          "reference_values",
+          "participant_values"
+        ],
+        "title": "Overlay"
+      },
+      "Pair": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reference Id"
+          },
+          "participant_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Participant Id"
+          },
+          "transcript_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256"
+          },
+          "intended_flaw": {
+            "type": "string",
+            "enum": [
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics",
+              "acceptable",
+              "recording_quality",
+              "alignment_uncertainty"
+            ],
+            "title": "Intended Flaw"
+          },
+          "intended_severity": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "title": "Intended Severity"
+          },
+          "reviewed_severity": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed Severity"
+          },
+          "identity_status": {
+            "type": "string",
+            "enum": [
+              "needs_review",
+              "verified",
+              "derived"
+            ],
+            "title": "Identity Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "reference_id",
+          "participant_id",
+          "transcript_sha256",
+          "intended_flaw",
+          "intended_severity",
+          "identity_status"
+        ],
+        "title": "Pair"
+      },
+      "Policy": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Version",
+            "default": "delivery-v0"
+          },
+          "algorithm": {
+            "type": "string",
+            "const": "contrastive-v1",
+            "title": "Algorithm",
+            "default": "contrastive-v1"
+          },
+          "numerical_epsilon": {
+            "type": "number",
+            "const": 1e-12,
+            "title": "Numerical Epsilon",
+            "default": 1e-12
+          },
+          "pacing_tolerance": {
+            "type": "number",
+            "minimum": 0.13976194237515863,
+            "title": "Pacing Tolerance",
+            "default": 0.13976194237515863
+          },
+          "pacing_width": {
+            "type": "number",
+            "const": 0.4054651081081644,
+            "title": "Pacing Width",
+            "default": 0.4054651081081644
+          },
+          "pause_floor_s": {
+            "type": "number",
+            "const": 0.15,
+            "title": "Pause Floor S",
+            "default": 0.15
+          },
+          "pause_relative": {
+            "type": "number",
+            "const": 0.25,
+            "title": "Pause Relative",
+            "default": 0.25
+          },
+          "pause_width_s": {
+            "type": "number",
+            "const": 0.75,
+            "title": "Pause Width S",
+            "default": 0.75
+          },
+          "pause_calibrated_tolerance_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Pause Calibrated Tolerance S",
+            "default": 0.0
+          },
+          "energy_tolerance_db": {
+            "type": "number",
+            "minimum": 3.0,
+            "title": "Energy Tolerance Db",
+            "default": 3.0
+          },
+          "energy_width_db": {
+            "type": "number",
+            "const": 6.0,
+            "title": "Energy Width Db",
+            "default": 6.0
+          },
+          "pitch_tolerance_st": {
+            "type": "number",
+            "minimum": 2.0,
+            "title": "Pitch Tolerance St",
+            "default": 2.0
+          },
+          "pitch_width_st": {
+            "type": "number",
+            "const": 4.0,
+            "title": "Pitch Width St",
+            "default": 4.0
+          },
+          "contour_energy_tolerance_db": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Contour Energy Tolerance Db",
+            "default": 6.0
+          },
+          "contour_pitch_tolerance_st": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Contour Pitch Tolerance St",
+            "default": 3.0
+          },
+          "minimum_coverage": {
+            "type": "number",
+            "const": 0.8,
+            "title": "Minimum Coverage",
+            "default": 0.8
+          },
+          "minimum_pitch_fraction": {
+            "type": "number",
+            "const": 0.5,
+            "title": "Minimum Pitch Fraction",
+            "default": 0.5
+          },
+          "minimum_phrase_s": {
+            "type": "number",
+            "const": 0.5,
+            "title": "Minimum Phrase S",
+            "default": 0.5
+          },
+          "minimum_phrase_words": {
+            "type": "integer",
+            "const": 3,
+            "title": "Minimum Phrase Words",
+            "default": 3
+          },
+          "minimum_phrases": {
+            "type": "integer",
+            "const": 2,
+            "title": "Minimum Phrases",
+            "default": 2
+          },
+          "minimum_gaps": {
+            "type": "integer",
+            "const": 5,
+            "title": "Minimum Gaps",
+            "default": 5
+          },
+          "weights": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "enum": [
+                "pacing",
+                "pause_behavior",
+                "energy_variation",
+                "pitch_dynamics"
+              ]
+            },
+            "type": "object",
+            "title": "Weights"
+          },
+          "frozen": {
+            "type": "boolean",
+            "title": "Frozen",
+            "default": false
+          },
+          "calibration_group_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "Calibration Group Ids"
+          },
+          "validation_group_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "Validation Group Ids"
+          },
+          "calibration_evidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibration Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Policy"
+      },
+      "Processing": {
+        "properties": {
+          "algorithm": {
+            "type": "string",
+            "const": "mono-polyphase-v1",
+            "title": "Algorithm",
+            "default": "mono-polyphase-v1"
+          },
+          "sample_rate_hz": {
+            "type": "integer",
+            "const": 16000,
+            "title": "Sample Rate Hz",
+            "default": 16000
+          },
+          "subtype": {
+            "type": "string",
+            "const": "FLOAT",
+            "title": "Subtype",
+            "default": "FLOAT"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Versions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "channel",
+          "versions"
+        ],
+        "title": "Processing"
+      },
+      "QualityReport": {
+        "properties": {
+          "sample_count": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Sample Count"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "mean": {
+            "type": "number",
+            "title": "Mean"
+          },
+          "rms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Rms"
+          },
+          "peak": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Peak"
+          },
+          "clipping_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Clipping Fraction"
+          },
+          "flags": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "spectral_covered_until_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Spectral Covered Until S"
+          },
+          "pitch_covered_until_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Pitch Covered Until S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sample_count",
+          "duration_s",
+          "mean",
+          "rms",
+          "peak",
+          "clipping_fraction",
+          "flags",
+          "spectral_covered_until_s",
+          "pitch_covered_until_s"
+        ],
+        "title": "QualityReport"
+      },
+      "Reason": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "Reason"
+      },
+      "Recipe": {
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 0.0,
+            "title": "Seed"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/Operation"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Operations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seed",
+          "operations"
+        ],
+        "title": "Recipe"
+      },
+      "Recording": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "family_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Family Id"
+          },
+          "speaker_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Speaker Id"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "source",
+              "self_recorded",
+              "synthetic"
+            ],
+            "title": "Origin"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "reference",
+              "participant"
+            ],
+            "title": "Role"
+          },
+          "original_filename": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Original Filename"
+          },
+          "original_path": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Original Path"
+          },
+          "normalized_path": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Normalized Path"
+          },
+          "original_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Sha256"
+          },
+          "normalized_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Normalized Sha256"
+          },
+          "sample_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sample Sha256"
+          },
+          "transcript": {
+            "$ref": "#/components/schemas/Transcript"
+          },
+          "transcript_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256"
+          },
+          "tokens": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tokens"
+          },
+          "token_offsets": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Token Offsets"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__dataset__schema__Provenance"
+          },
+          "original_info": {
+            "$ref": "#/components/schemas/AudioInfo"
+          },
+          "normalized_info": {
+            "$ref": "#/components/schemas/AudioInfo"
+          },
+          "processing": {
+            "$ref": "#/components/schemas/Processing"
+          },
+          "transformation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Transformation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_version",
+          "family_id",
+          "speaker_id",
+          "origin",
+          "role",
+          "original_filename",
+          "original_path",
+          "normalized_path",
+          "original_sha256",
+          "normalized_sha256",
+          "sample_sha256",
+          "transcript",
+          "transcript_sha256",
+          "tokens",
+          "token_offsets",
+          "provenance",
+          "original_info",
+          "normalized_info",
+          "processing",
+          "transformation",
+          "quality_flags"
+        ],
+        "title": "Recording"
+      },
+      "Region": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Category"
+          },
+          "detector": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Detector"
+          },
+          "participant_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Span"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "participant_anchor_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participant Anchor S"
+          },
+          "reference_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Span"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_anchor_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Anchor S"
+          },
+          "token_span": {
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Token Span"
+          },
+          "observation_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "title": "Observation Ids"
+          },
+          "severity": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Severity"
+          },
+          "confidence": {
+            "type": "null",
+            "title": "Confidence"
+          },
+          "confidence_reason": {
+            "type": "string",
+            "const": "not_calibrated",
+            "title": "Confidence Reason",
+            "default": "not_calibrated"
+          },
+          "reliability": {
+            "type": "string",
+            "const": "reviewed",
+            "title": "Reliability",
+            "default": "reviewed"
+          },
+          "timing_uncertainty_s": {
+            "type": "null",
+            "title": "Timing Uncertainty S"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/Eligibility"
+          },
+          "explanation": {
+            "$ref": "#/components/schemas/Explanation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "detector",
+          "participant_interval",
+          "participant_anchor_s",
+          "reference_interval",
+          "reference_anchor_s",
+          "token_span",
+          "observation_ids",
+          "severity",
+          "eligibility",
+          "explanation"
+        ],
+        "title": "Region"
+      },
+      "Report": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "comparison",
+            "title": "Kind",
+            "default": "comparison"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Dataset Sha256"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "policy_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Policy Sha256"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/InputEvidence"
+            },
+            "type": "array",
+            "title": "Inputs"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/Eligibility"
+          },
+          "feature_eligibility": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Eligibility"
+            },
+            "propertyNames": {
+              "enum": [
+                "pacing",
+                "pause_behavior",
+                "energy_variation",
+                "pitch_dynamics"
+              ]
+            },
+            "type": "object",
+            "title": "Feature Eligibility"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          },
+          "regions": {
+            "items": {
+              "$ref": "#/components/schemas/Region"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "dimensions": {
+            "items": {
+              "$ref": "#/components/schemas/DimensionScore"
+            },
+            "type": "array",
+            "title": "Dimensions"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Score"
+          },
+          "abstention_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Abstention Reasons"
+          },
+          "limitations": {
+            "items": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pair_id",
+          "dataset_version",
+          "dataset_sha256",
+          "implementation_sha256",
+          "policy",
+          "policy_sha256",
+          "inputs",
+          "eligibility",
+          "feature_eligibility",
+          "observations",
+          "regions",
+          "dimensions",
+          "overall_score",
+          "abstention_reasons",
+          "limitations"
+        ],
+        "title": "Report"
+      },
+      "Resource": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Path"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256"
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Version"
+          },
+          "license": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "License"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Source Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "path",
+          "sha256",
+          "version",
+          "license",
+          "source_url"
+        ],
+        "title": "Resource"
+      },
+      "Review": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "review",
+            "title": "Kind",
+            "default": "review"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__analysis__contracts__Provenance"
+          },
+          "alignment_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alignment Sha256"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "reviewer_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reviewer Id"
+          },
+          "reviewed_on": {
+            "type": "string",
+            "title": "Reviewed On"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Evidence Reference"
+          },
+          "independent": {
+            "type": "boolean",
+            "title": "Independent"
+          },
+          "blinded_to_predictions": {
+            "type": "boolean",
+            "title": "Blinded To Predictions"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected",
+              "unresolved"
+            ],
+            "title": "Decision"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Notes"
+          },
+          "corrected_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corrected Text"
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Words"
+          },
+          "phrase_spans": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Phrase Spans"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "title": "Labels"
+          },
+          "reviewed_spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "title": "Reviewed Spans"
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "scope",
+          "provenance",
+          "reviewer_id",
+          "reviewed_on",
+          "evidence_reference",
+          "independent",
+          "blinded_to_predictions",
+          "decision",
+          "notes"
+        ],
+        "title": "Review"
+      },
+      "Rights": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "enum": [
+              "pending",
+              "cleared"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "holder": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Holder",
+            "type": "string"
+          },
+          "license_name": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "License Name",
+            "type": "string"
+          },
+          "evidence": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Evidence",
+            "type": "string"
+          },
+          "attribution": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Attribution",
+            "type": "string"
+          },
+          "permits_adaptation": {
+            "title": "Permits Adaptation",
+            "type": "boolean"
+          },
+          "permits_redistribution": {
+            "title": "Permits Redistribution",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "holder",
+          "license_name",
+          "evidence",
+          "attribution",
+          "permits_adaptation",
+          "permits_redistribution"
+        ],
+        "title": "Rights",
+        "type": "object"
+      },
+      "Span": {
+        "properties": {
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s"
+        ],
+        "title": "Span"
+      },
+      "SplitReport": {
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "ratios": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Ratios"
+          },
+          "assignments": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "train",
+                "validation",
+                "test"
+              ]
+            },
+            "type": "object",
+            "title": "Assignments"
+          },
+          "groups": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Groups"
+          },
+          "membership_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Membership Sha256"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seed",
+          "ratios",
+          "assignments",
+          "groups",
+          "membership_sha256",
+          "warnings"
+        ],
+        "title": "SplitReport"
+      },
+      "TimeSegment": {
+        "properties": {
+          "source_start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source Start"
+          },
+          "source_end": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source End"
+          },
+          "output_start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Output Start"
+          },
+          "output_end": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Output End"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "unchanged",
+              "modified",
+              "inserted"
+            ],
+            "title": "Kind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_start",
+          "source_end",
+          "output_start",
+          "output_end",
+          "kind"
+        ],
+        "title": "TimeSegment"
+      },
+      "Transcript": {
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "language": {
+            "const": "en",
+            "title": "Language",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "unverified",
+              "verified"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reviewers": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+              "type": "string"
+            },
+            "title": "Reviewers",
+            "type": "array"
+          },
+          "verification_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Date"
+          },
+          "revision": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "language",
+          "status",
+          "reviewers",
+          "verification_date",
+          "revision"
+        ],
+        "title": "Transcript",
+        "type": "object"
+      },
+      "Transformation": {
+        "properties": {
+          "algorithm": {
+            "type": "string",
+            "const": "controlled-flaws-v1",
+            "title": "Algorithm",
+            "default": "controlled-flaws-v1"
+          },
+          "parent_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Parent Id"
+          },
+          "source_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256"
+          },
+          "recipe": {
+            "$ref": "#/components/schemas/Recipe"
+          },
+          "recipe_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Recipe Sha256"
+          },
+          "time_map": {
+            "items": {
+              "$ref": "#/components/schemas/TimeSegment"
+            },
+            "type": "array",
+            "title": "Time Map"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Versions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "parent_id",
+          "source_sha256",
+          "recipe",
+          "recipe_sha256",
+          "time_map",
+          "versions"
+        ],
+        "title": "Transformation"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Waveform": {
+        "properties": {
+          "sample_rate_hz": {
+            "type": "integer",
+            "const": 16000,
+            "title": "Sample Rate Hz",
+            "default": 16000
+          },
+          "start_s": {
+            "type": "number",
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "title": "End S"
+          },
+          "aggregation": {
+            "type": "string",
+            "const": "sample_min_max",
+            "title": "Aggregation",
+            "default": "sample_min_max"
+          },
+          "bins": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 4,
+              "minItems": 4
+            },
+            "type": "array",
+            "title": "Bins"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s",
+          "bins"
+        ],
+        "title": "Waveform"
+      },
+      "taketwo__analysis__contracts__Provenance": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "audio_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Audio Sha256"
+          },
+          "sample_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sample Sha256"
+          },
+          "transcript_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256"
+          },
+          "original_text_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Text Sha256"
+          },
+          "transcript_verified": {
+            "type": "boolean",
+            "title": "Transcript Verified"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Versions"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "dataset_version",
+          "audio_sha256",
+          "sample_sha256",
+          "transcript_sha256",
+          "original_text_sha256",
+          "transcript_verified",
+          "versions",
+          "implementation_sha256"
+        ],
+        "title": "Provenance"
+      },
+      "taketwo__dataset__schema__Provenance": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Source Id"
+          },
+          "work_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Work Id"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Source"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "collection_method": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Collection Method"
+          },
+          "access_date": {
+            "type": "string",
+            "title": "Access Date"
+          },
+          "excerpt_offset_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Excerpt Offset S"
+          },
+          "baseline_rationale": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Rationale"
+          },
+          "consent_evidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Evidence"
+          },
+          "rights": {
+            "$ref": "#/components/schemas/Rights"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_id",
+          "work_id",
+          "source",
+          "source_url",
+          "collection_method",
+          "access_date",
+          "excerpt_offset_s",
+          "baseline_rationale",
+          "consent_evidence",
+          "rights"
+        ],
+        "title": "Provenance"
+      },
+      "ImportSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "family_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Family Id",
+            "type": "string"
+          },
+          "speaker_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Speaker Id",
+            "type": "string"
+          },
+          "origin": {
+            "enum": [
+              "source",
+              "self_recorded"
+            ],
+            "title": "Origin",
+            "type": "string"
+          },
+          "transcript": {
+            "$ref": "#/components/schemas/Transcript"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Channel"
+          }
+        },
+        "required": [
+          "family_id",
+          "speaker_id",
+          "origin",
+          "transcript",
+          "provenance"
+        ],
+        "title": "ImportSpec",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "work_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Work Id",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "collection_method": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Collection Method",
+            "type": "string"
+          },
+          "access_date": {
+            "title": "Access Date",
+            "type": "string"
+          },
+          "excerpt_offset_s": {
+            "minimum": 0,
+            "title": "Excerpt Offset S",
+            "type": "number"
+          },
+          "baseline_rationale": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Rationale"
+          },
+          "consent_evidence": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Evidence"
+          },
+          "rights": {
+            "$ref": "#/components/schemas/Rights"
+          }
+        },
+        "required": [
+          "source_id",
+          "work_id",
+          "source",
+          "source_url",
+          "collection_method",
+          "access_date",
+          "excerpt_offset_s",
+          "baseline_rationale",
+          "consent_evidence",
+          "rights"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "ImportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/ImportSpec"
+          },
+          "reference_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Id"
+          },
+          "category": {
+            "default": "acceptable",
+            "enum": [
+              "acceptable",
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "severity": {
+            "default": 0,
+            "enum": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "title": "Severity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "metadata"
+        ],
+        "title": "ImportRequest",
+        "type": "object"
+      }
+    }
+  }
+}

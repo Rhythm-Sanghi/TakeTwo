@@ -21,3 +21,4 @@ models/
 *.sqlite-wal
 *.sqlite-shm
 tmp/
+*.tsbuildinfo
