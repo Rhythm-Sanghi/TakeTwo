@@ -1,0 +1,23 @@
+# Local runtime data is private by default; approved dataset releases are separate.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+local-data/
+models/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+tmp/
