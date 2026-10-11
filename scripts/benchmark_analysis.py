@@ -7,6 +7,7 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 import time
 from ctypes import wintypes
 from pathlib import Path
@@ -86,6 +87,11 @@ def windows_tree_bytes(root: int) -> int | None:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--module",
+        choices=("taketwo.analysis.cli", "taketwo.comparison.cli"),
+        default="taketwo.analysis.cli",
+    )
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
@@ -99,19 +105,23 @@ def main():
         ]
     )
     start = time.perf_counter()
-    process = subprocess.Popen(
-        [sys._base_executable, "-m", "taketwo.analysis.cli", *arguments],
-        env=env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    peak = None
-    while process.poll() is None:
-        measured = windows_tree_bytes(process.pid)
-        if measured is not None:
-            peak = max(peak or 0, measured)
-        time.sleep(0.1)
-    stdout, stderr = process.communicate()
+    # File-backed capture cannot deadlock on a full pipe when evidence output is large.
+    with tempfile.TemporaryFile() as out_stream, tempfile.TemporaryFile() as err_stream:
+        process = subprocess.Popen(
+            [sys._base_executable, "-m", args.module, *arguments],
+            env=env,
+            stdout=out_stream,
+            stderr=err_stream,
+        )
+        peak = None
+        while process.poll() is None:
+            measured = windows_tree_bytes(process.pid)
+            if measured is not None:
+                peak = max(peak or 0, measured)
+            time.sleep(0.1)
+        out_stream.seek(0)
+        err_stream.seek(0)
+        stdout, stderr = out_stream.read(), err_stream.read()
     cpu = platform.processor()
     if os.name == "nt":
         import winreg
@@ -121,6 +131,7 @@ def main():
         ) as key:
             cpu = winreg.QueryValueEx(key, "ProcessorNameString")[0]
     payload = {
+        "module": args.module,
         "arguments": arguments,
         "exit_code": process.returncode,
         "elapsed_s": time.perf_counter() - start,

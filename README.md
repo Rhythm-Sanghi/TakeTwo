@@ -8,7 +8,7 @@ The interface follows the Workshop + Gridline + Studio Utility design language. 
 
 ## Project status
 
-Phase 0 planning and Phase 1 dataset tooling are implemented. Phase 2 now provides native Windows CPU MFA alignment, transcript/OOV preflight, numerical acoustic features, typed derived artifacts and an analysis CLI. Real public-domain audio has been processed. **Phase 1B and Phase 2 acceptance remain partially complete**: human mirrors, independent transcript/timing review and alignment accuracy evidence are missing. There is no frontend or flaw-scoring engine.
+Phase 0 planning and Phase 1 dataset tooling are implemented. Phase 2 now provides native Windows CPU MFA alignment, transcript/OOV preflight, numerical acoustic features, typed derived artifacts and an analysis CLI. Real public-domain audio has been processed. **Phase 1B and Phase 2 acceptance remain partially complete**: human mirrors, independent transcript/timing review and alignment accuracy evidence are missing. Phase 3 now implements evidence-gated comparison, temporal detectors, rubric scoring, review imports and evaluation tooling. Independent real detection accuracy remains unmeasured; there is no frontend.
 
 Development must preserve the Track C requirements for contrastive datasets, forced alignment, acoustic feature extraction, temporal grounding, explainable rubric-based scoring, reproducibility, a dashboard and deliverables.
 
@@ -48,8 +48,20 @@ uv run ruff format --check src tests scripts
 
 Commands: `check`, `align`, `extract`, `inspect`, `validate`, `export`. Features operate on short imported clips even if alignment is unavailable; rates and inter-word pauses require complete alignment and verified transcripts. Stable [analysis schema v1](docs/analysis-schema-v1.json) is separate from unchanged dataset schema v1. Local audio and generated artifacts remain ignored and unpublished.
 
-Next, close the human pilot/review gates and independently evaluate alignment before Phase 3 temporal comparison and explainable flaw scoring. That phase has not started. The public paired dataset, dashboard, maximum six-page technical report and 3-10 minute YouTube demonstration remain future deliverables.
+## Comparison and review tools
+
+Read the [comparison engine and PowerShell guide](docs/comparison-engine.md), [schema v1](docs/comparison-schema-v1.json) and [Phase 3 validation](docs/phase3-validation.md). Phase 3 uses cached Phase 2 features; no additional dependencies, service or frontend was introduced.
+
+```powershell
+uv run taketwo-comparison --help
+uv run taketwo-comparison schema
+uv run python scripts/check_repository.py
+```
+
+Commands: `compare`, `detect`, `score`, `evidence`, `import-review`, `inspect`, `validate`, `evaluate`, `export`, `schema`. Exit 3 explicitly marks scientific abstention. Unavailable dimensions never receive perfect scores or redistributed weights. Real input remains blocked by absent human mirrors/reviews; generated fixtures establish software behavior only.
+
+Next, close the human pilot/review gates and independently evaluate alignment/detection. Phase 4 will expose the real typed contracts through the local service and React workspace, preserving Workshop + Gridline + Studio Utility. No Phase 4 implementation belongs in this run. The public paired dataset, dashboard, maximum six-page technical report and 3-10 minute YouTube demonstration remain future deliverables.
 
 ## AI assistance
 
-Codex assisted with the product rename, specification review, Phase 0 technical planning and Phase 1 and Phase 2 implementation/tests, rights-source research and actual CPU runs. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.
+Codex assisted with the product rename, specification review, Phase 0 technical planning and Phase 1, Phase 2 and Phase 3 implementation/tests, rights-source research and actual CPU runs. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.

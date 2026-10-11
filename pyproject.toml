@@ -23,6 +23,7 @@ dev = ["pytest==8.4.1", "ruff==0.12.5"]
 [project.scripts]
 taketwo-dataset = "taketwo.dataset.cli:main"
 taketwo-analysis = "taketwo.analysis.cli:main"
+taketwo-comparison = "taketwo.comparison.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,6 +1,6 @@
 # TakeTwo scoring policy
 
-Status: proposed rubric `delivery-v0`, to be calibrated and frozen before held-out evaluation. All numerical tolerances below are initial engineering hypotheses, not validated perceptual limits. The official judging weights assess the project; they are unrelated to this delivery rubric.
+Status: `delivery-v0` is implemented in Phase 3 with initial, uncalibrated tolerances; it must be calibrated and frozen before held-out evaluation. All numerical tolerances below are initial engineering hypotheses, not validated perceptual limits. The official judging weights assess the project; they are unrelated to this delivery rubric.
 
 ## Interpretation and coordinate system
 
@@ -64,3 +64,19 @@ Evaluation uses sealed human labels from the [dataset plan](dataset-plan.md):
 - Repeatability: identical decisions and scores within `1e-6` on the same locked environment; cross-environment numeric tolerance initially `1e-4`, with every threshold-induced decision difference investigated. Store full precision, round only for display.
 
 Report failure/abstention rates and results by origin/dimension/severity/family. Compute 1000 family-level bootstrap resamples with a recorded seed for metric uncertainty; three held-out families are too few for strong statistical conclusions, and an interval is not a guarantee. When an entire resample has no positives, keep its metric undefined and report the count. No accuracy result or gate attainment is claimed in Phase 0.
+
+## Phase 3 implementation notes
+
+The executable [contracts and CLI](comparison-engine.md) implement the formulas above without changing dimension weights, saturation widths or score gates. The [validation report](phase3-validation.md) records checks actually executed. No real human-reviewed accuracy result exists.
+
+Small clarifications: all reviewed phrases remain in the expected reference-duration denominator even if too short/unusable; eligibility cannot improve by deleting missing observations. Complete observed frame supports must cover >=80% of a region; pitch additionally needs >=50% reliable frames. Two independent agreeing timing/phrase reviews are required, with median reviewed word boundaries and retained originals. A missing/short pause is a boundary event with null participant interval and an actual word-end anchor; no zero-width or invented silence interval is published. These clarify the existing evidence/grounding policy rather than weaken it.
+
+Normalized deviation is signed `d/tau`; normalized excess is represented by `penalty=min(1,excess/b)`. The measured feature unit for pacing remains words/min while its delta/tolerance/width are natural-log rate ratios, explicitly named in explanations. Initial engineering severity bins are penalty <=1/3, <=2/3 and >2/3, distinct from independently listened human severity.
+
+Word-median sustained-energy (>6 dB), energy-step residual (>6 dB), and pitch-contour residual (>3 semitones) detectors add evidence about contour placement. Their exact gates are in the guide. They are versioned, unvalidated hypotheses and **do not add score penalties**: energy and pitch rubric scores remain Q90-Q10 excursion agreement. Thus a changed emphasis can trigger review while range scores remain unchanged; the report does not conceal that limitation. No arbitrary new overall quality score was introduced.
+
+Calibrated tolerances require a new policy version and cannot be below their initial values. The optional pause training-Q95 floor is `pause_calibrated_tolerance_s`, initially zero. Frozen policy metadata identifies calibration/validation groups and evidence; evaluation audits group assignments and rejects overlap. No data-dependent calibration is claimed without reviewed examples. Comparisons use categorical eligibility and null detection confidence/timing uncertainty, never a made-up probability.
+
+Evaluation implements category/time one-to-one matching, separate pause events, per-severity counts, FP/FN IDs, matched boundary errors, clean-span false flags/minute, defined-only Spearman and seeded family bootstrap. Missing/unresolved human labels withhold metrics. Software-fixture and synthetic-origin runs cannot establish independent real validation. Full human held-out acceptance additionally requires three independent groups, a frozen policy, valid reviewed labels and explicit failure/abstention reporting.
+
+Floating-point clarification: a fixed `1e-12` absolute numerical epsilon treats a delta at its tolerance as zero excess, and stabilizes coverage/severity boundary comparisons. This is roundoff handling in the stated units, not a perceptual margin or measurement uncertainty; full measured deltas remain exported. An exact-tolerance tempo fixture verifies no spurious flag.
