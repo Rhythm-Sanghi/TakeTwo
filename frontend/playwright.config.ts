@@ -10,7 +10,7 @@ const workspace = path.join(
 );
 export default defineConfig({
   testDir: "./tests",
-  timeout: 240000,
+  timeout: genuine ? 360000 : 240000,
   workers: 1,
   fullyParallel: false,
   use: {

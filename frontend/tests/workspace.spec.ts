@@ -216,6 +216,14 @@ test("actual import → CPU processing → native playback → evidence → expo
     expect(
       job.artifacts[result.inputs[0].provenance.recording_id].alignment,
     ).toBeTruthy();
+    const alignment = await (
+      await request.get(
+        `/api/v1/analyses/${job.id}/alignments/${job.request.reference_id}`,
+      )
+    ).json();
+    expect(alignment.status).toBe("succeeded");
+    expect(alignment.words).toHaveLength(19);
+    expect(alignment.phones.length).toBeGreaterThan(0);
   }
   const waveform = page.getByRole("img", {
     name: /Measured reference waveform/,
@@ -284,6 +292,10 @@ test("actual import → CPU processing → native playback → evidence → expo
       ),
     ).toBe(true);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`narrow-${area.replaceAll(" ", "-")}.png`),
+      fullPage: true,
+    });
   }
   await page.screenshot({
     path: testInfo.outputPath("narrow-evaluation.png"),
