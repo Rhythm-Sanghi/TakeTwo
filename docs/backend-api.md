@@ -26,7 +26,20 @@ TakeTwo — Speech analysis workspace. The executable HTTP contract is [api-v1.j
 
 List responses intentionally cover the compact local workspace. No pagination contract or large-corpus scaling is claimed. SQLite stores lifecycle/history only; the immutable Phase 1 manifest remains the recording/transcript/pair authority. Duplicating its metadata into parallel mutable tables would create unnecessary consistency risks. `PRAGMA user_version=1`, WAL and a five-second busy timeout define the first application database version.
 
-## Execution and publication
+## Product stabilization additions
+
+`POST /recordings` also accepts multipart metadata matching generated `LocalImportRequest`: `recording_type=public_reference|controlled_reference|human_participant`, exact draft transcript, local permission assertion, optional title/reference/speaker/rights/channel/intent. The original nested `ImportRequest` remains supported. Internal collection IDs and actual import time are generated on the server; selected reference supplies family/work. Unknown ownership/license/evidence/attribution stay null in schema v2. Missing intended labels stay `unspecified` with null severity. Explicit clearance still needs all actual rights fields and adaptation/redistribution permissions. Local permission never grants public release or verifies text. Unassigned speakers conservatively share an ID; same-speaker association requires an explicit choice.
+
+| New endpoint | Contract / safeguards |
+| --- | --- |
+| `POST /api/v1/dataset/upgrade` | Explicit schema-v1-to-v2 metadata upgrade under workspace lock. Exact previous manifest backup retained; audio/IDs/artifacts and frozen membership preserved. No silent startup migration |
+| `POST /api/v1/recordings/{id}/excerpt` | `ExcerptRequest {start_s,end_s,transcript,reference_id?}`; explicit native cut <=30 s from original canonical samples, new unverified recording, parent hash/cut provenance, no original overwrite. Participant needs the matching excerpt reference |
+| `POST /api/v1/pairs/{id}/correction` | `CorrectionRequest {reference_id}`; same canonical words, genuine participant; creates a separate two-recording version with copied immutable originals and reset text/review/intent state. Returns restart location/guidance; old workspace/history remains |
+| `POST /api/v1/reviews/import` | `ReviewImportRequest {job_id,review}`; actual review contract bound to selected job member and original alignment. Reuses existing CLI validation/publication; never authenticates independence or changes transcript verification |
+
+The dataset summary now identifies schema version. New web reports atomically retain content-addressed dataset snapshots beside immutable reports. Current API reads and CLI replay use the original snapshot when only unrelated data was added, verifying its digest and exact used recording/pair identity. Upstream content, policy/code and current review checks remain. Legacy artifacts without a needed snapshot require a fresh comparison; no historical context is guessed. SQLite remains lifecycle schema 1; no database migration or duplicate metadata authority is introduced.
+
+## Worker execution
 
 One service owns a workspace lease. One supervisor thread launches one disposable CPython process, with at most three queued requests. Exact duplicate active requests reuse their ID; other work runs serially. The parent owns the existing dataset lock, so imports and CLI mutations cannot race processing. Windows process-tree termination cancels CPU extraction and descendant MFA processes; the parent releases its lock and temporary directory. The whole-job deadline is 600 s; MFA retains its separately configured deadline. Queued cancellation is immediate. Running cancellation is a request until process termination completes.
 

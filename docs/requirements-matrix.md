@@ -6,6 +6,8 @@ Authority: [official Track C specification](../requirments/Track%20C.pdf), all t
 
 ## Official judging weights
 
+Current product stabilization and newly supplied private practice takes are tracked in [the issue audit](product-audit.md), [validation](product-validation.md) and [recording guide](recording-import-guide.md). Controlled-reference software support does not close R1a or independent scientific/publication gates. Prior reports retain their historical acquisition/evaluation status.
+
 | Criterion (page 3) | Weight | Primary phases |
 | --- | --- | --- |
 | Data Engineering & Stress Testing | 30% | 1, 2, 3, 5 |

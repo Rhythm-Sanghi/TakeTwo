@@ -1,5 +1,7 @@
 # Track C submission compliance
 
+This is the historical Phase 5 readiness snapshot. Current product repairs and the later user-supplied private practice takes are recorded in [product validation](product-validation.md) and [the recording guide](recording-import-guide.md). No newly supplied take is automatically a verified/public competition example; official scientific/public deliverable gates remain open.
+
 TakeTwo — Speech analysis workspace. Audit date: 2026-10-12; baseline `9551d73`. Authority: all three pages of the unchanged [official statement](../requirments/Track%20C.pdf). The October 15 deadline comes from the project owner's instruction, not this PDF. This is a local preparation audit, not submission certification.
 
 Statuses: **implemented** = working code exists; **validated** = stated scope has executed evidence; **incomplete** = some required work remains; **blocked** = missing external inputs prevent acceptance; **not applicable** = outside the stated requirement. Software and scientific acceptance are separate. No mandatory requirement is dismissed as not applicable.

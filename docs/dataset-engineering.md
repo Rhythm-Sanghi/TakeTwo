@@ -14,17 +14,19 @@ uv run ruff format --check src tests
 uv run taketwo-dataset --help
 ```
 
-NumPy/SciPy provide arrays and polyphase resampling, soundfile decodes audio, Pydantic validates contracts, and librosa supplies pitch-preserving tempo/local pitch edits. librosa brings scikit-learn, Numba and llvmlite transitively; TakeTwo does not train or use a classifier. FastAPI/SQLite/frontend dependencies are deferred. CPU transformations run serially; first-use JIT time is not an inference benchmark.
+NumPy/SciPy provide arrays and polyphase resampling, soundfile decodes audio, Pydantic validates contracts, and librosa supplies pitch-preserving tempo/local pitch edits. librosa brings scikit-learn, Numba and llvmlite transitively; TakeTwo does not train or use a classifier. The implemented web workspace uses FastAPI and SQLite. CPU transformations run serially; first-use JIT time is not an inference benchmark.
 
 ## Workspace and schema
 
+Current imports use [schema v2](dataset-schema-v2.json), retaining readable legacy v1 data and its [frozen schema](dataset-schema-v1.json). V2 explicitly represents unknown pending rights as null and unlabeled acquisition intent as unspecified/null. Cleared rights still require actual holder/license/evidence/attribution and both permissions. New workspaces start at v2; a v1 manifest requires explicit **Enable private draft imports**, with an exact backup under managed history and unchanged audio/IDs. No migration grants consent, verification or calibration. Controlled self-recorded references are valid local baselines with actual consent/rationale assertions; only genuine public-source references count toward official publication baseline coverage. See [recording import](recording-import-guide.md) and [API additions](backend-api.md).
+
 Initialize a new local directory, normally under ignored `local-data/` or outside the checkout. Never initialize over an existing directory. `manifest.jsonl` is the atomic source of truth, with `{kind,data}` rows: one version header, then recordings, pairs, annotations and an optional split report. Original and normalized audio live in `originals/<recording-id>.<wav|flac>` and `normalized/<recording-id>.wav`. The manifest contains no machine-specific absolute artifact paths. IDs are content-derived and stable for identical inputs/metadata/software versions; mutable recording names are not identifiers.
 
-The implemented [JSON Schema](dataset-schema-v1.json) describes the assembled dataset object used by export; row payloads use its Recording/Pair/Annotation/SplitReport definitions. `schema` emits the same schema. Unknown fields/versions, duplicate JSON keys/IDs, nonfinite numbers and malformed relations are rejected. Changes to contracts require a schema version/migration; there is no silent migration command.
+The current [JSON Schema](dataset-schema-v2.json) describes the assembled dataset object used by export; row payloads use its Recording/Pair/Annotation/SplitReport definitions. `schema` emits the same schema. Unknown fields/versions, duplicate JSON keys/IDs, nonfinite numbers and malformed relations are rejected. Changes to contracts require a schema version/migration; existing data is never silently upgraded.
 
 Recording rows contain dataset/family/speaker IDs, source vs self-recorded vs synthetic origin, role, original filename, immutable original/normalized hashes, canonical sample hash, decoded technical metadata, quality flags, processing versions, transcript and provenance. Transcript records preserve original text, normalized tokens and original-text token offsets. Normalization applies Unicode NFKC/case folding to tokens, standardizes apostrophes and ignores punctuation; spoken repetitions and word changes remain significant. This establishes *text metadata* identity, not proof the audio speaks those words. Unverified human pairs remain `needs_review` until both transcripts have explicit two-reviewer verification evidence.
 
-Provenance requires source/work IDs, source description, URL or collection method, access date, excerpt offset, rights-holder, license/permission evidence reference, attribution and adaptation/redistribution permissions. References additionally need an explicit selection rationale. Self-recorded mirrors require a consent evidence reference. Pending rights are an honest draft state; missing required fields are errors. The program checks assertions and consistency, not the legal validity of a license or the authenticity of an approval. Keep private permission/consent records outside the public checkout and use stable evidence references, never credentials.
+Provenance requires source/work IDs, source description, URL or collection method, access date, excerpt offset and a rights record. References additionally need an explicit selection rationale. Self-recorded audio requires a consent evidence reference, which may explicitly record local-only permission. Pending rights are an honest draft state; v2 allows unknown holder, license, evidence and attribution as null. Clearance requires those facts and both permissions. Missing required keys remain errors. The program checks assertions and consistency, not the legal validity of a license or the authenticity of an approval. Keep private permission/consent records outside the public checkout and use stable evidence references, never credentials.
 
 ## Import metadata
 
@@ -67,7 +69,7 @@ Supply a JSON file matching `ImportSpec` in `src/taketwo/dataset/schema.py`. Thi
 }
 ```
 
-For a human mirror use `origin=self_recorded`, the same family/work and canonical words, a distinct speaker and collection source, and actual consent evidence. `status=verified` requires at least two distinct reviewer IDs and an ISO verification date. Do not assert verification without listening review. Human recordings get no automatic flaw timestamps.
+For a human mirror use `origin=self_recorded`, the same family/work and canonical words, the actual speaker identity and collection source, and actual consent evidence. Do not invent a distinct speaker when the same person recorded the reference. `status=verified` requires at least two distinct reviewer IDs and an ISO verification date. Do not assert verification without listening review. Human recordings get no automatic flaw timestamps.
 
 ## Working commands (PowerShell)
 

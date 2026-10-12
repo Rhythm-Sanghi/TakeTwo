@@ -4,6 +4,8 @@ Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment
 
 ## Technology decisions
 
+Product stabilization retains this architecture and scientific formulas. A compact upload adapter now derives internal collection IDs and preserves unknown metadata in explicit dataset schema v2, with a backed-up opt-in v1 upgrade. Controlled references remain distinct from official public-speaker baselines. Report-bound dataset snapshots preserve history after unrelated imports while retaining exact input/review/code checks. Excerpts and pairing corrections create new recordings/versions rather than altering originals; see [current API contracts](backend-api.md) and [recording guide](recording-import-guide.md).
+
 | Layer | Selection and purpose | Tradeoff / verification gate |
 | --- | --- | --- |
 | API | Python 3.11 baseline, FastAPI, Pydantic, Uvicorn | Typed request/response contracts; resolve compatible versions on Windows in Phase 1 |

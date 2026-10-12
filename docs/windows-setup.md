@@ -4,6 +4,8 @@ Requires Windows 11, Python 3.11 with uv, and Node.js 24 LTS / npm (the executed
 
 From the repository root in PowerShell:
 
+First-time setup: `./scripts/start-local.ps1 -Setup`. Normal startup: `./scripts/start-local.ps1`. The normal path reuses the installed locked environment and existing build; it does not reinstall packages. Use `-Workspace .\local-data\practice-v2`, `-AlignmentConfig .\local-data\alignment-config.json` and/or `-Port 8876` as needed. Missing uv/npm/build and occupied ports produce explicit recovery messages. The equivalent manual first-time commands remain below.
+
 ```powershell
 uv sync --locked
 npm --prefix frontend ci
@@ -33,9 +35,13 @@ uv run taketwo-web --workspace .\local-data\development-v1
 npm --prefix frontend run dev
 ```
 
-The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/start-local.ps1` provides the build-and-launch convenience command. The backend does not hot-reload scientific source while jobs run.
+The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/start-local.ps1 -Setup` installs/builds; its normal path only launches. The backend does not hot-reload scientific source while jobs run.
 
 ## Verification
+
+The [recording guide](recording-import-guide.md) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
+
+Optional private pilot acceptance: set `$env:TAKETWO_PILOT_SMOKE='1'`, run `npm --prefix frontend run e2e`, then remove that process environment variable. It requires all five actual `speech-01/*.wav` originals and uses the user-supplied practice transcript. It performs no public release or human approval. Native zoom verification uses an isolated test profile; a known full-Chromium launch failure is skipped/unverified, never a passing 200% test. Spoken screen-reader testing remains separate.
 
 ```powershell
 uv run pytest -q

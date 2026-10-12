@@ -4,6 +4,8 @@ Status: `delivery-v0` is implemented in Phase 3 with initial, uncalibrated toler
 
 ## Interpretation and coordinate system
 
+Controlled local-reference support changes only permitted genuine input context: a self-recorded reference with explicit consent/rationale can be compared under the same rights, transcript, timing, quality and coverage gates. It is not an official effective-public-speaker baseline. `delivery-v0`, all dimensions, thresholds, formulas and uncertainty/abstention rules remain unchanged. Unlabeled acquisition intent is null and never contributes a human severity label or a perfect score.
+
 Scores describe measured delivery agreement with a selected reference on the same words. They do not measure persuasion, emotion, intelligence, text quality or overall speaking ability. A stylistic difference can be intentional and effective. The UI calls a threshold crossing a "delivery deviation" and offers an audio review action. A human evaluator decides whether it is undesirable in context.
 
 Each recording retains its native time axis. Correspondence uses canonical token indices and reviewed phrase boundaries (punctuation plus confirmed spoken boundaries). Compare matching phrases and inter-word gaps; never use unrestricted time warping to erase timing deviations. Frame masks exclude unreliable pitch, silence for pitch statistics, clipping-contaminated spans and invalid alignment. Intervals with poor evidence are unavailable, not zero deviation.

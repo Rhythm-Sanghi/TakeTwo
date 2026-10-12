@@ -4,6 +4,8 @@ Status: the Phase 1 import/transformation/annotation/split/validation pipeline i
 
 ## Compact acquisition target
 
+Current local-practice update: the user supplied five private WAV takes of one original practice transcript and confirmed one speaker. These controlled recordings are not archival mirrors, independently verified text/labels, public-release consent or independent evaluation groups. The public-speaker corpus gate below remains open. Preserve all five originals and use explicit <=30 s same-passage excerpts as described in [the recording guide](recording-import-guide.md).
+
 Aim for 12 independent public-speech excerpt families, each 20-60 seconds, from different source speakers and distinct speech/transcript works. Start with two rights-cleared pilot families before scaling. Choose effective public speakers with intelligible solo speech, little music and a documented human rationale for using the passage as a reference. A reference is one chosen delivery, not a universal ideal.
 
 For each family, target one real source reference, one near-perfect human re-recording, three human flawed re-recordings (mild, moderate, severe) and two controlled synthetic alterations: up to 84 files overall. Rotate the dominant flaw among pacing, pause behavior, energy variation and pitch dynamics, balancing categories across splits as far as the small corpus permits. Coverage is reported by dimension/severity/origin; missing cells remain visible. Add more samples only to close important gaps. Separate real and synthetic evaluation tables; a strong synthetic result cannot substitute for human-delivery performance.
