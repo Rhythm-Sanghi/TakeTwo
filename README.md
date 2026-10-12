@@ -8,7 +8,7 @@ The interface follows the Workshop + Gridline + Studio Utility design language. 
 
 ## Project status
 
-Phase 0–3 planning, dataset, native CPU alignment/acoustic extraction, evidence-gated comparison, rubric and evaluation tools are implemented. Phase 4 adds a local FastAPI/SQLite service and React/TypeScript/Vite workspace: real imports, processing jobs, measured timelines/features, evidence, eligibility, history and exports. Genuine archival audio has passed the browser import-to-MFA-to-report/playback/export workflow. **Acceptance remains partially complete:** a legitimate reviewed human pair, independent timing/detection accuracy, full manual accessibility and crash-orphan recovery remain open. See [Phase 4 validation](docs/phase4-validation.md).
+Phase 0–4 software is implemented: dataset tools, native CPU alignment/acoustics, evidence-gated comparison/evaluation and a local FastAPI/SQLite + React/TypeScript/Vite workspace. Phase 4B adds Windows crash-contained workers, automatic interrupted-job recovery, bounded worker memory, exact-request retry and accessibility fixes. Genuine archival audio has passed browser import-to-MFA-to-report/playback/export and cache reuse. **Acceptance remains partial:** no participant recordings or independent reviews are available; human-pair accuracy, calibration, screen-reader speech and 200% browser zoom remain unverified. See [Phase 4B evidence](docs/phase4b-validation.md) and the [human recording/review kit](docs/human-pilot-kit.md).
 
 Development must preserve the Track C requirements for contrastive datasets, forced alignment, acoustic feature extraction, temporal grounding, explainable rubric-based scoring, reproducibility, a dashboard and deliverables.
 
@@ -77,4 +77,4 @@ Next, collect consented human mirrors and independent transcript/timing/flaw rev
 
 ## AI assistance
 
-Codex assisted with the product rename, specification review, Phase 0 planning and Phase 1–4 implementation/tests, rights-source research, actual CPU runs and browser verification. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.
+Codex assisted with the product rename, specification review, Phase 0 planning and Phase 1–4B implementation/tests, rights-source research, actual CPU runs, crash/restart and browser verification, and blank human collection materials. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.

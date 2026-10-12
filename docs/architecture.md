@@ -60,7 +60,7 @@ Phase 4 runs one API process, one supervisor thread and at most one disposable C
 
 [Backend API](backend-api.md) and generated [OpenAPI](api-v1.json) supersede the Phase 0 proposed endpoint outline. Metadata and exact text arrive with multipart recording import; participant import creates a validated pair. HTTP serves actual original dataset/analysis/comparison models, job lifecycle, byte-range WAV, sample-coordinate waveform windows, bounded feature windows, reviewed-word overlays, policy, persisted evaluations/reviews and safe report downloads. TypeScript contracts are generated from these Python schemas; frontend calculations only format units and navigate time.
 
-The launcher binds loopback, restricts browser origins/hosts, validates media using actual content and the existing managed-path safeguards, limits resource use and exposes no arbitrary filesystem/model/command/URL API. No private audio/transcript telemetry is added. Abrupt crash-orphan lock recovery and authenticated human review remain explicit limitations. See [Windows operation/recovery](windows-setup.md).
+The launcher binds loopback, restricts browser origins/hosts, validates media using actual content and existing managed-path safeguards, limits resource use and exposes no arbitrary filesystem/model/command/URL API. No private audio/transcript telemetry is added. Phase 4B uses Windows kernel delete-on-close leases and named kill-on-close Job Objects for automatic process-crash recovery, a 4 GiB worker-tree commit limit and safe abandoned temporary cleanup. Authenticated human review, OS power-loss recovery and non-Windows web supervision remain unverified. See [Windows operation/recovery](windows-setup.md).
 
 ## Evaluation and reproducibility
 
