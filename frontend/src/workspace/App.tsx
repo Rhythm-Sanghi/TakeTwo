@@ -267,7 +267,9 @@ export function App() {
   const pair = availablePairs.find((p) => p.id === pairId);
   const participant = recordings.find((r) => r.id === pair?.participant_id);
   const overLimit = [reference, participant].some(
-    (r) => r && r.normalized_info.duration_s > 30,
+    (r) =>
+      r &&
+      r.normalized_info.duration_s > (health?.maximum_analysis_duration_s ?? 0),
   );
   const job = jobs.find((j) => j.id === jobId) ?? null;
   const jobMatches =
@@ -538,6 +540,7 @@ export function App() {
             <div className="library-content">
               <section className="panel">
                 <ImportForm
+                  maximumDuration={health?.maximum_analysis_duration_s}
                   recordings={recordings}
                   participantFor={participantFor}
                   schemaVersion={schemaVersion}
@@ -750,7 +753,8 @@ export function App() {
                 )}
                 {overLimit && (
                   <p className="notice">
-                    A selected recording exceeds the 30-second analysis limit.
+                    A selected recording exceeds the{" "}
+                    {health?.maximum_analysis_duration_s}-second analysis limit.
                     Playback remains available. Use each timeline's selection
                     controls and Save selection as an analysis excerpt; supply
                     the exact words for each cut, then choose the excerpt
@@ -758,8 +762,9 @@ export function App() {
                   </p>
                 )}
                 <p className="meta">
-                  30 s analysis limit · one CPU worker · no fabricated progress
-                  estimate. Completed acoustic artifacts are reused only when
+                  {health?.maximum_analysis_duration_s ?? "…"} s analysis limit
+                  · one CPU worker · no fabricated progress estimate. Completed
+                  acoustic artifacts are reused only when
                   input/configuration/code hashes match.
                 </p>
                 <p role="status" aria-live="polite" aria-atomic="true">
@@ -778,6 +783,7 @@ export function App() {
                 <div className="timeline-stack">
                   {reference ? (
                     <Timeline
+                      maximumDuration={health?.maximum_analysis_duration_s}
                       key={reference.id}
                       recording={reference}
                       job={activeJob}
@@ -799,6 +805,7 @@ export function App() {
                   )}
                   {participant && (
                     <Timeline
+                      maximumDuration={health?.maximum_analysis_duration_s}
                       key={participant.id}
                       recording={participant}
                       job={activeJob}

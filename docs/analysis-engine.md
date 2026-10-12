@@ -41,7 +41,7 @@ uv run taketwo-analysis validate $workspace --artifact $features.artifact --repr
 uv run taketwo-analysis export $workspace --artifact $features.artifact --output .\local-data\features-export.json
 ```
 
-`extract` also works without `--alignment`. Optional feature configuration is JSON matching `FeatureConfig`. Initial feature limit is **30 seconds**, separate from Phase 1's unchanged 600-second ingest limit; shorter excerpts bound pYIN/JSON memory. There is one job per command, one lock per workspace, one MFA worker and single-thread native numerical pools in subprocesses. Run heavy commands serially across workspaces. No queue or speculative concurrency framework is introduced.
+`extract` also works without `--alignment`. Optional feature configuration is JSON matching `FeatureConfig`. The shared default analysis limit is **45 seconds**, separate from Phase 1's unchanged 600-second ingest limit; shorter excerpts bound pYIN/JSON memory. There is one job per command, one lock per workspace, one MFA worker and single-thread native numerical pools in subprocesses. Run heavy commands serially across workspaces. No queue or speculative concurrency framework is introduced.
 
 Exit 0: prerequisite check passed, extraction completed or artifact checks passed. `align` returns 0 only for structurally complete automatic alignment. Exit 1: missing/mismatched prerequisites, partial/failed/timeout/cancelled alignment; its JSON artifact preserves diagnostics. Exit 2: arguments, schema, input/hash/path/I/O errors. Ctrl+C returns 130 after process cleanup. Successful status never certifies transcript correctness, independently reviewed timing or perceptual quality.
 
@@ -78,3 +78,5 @@ Provenance binds dataset/recording ID, canonical file/sample hashes, canonical t
 JSON stores full-precision finite measurements and null masks. Same-environment repeats must match exactly in this phase; cross-platform tolerance/decision behavior remains unmeasured. Alignment log paths are per-attempt and may change payload hashes even when intervals agree. Backend dither/numerics may also change boundaries; repeat runs compare intervals separately and never claim identical alignment merely from a feature test.
 
 Use `scripts/benchmark_analysis.py --output <new.json> -- <analysis arguments>` through uv for actual elapsed time and Windows sampled process-tree working set. Memory is sampled every 100 ms; it is a lower bound on true peak, may miss very short children and counts shared pages across processes. Timing includes CLI import, validation, engine and artifact serialization. Keep failed measurements. A full resource-profile or another computer's performance is not inferred from these measurements.
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

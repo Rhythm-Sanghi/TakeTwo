@@ -1998,10 +1998,9 @@
           },
           "maximum_duration_s": {
             "type": "number",
-            "maximum": 30.0,
+            "maximum": 45.0,
             "exclusiveMinimum": 0.0,
-            "title": "Maximum Duration S",
-            "default": 30.0
+            "title": "Maximum Duration S"
           }
         },
         "additionalProperties": false,
@@ -2161,9 +2160,9 @@
           },
           "maximum_analysis_duration_s": {
             "type": "integer",
-            "const": 30,
-            "title": "Maximum Analysis Duration S",
-            "default": 30
+            "maximum": 45.0,
+            "minimum": 1.0,
+            "title": "Maximum Analysis Duration S"
           },
           "maximum_upload_bytes": {
             "type": "integer",

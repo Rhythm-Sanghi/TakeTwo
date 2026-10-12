@@ -78,3 +78,9 @@ Reviewed 2026-10-11. These inform the design; actual installed versions and limi
 - [React build-tool guidance](https://react.dev/learn/build-a-react-app-from-scratch): Vite fits the bounded local UI, with framework needs reconsidered if scope expands.
 - [SQLite intended uses](https://www.sqlite.org/whentouse.html): embedded local persistence fits the single-user workstation.
 - [SciPy polyphase resampling](https://docs.scipy.org/doc/scipy-1.17.0/reference/generated/scipy.signal.resample_poly.html) and [librosa pYIN implementation](https://librosa.org/doc/main/_modules/librosa/core/pitch.html): processing choices to verify against the versions eventually locked.
+
+## Operational duration budget
+
+`analysis/limits.py` owns the default and supported ceiling of 45 seconds. `TAKETWO_MAX_ANALYSIS_DURATION_S` accepts integer seconds 1–45; invalid configuration fails service startup. Restart after changing it. CLI alignment/extraction, API admission, native sample excerpt creation and disposable workers enforce it. Feature configuration may impose a smaller reproducible budget; it cannot bypass the deployment limit. API health supplies frontend controls/copy, with no independent frontend default. Dataset storage remains 600 seconds and 100 MiB. Native playback and waveform windows still cover complete originals. The serial worker, three queued jobs, 4 GiB Job Object, 32 MiB artifact bound, cancellation, atomic publication and identity checks remain intact. Job timeout remains 600 seconds; alignment default remains 120 seconds and existing local setup remains 180 seconds.
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

@@ -30,7 +30,7 @@ For native CPU alignment, install the locked MFA environment and checksummed Eng
 4. Open **Analysis Workspace** and run analysis. Inspect real waveforms, native audio transport, word markers, features, evidence and any score-withholding reasons.
 5. Export the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
 
-WAV/FLAC storage supports 100 MiB/600 s; analysis remains limited to 30 s per member. Longer originals remain playable. Explicit selection-to-excerpt saving preserves originals and requires the exact excerpt text; each take has its own cut times. Read the concise [recording guide and five-WAV pilot steps](docs/recording-import-guide.md).
+WAV/FLAC storage supports 100 MiB/600 s; analysis supports up to 45 s per member by default. Longer originals remain playable. Explicit selection-to-excerpt saving preserves originals and requires the exact excerpt text; each take has its own cut times. Read the concise [recording guide and five-WAV pilot steps](docs/recording-import-guide.md).
 
 ## Implemented scope and current status
 
@@ -81,3 +81,5 @@ Source-code license selection, public paired dataset/video, public release verif
 ## AI assistance
 
 Codex assisted planning, implementation, documentation, source research and actual test/browser/CPU/recovery verification under human direction. Generated signals verify software only. Human consent, transcript/timing/flaw review, scientific judgments and final publication remain separate. Detailed third-party notices and honest tool disclosure are in [attributions](docs/attributions.md).
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](docs/duration-validation.md).

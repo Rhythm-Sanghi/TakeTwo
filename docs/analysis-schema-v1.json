@@ -517,9 +517,8 @@
             "type": "number"
           },
           "maximum_duration_s": {
-            "default": 30.0,
             "exclusiveMinimum": 0,
-            "maximum": 30,
+            "maximum": 45,
             "title": "Maximum Duration S",
             "type": "number"
           }

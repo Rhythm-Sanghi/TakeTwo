@@ -148,7 +148,7 @@ def test_unvoiced_noise_clipping(inputs):
 
 
 @pytest.mark.parametrize(
-    "x", [np.array([]), np.array([np.nan]), np.array([np.inf]), np.zeros((5, 2)), np.zeros(480001)]
+    "x", [np.array([]), np.array([np.nan]), np.array([np.inf]), np.zeros((5, 2)), np.zeros(720001)]
 )
 def test_invalid_signal(inputs, x):
     with pytest.raises(DatasetError):

@@ -1,5 +1,7 @@
 # Product stabilization audit
 
+Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
+
 TakeTwo — Speech analysis workspace. Baseline inspected: `be55e68`, 2026-10-12. Existing untracked `speech-01/` contains the user's five WAV originals; preserve privately. The user supplied the practice transcript and confirmed one speaker. No independent verification or public consent is inferred.
 
 Fifteen reproducible defects: **0 P0, 12 P1, 3 P2**. Focused repairs address all fifteen; verification and external gates are recorded in [validation](product-validation.md).

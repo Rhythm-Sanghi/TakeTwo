@@ -6,6 +6,8 @@ from pydantic import Field, model_validator
 
 from taketwo.dataset.schema import Digest, Identifier, Model, Text
 
+from .limits import DEFAULT_MAX_ANALYSIS_DURATION_S, maximum_analysis_duration_s
+
 Positive = Annotated[float, Field(gt=0)]
 
 
@@ -22,7 +24,9 @@ class FeatureConfig(Model):
     energy_floor: Literal[1e-6] = 1e-6
     activity_drop_db: Annotated[float, Field(gt=0, le=60)] = 25.0
     minimum_pause_s: Annotated[float, Field(ge=0.05, le=1)] = 0.15
-    maximum_duration_s: Annotated[float, Field(gt=0, le=30)] = 30.0
+    maximum_duration_s: Annotated[float, Field(gt=0, le=DEFAULT_MAX_ANALYSIS_DURATION_S)] = Field(
+        default_factory=maximum_analysis_duration_s
+    )
 
 
 class Diagnostic(Model):

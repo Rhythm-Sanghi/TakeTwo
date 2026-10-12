@@ -6,12 +6,14 @@ import type { components } from "../api.generated";
 
 type Upload = components["schemas"]["LocalImportRequest"];
 export function ImportForm({
+  maximumDuration,
   recordings,
   onImported,
   participantFor = "",
   schemaVersion = 2,
   onUpgraded,
 }: {
+  maximumDuration?: number;
   recordings: Recording[];
   onImported: (item: Recording) => void | Promise<void>;
   participantFor?: string;
@@ -144,7 +146,8 @@ export function ImportForm({
       )}
       <p>
         Choose a reference, then add recordings of the same words. WAV / FLAC ·
-        100 MiB · up to 600 s stored; analysis uses excerpts up to 30 s.
+        100 MiB · up to 600 s stored; analysis uses excerpts up to{" "}
+        {maximumDuration ?? "…"} s.
       </p>
       <fieldset disabled={busy}>
         <legend>Recording and transcript</legend>

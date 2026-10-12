@@ -1,5 +1,7 @@
 # Product stabilization verification
 
+Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
+
 TakeTwo — Speech analysis workspace. Continued locally from `be55e68` on 2026-10-12, Windows 11 / Intel Core i7-1365U / approximately 16 GB RAM, Python 3.11.9 and Node 24.15.0. The official PDF, scoring policy values, acoustic extraction implementation, dependencies and original audio remain unchanged. This report distinguishes software verification from human evidence and external tooling limitations.
 
 ## Repair scope

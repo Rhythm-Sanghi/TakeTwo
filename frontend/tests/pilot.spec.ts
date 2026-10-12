@@ -97,11 +97,11 @@ test("actual private five-take pilot imports without invented rights or reviews"
     .click();
   await expect(page.getByLabel("Participant pair")).not.toHaveValue("");
   await expect(
-    page.getByText(/A selected recording exceeds the 30-second/),
-  ).toBeVisible();
+    page.getByText(/A selected recording exceeds the 45-second/),
+  ).not.toBeVisible();
   await expect(
     page.getByRole("button", { name: "Run analysis", exact: true }),
-  ).toBeDisabled();
+  ).toBeEnabled();
   await page.getByLabel("Seek reference", { exact: true }).fill("1.25");
   await expect
     .poll(() =>

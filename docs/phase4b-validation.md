@@ -1,5 +1,7 @@
 # Phase 4B validation
 
+Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
+
 TakeTwo — Speech analysis workspace. Continued from `901eec1` on Windows 11 / Intel Core i7-1365U / approximately 16 GB RAM, CPython 3.11.9, Node 24.15.0. Official Track C PDF, AGENTS.md, scientific engines, scientific schemas, rubric and dependency locks are unchanged. No push, public release, submission or Phase 5 implementation was performed. Codex implemented and verified these changes under human direction.
 
 ## Separate acceptance outcomes

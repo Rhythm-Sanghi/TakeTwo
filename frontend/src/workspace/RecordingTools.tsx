@@ -5,11 +5,13 @@ import type { Job, Pair, Recording, Review } from "../api";
 import type { components } from "../api.generated";
 
 export function ExcerptForm({
+  maximumDuration,
   recording,
   selection,
   references,
   onSaved,
 }: {
+  maximumDuration?: number;
   recording: Recording;
   selection: [number, number];
   references: Recording[];
@@ -43,9 +45,9 @@ export function ExcerptForm({
     <details>
       <summary>Save selection as an analysis excerpt</summary>
       <p>
-        Original audio stays unchanged. Select at most 30 seconds, listen, then
-        supply exactly the words inside this track's selection. Each take has
-        its own cut times. New text remains unverified.
+        Original audio stays unchanged. Select at most {maximumDuration ?? "…"}{" "}
+        seconds, listen, then supply exactly the words inside this track's
+        selection. Each take has its own cut times. New text remains unverified.
       </p>
       <form onSubmit={save} aria-label={`${recording.role} excerpt`}>
         <p>
@@ -74,14 +76,20 @@ export function ExcerptForm({
           disabled={
             busy ||
             selection[1] <= selection[0] ||
-            selection[1] - selection[0] > 30 ||
+            selection[1] - selection[0] > (maximumDuration ?? 0) ||
             recording.origin === "synthetic"
           }
         >
           Save excerpt
         </button>
-        {selection[1] - selection[0] > 30 && (
-          <p className="notice">Shorten the selection to 30 seconds or less.</p>
+        {maximumDuration !== undefined &&
+          selection[1] - selection[0] > maximumDuration && (
+            <p className="notice">
+              Shorten the selection to {maximumDuration ?? "…"} seconds or less.
+            </p>
+          )}
+        {maximumDuration === undefined && (
+          <p role="status">Waiting for server analysis limits.</p>
         )}
         <p role="status">{busy ? "Saving explicit excerpt…" : ""}</p>
         {error && <p role="alert">{error}</p>}

@@ -22,6 +22,7 @@ from taketwo.analysis.contracts import (
     FeatureResult,
 )
 from taketwo.analysis.features import extract
+from taketwo.analysis.limits import maximum_analysis_duration_s
 from taketwo.analysis.storage import publish as publish_analysis
 from taketwo.analysis.storage import read_artifact as read_analysis
 from taketwo.analysis.storage import recording_input, validate_identity
@@ -112,9 +113,10 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
             review_paths.append(path)
     for rid in members:
         recording, samples, provenance = recording_input(root, rid)
-        if len(samples) > 30 * 16000:
+        if len(samples) > maximum_analysis_duration_s() * 16000:
             raise ValueError(
-                "Analysis supports excerpts up to 30 seconds; import a shorter excerpt."
+                f"Analysis supports excerpts up to {maximum_analysis_duration_s()} seconds; "
+                "import a shorter excerpt."
             )
         alignment_path, alignment = None, None
         if request.align and config:

@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from taketwo.analysis.limits import maximum_analysis_duration_s
 from taketwo.dataset.audio import RATE, decode, wav_bytes
 from taketwo.dataset.schema import ImportSpec, Provenance, Rights, Transcript, content_hash
 from taketwo.dataset.storage import load, managed_path, safe_path, save, workspace_lock, write_new
@@ -94,11 +95,14 @@ def excerpt(root: Path, recording_id: str, request: ExcerptRequest):
         raise ValueError(
             "Synthetic edits retain their recipe/time map; create them with dataset tools."
         )
+    limit = maximum_analysis_duration_s()
     if (
         not request.start_s < request.end_s <= item.normalized_info.duration_s
-        or request.end_s - request.start_s > 30
+        or request.end_s - request.start_s > limit
     ):
-        raise ValueError("Choose a positive excerpt of at most 30 seconds inside this recording.")
+        raise ValueError(
+            f"Choose a positive excerpt of at most {limit} seconds inside this recording."
+        )
     if (item.role == "participant") != bool(request.reference_id):
         raise ValueError("A participant excerpt needs the matching excerpt reference.")
     reference = find_recording(load(root), request.reference_id) if request.reference_id else None

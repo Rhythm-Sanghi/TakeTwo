@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import Field
 
 from taketwo.analysis.contracts import Diagnostic, Interval, QualityReport
+from taketwo.analysis.limits import DEFAULT_MAX_ANALYSIS_DURATION_S, maximum_analysis_duration_s
 from taketwo.comparison.contracts import Review
 from taketwo.dataset.schema import Identifier, ImportSpec, Model, Rights, SplitReport, Text
 
@@ -100,7 +101,9 @@ class Health(Model):
     ready: bool
     alignment_configured: bool
     alignment_diagnostics: list[Diagnostic]
-    maximum_analysis_duration_s: Literal[30] = 30
+    maximum_analysis_duration_s: int = Field(
+        default_factory=maximum_analysis_duration_s, ge=1, le=DEFAULT_MAX_ANALYSIS_DURATION_S
+    )
     maximum_upload_bytes: Literal[104857600] = 104857600
     worker_concurrency: Literal[1] = 1
     maximum_worker_commit_bytes: Literal[4294967296] = 4294967296

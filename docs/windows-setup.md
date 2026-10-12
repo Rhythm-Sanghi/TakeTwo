@@ -15,6 +15,8 @@ uv run taketwo-web
 
 Open `http://127.0.0.1:8765`. This single local process serves the built UI and API; it launches a separate CPU worker only during analysis. The default managed workspace is `%LOCALAPPDATA%/TakeTwo/workspace`. Source checkout launch expects `frontend/dist`; the Python wheel provides the API/CLI, not prebuilt frontend assets. Launch from the repository root or pass `--frontend` explicitly.
 
+The default analysis budget is 45 seconds per recording. To lower it, set `$env:TAKETWO_MAX_ANALYSIS_DURATION_S = '30'` before launching and restart the service. Integer values 1–45 are supported; invalid or larger values fail startup. Remove that variable to restore the shared default. API health and the UI report the active value. Imports remain 600 seconds / 100 MiB. No timeout increase is implied.
+
 Configure alignment using a real reviewed local config, then restart:
 
 ```powershell
@@ -67,3 +69,7 @@ Generated oscillator fixtures are software tests only. E2E creates a fresh ignor
 Graceful stop: Ctrl+C in the service terminal. Phase 4B Windows kernel leases release even after hard termination, and kill-on-close Job Objects terminate CPU/MFA descendants. Restart marks unfinished history failed/interrupted and cleans only managed job temporary directories after stopping surviving named trees. It never requeues interrupted work or deletes originals/complete artifacts. Use **Retry this analysis** for a new job; active identical requests still deduplicate. Worker aggregate commit is limited to 4 GiB, with one serial worker and one-thread numerical pools.
 
 Migration from older versions: unknown pre-Phase-4B or CLI lock files are deliberately not deleted automatically. If startup reports a legacy lease, verify all old service/worker/MFA and CLI processes for that exact workspace are stopped. Preserve the workspace, then inspect/remove only its stale `.service.lock` / `.dataset.lock`; never remove a live lock. New crash recovery does not change the scientific CLI lock convention. Windows hard-process interruption is tested; OS power-loss/filesystem recovery and a packaged installer remain unverified. See [Phase 4B evidence](phase4b-validation.md).
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).
+
+Optional 45-second capacity/browser acceptance requires the rights-documented archival workspace and completed supervised measurement described in [duration validation](duration-validation.md). Set `$env:TAKETWO_DURATION_SMOKE='1'`, run `npm --prefix frontend run e2e`, then remove the variable. It copies immutable source inputs to a fresh ignored workspace and runs actual uncached 45-second alignment/extraction/comparison while navigating, seeking and exporting. Its synthetic member is a declared recipe control; no human review is inferred. Its source fixture is the ignored `local-data/duration45-matched` workspace; execution uses `local-data/browser-duration-*` and never a user's practice workspace.

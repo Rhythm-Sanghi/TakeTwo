@@ -4,7 +4,7 @@ TakeTwo — Speech analysis workspace. The executable HTTP contract is [api-v1.j
 
 | Endpoint | Contract and behavior |
 | --- | --- |
-| `GET /api/v1/health` | Product/version, acoustic readiness, local alignment configuration diagnostics, 30 s analysis / 100 MiB upload limits, one worker |
+| `GET /api/v1/health` | Product/version, acoustic readiness, local alignment configuration diagnostics, configured analysis duration (default 45 s) / 100 MiB upload limits, one worker |
 | `POST /api/v1/recordings` | Multipart `audio` and UTF-8 JSON `metadata` conforming to `ImportRequest`; 201 immutable `Recording`. Metadata includes `ImportSpec`, optional existing `reference_id`, intended category/severity. Participant import creates the dataset `Pair` transactionally |
 | `GET /api/v1/recordings` / `/{id}` | Actual manifest `Recording` inventory / detail; original and derivative hashes, provenance, quality, text verification |
 | `GET /api/v1/recordings/{id}/transcript` | Original `Transcript`; no automatic verification |
@@ -33,7 +33,7 @@ List responses intentionally cover the compact local workspace. No pagination co
 | New endpoint | Contract / safeguards |
 | --- | --- |
 | `POST /api/v1/dataset/upgrade` | Explicit schema-v1-to-v2 metadata upgrade under workspace lock. Exact previous manifest backup retained; audio/IDs/artifacts and frozen membership preserved. No silent startup migration |
-| `POST /api/v1/recordings/{id}/excerpt` | `ExcerptRequest {start_s,end_s,transcript,reference_id?}`; explicit native cut <=30 s from original canonical samples, new unverified recording, parent hash/cut provenance, no original overwrite. Participant needs the matching excerpt reference |
+| `POST /api/v1/recordings/{id}/excerpt` | `ExcerptRequest {start_s,end_s,transcript,reference_id?}`; explicit native cut within the configured analysis duration (default 45 s) from original canonical samples, new unverified recording, parent hash/cut provenance, no original overwrite. Participant needs the matching excerpt reference |
 | `POST /api/v1/pairs/{id}/correction` | `CorrectionRequest {reference_id}`; same canonical words, genuine participant; creates a separate two-recording version with copied immutable originals and reset text/review/intent state. Returns restart location/guidance; old workspace/history remains |
 | `POST /api/v1/reviews/import` | `ReviewImportRequest {job_id,review}`; actual review contract bound to selected job member and original alignment. Reuses existing CLI validation/publication; never authenticates independence or changes transcript verification |
 
@@ -55,8 +55,10 @@ Job responses add nullable `elapsed_s`, nullable `peak_commit_bytes`, `stage_ela
 
 The launcher binds `127.0.0.1`; trusted hosts and a local origin allowlist restrict browser mutations. No URL downloader, shell command, model/configuration path, filesystem browsing or arbitrary export destination is accepted from HTTP. Configure the workspace and reviewed MFA configuration only at local startup. No authentication/cloud/storage account is added.
 
-Uploads require bounded Content-Length, at most 100 MiB audio plus 1 MiB multipart metadata. Uploaded names are reduced to sanitized basenames; reserved/ambiguous Windows names are rejected. Declared MIME is restricted to WAV/FLAC/binary, then actual headers/samples are decoded by the unchanged Phase 1 validator. Existing sample/duration/channel/finite-value/truncation/downmix/path/symlink safeguards apply. Analysis remains limited to 30 seconds; increasing it requires CPU evidence. Whole-file originals remain immutable and private by default.
+Uploads require bounded Content-Length, at most 100 MiB audio plus 1 MiB multipart metadata. Uploaded names are reduced to sanitized basenames; reserved/ambiguous Windows names are rejected. Declared MIME is restricted to WAV/FLAC/binary, then actual headers/samples are decoded by the unchanged Phase 1 validator. Existing sample/duration/channel/finite-value/truncation/downmix/path/symlink safeguards apply. Analysis uses the shared duration setting (default 45 seconds); the worker rechecks actual sample count. Whole-file originals remain immutable and private by default.
 
 Errors use `{error:{code,message,recovery}}`. Request/metadata validation lists field locations without echoing private input values. Statuses include 403 origin, 404 unknown ID, 409 conflict/unavailable evidence, 411 missing length, 413 size, 415 MIME and 422 validation. Media uses `nosniff`; bundled UI uses same-origin content policy and no-store responses. The local filesystem owner remains trusted; hostile same-user filesystem replacement is outside the service threat model.
 
 Visualization windows retain real sample/frame coordinates. Waveforms are actual min/max bins. Feature windows return original frames when small; otherwise grouped extrema with conservative null gap markers. Any group containing missing measurements becomes a gap, sacrificing detail rather than bridging unobserved pitch. Full spectra/MFCCs and raw series remain in immutable artifacts, not repeated navigation responses.
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

@@ -12,7 +12,7 @@ Two independent listeners must check audio and cut edges before copying approved
 
 ## Recording directions
 
-Record with one fixed microphone/distance/gain in a quiet room. Mono PCM WAV or PCM FLAC at 16/44.1/48 kHz is preferred; record device/settings/room/date and unavoidable AGC/processing. Disable enhancement where possible. Keep short natural room tone, no clipping, music, voice synthesis, denoising or post-recording loudness edits. Target 15–25 s; current analysis cap is 30 s. Listen before import; re-record added/missing words or clipped takes. Preserve raw originals.
+Record with one fixed microphone/distance/gain in a quiet room. Mono PCM WAV or PCM FLAC at 16/44.1/48 kHz is preferred; record device/settings/room/date and unavoidable AGC/processing. Disable enhancement where possible. Keep short natural room tone, no clipping, music, voice synthesis, denoising or post-recording loudness edits. Target 15–25 s; default analysis cap is 45 s (operators can lower the configured budget). Listen before import; re-record added/missing words or clipped takes. Preserve raw originals.
 
 | Take filename suffix | Instruction to performer | Interpretation |
 | --- | --- | --- |
@@ -29,3 +29,5 @@ Rotate target dimensions across families; include mixed flaws and acceptable alt
 Use the [blank form](consent-provenance-form.md) and [ImportSpec fields](dataset-engineering.md). Source metadata needs item-specific rights, exact cut offset, attribution and selection rationale. Participant metadata uses `origin=self_recorded`, the same family/work/canonical words, actual pseudonymous speaker/source/session IDs, consent evidence and actual permitted uses. Do not change pending rights to cleared on convenience alone. Full names/signatures stay private.
 
 Two people check transcripts before eligible analysis. Independently review every member's word boundaries and complete phrase partition; preserve automatic alignment unchanged. Two flaw reviewers listen over the full participant duration without predictions, scores, recipes or intended severity; annotate native intervals/absent-pause anchors and uncertainty. Retain disagreements and explicit reconciliation. Human severity is 0 acceptable, 1 mild, 2 moderate, 3 severe; engine penalty bins are a different concept. Use [worksheets](annotation-worksheet.md) and [review CLI](comparison-engine.md). An empty flaw inventory requires actual full listening coverage, not a default blank approval.
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

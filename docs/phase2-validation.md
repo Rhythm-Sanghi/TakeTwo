@@ -1,5 +1,7 @@
 # Phase 1B / Phase 2 validation evidence
 
+Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
+
 Executed 2026-10-11 from `cb0dbd7`. Product: TakeTwo — Speech analysis workspace. Phase 2's alignment/acoustic implementation has actual execution evidence; **acceptance remains partially complete** because independent transcript/timing evidence and the human contrastive pilot are absent. No Phase 3 scoring or frontend work was started.
 
 Implementation commit: `717f856` (`Implement native CPU alignment and reproducible acoustic evidence CLI`). Acquisition/status documentation follows in a separate local commit.

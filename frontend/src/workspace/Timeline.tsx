@@ -129,6 +129,7 @@ function FeatureChart({
 }
 
 export function Timeline({
+  maximumDuration,
   recording,
   job,
   regions,
@@ -139,6 +140,7 @@ export function Timeline({
   references = [],
   onExcerpt,
 }: {
+  maximumDuration?: number;
   recording: Recording;
   job: Job | null;
   regions: Region[];
@@ -539,6 +541,7 @@ export function Timeline({
       {error && <p role="alert">{error}</p>}
       {onExcerpt && (
         <ExcerptForm
+          maximumDuration={maximumDuration}
           recording={recording}
           selection={selection}
           references={references}

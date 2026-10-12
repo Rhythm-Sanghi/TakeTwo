@@ -4,7 +4,7 @@ Status: the Phase 1 import/transformation/annotation/split/validation pipeline i
 
 ## Compact acquisition target
 
-Current local-practice update: the user supplied five private WAV takes of one original practice transcript and confirmed one speaker. These controlled recordings are not archival mirrors, independently verified text/labels, public-release consent or independent evaluation groups. The public-speaker corpus gate below remains open. Preserve all five originals and use explicit <=30 s same-passage excerpts as described in [the recording guide](recording-import-guide.md).
+Current local-practice update: the user supplied five private WAV takes of one original practice transcript and confirmed one speaker. These controlled recordings are not archival mirrors, independently verified text/labels, public-release consent or independent evaluation groups. The public-speaker corpus gate below remains open. Preserve all five originals and use originals within the configured analysis duration (default 45 s), or explicit same-passage excerpts as described in [the recording guide](recording-import-guide.md).
 
 Aim for 12 independent public-speech excerpt families, each 20-60 seconds, from different source speakers and distinct speech/transcript works. Start with two rights-cleared pilot families before scaling. Choose effective public speakers with intelligible solo speech, little music and a documented human rationale for using the passage as a reference. A reference is one chosen delivery, not a universal ideal.
 
@@ -62,3 +62,5 @@ Report metrics per family and by human/synthetic origin, dimension, severity and
 Release only approved audio, transcripts, reviewed alignment/region labels, manifests, transformation recipes, split membership, checksums, attribution and dataset card (scope, collection, exclusions, limitations and rights). Original and synthetic files use distinct directories/manifest roles. Publish in GitHub or public Google Drive and link it in README, as Track C requires. Keep local private recordings outside Git by default; publication is a deliberate separate release step.
 
 Phase 1 pilot gate: two genuine cleared references, exact-text mirrors including near-perfect and severe deliveries, reviewed timestamps and valid manifests. Full dataset gate: rights complete for every released item, no cross-split connected group, explicit coverage gaps and reviewed held-out labels. No dataset claims are complete until those artifacts exist.
+
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

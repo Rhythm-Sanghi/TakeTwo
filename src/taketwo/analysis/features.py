@@ -19,6 +19,7 @@ from .contracts import (
     QualityReport,
     Series,
 )
+from .limits import maximum_analysis_duration_s
 
 
 def runs(mask: np.ndarray, starts: np.ndarray, length: int, label: str) -> list[Interval]:
@@ -44,9 +45,10 @@ def extract(
         raise DatasetError(
             "invalid_signal", "Expected finite nonempty mono audio.", "Review audio."
         )
-    if len(samples) / 16000 > config.maximum_duration_s:
+    limit = min(config.maximum_duration_s, maximum_analysis_duration_s())
+    if len(samples) / 16000 > limit:
         raise DatasetError(
-            "analysis_limit", "Phase 2 supports at most 30 seconds.", "Use an excerpt."
+            "analysis_limit", f"Analysis supports at most {limit:g} seconds.", "Use an excerpt."
         )
     samples = samples.astype(np.float32)
     if not np.isfinite(samples).all() or sample_hash(samples) != provenance.sample_sha256:

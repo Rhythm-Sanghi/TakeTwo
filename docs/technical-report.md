@@ -1,5 +1,7 @@
 # TakeTwo
 
+Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
+
 Speech analysis workspace
 
 Technical report draft | Track C | 2026-10-12 | Software baseline 9551d73

@@ -24,6 +24,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from taketwo.analysis.alignment import prerequisites
 from taketwo.analysis.contracts import AlignmentConfig, AlignmentResult, Diagnostic, FeatureResult
+from taketwo.analysis.limits import maximum_analysis_duration_s
 from taketwo.analysis.storage import read_artifact as read_analysis
 from taketwo.analysis.storage import recording_input, validate_identity
 from taketwo.comparison.contracts import Evaluation, Policy, Report, Review, Span
@@ -116,6 +117,7 @@ def create_app(
     timeout_s=600.0,
     frontend: Path | None = None,
 ):
+    maximum_analysis_duration_s()  # Reject invalid deployment configuration before startup.
     root = safe_path(
         root
         or Path(
@@ -490,9 +492,10 @@ def create_app(
         if request.pair_id:
             pair = next(p for p in load(root).pairs if p.id == request.pair_id)
             members.append(recording(pair.participant_id))
-        if any(r.normalized_info.duration_s > 30 for r in members):
+        if any(r.normalized_info.duration_s > maximum_analysis_duration_s() for r in members):
             raise ValueError(
-                "Analysis supports 30-second excerpts; originals up to 600 seconds can be stored."
+                f"Analysis supports {maximum_analysis_duration_s()}-second excerpts; "
+                "originals up to 600 seconds can be stored."
             )
         try:
             return jobs.submit(request)

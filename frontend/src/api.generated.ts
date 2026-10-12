@@ -820,11 +820,8 @@ export interface components {
        * @default 0.15
        */
       minimum_pause_s: number;
-      /**
-       * Maximum Duration S
-       * @default 30
-       */
-      maximum_duration_s: number;
+      /** Maximum Duration S */
+      maximum_duration_s?: number;
     };
     /** FeatureWindow */
     FeatureWindow: {
@@ -890,12 +887,8 @@ export interface components {
       alignment_configured: boolean;
       /** Alignment Diagnostics */
       alignment_diagnostics: components["schemas"]["Diagnostic"][];
-      /**
-       * Maximum Analysis Duration S
-       * @default 30
-       * @constant
-       */
-      maximum_analysis_duration_s: 30;
+      /** Maximum Analysis Duration S */
+      maximum_analysis_duration_s?: number;
       /**
        * Maximum Upload Bytes
        * @default 104857600

@@ -17,6 +17,7 @@ from taketwo.dataset.schema import tokenize
 from taketwo.dataset.storage import safe_path
 
 from .contracts import AlignmentConfig, AlignmentResult, Diagnostic, Interval, Provenance
+from .limits import maximum_analysis_duration_s
 
 
 def diagnostic(
@@ -206,6 +207,11 @@ def align(
     config: AlignmentConfig,
     cancel: threading.Event | None = None,
 ) -> AlignmentResult:
+    limit = maximum_analysis_duration_s()
+    if duration > limit:
+        raise DatasetError(
+            "analysis_limit", f"Analysis supports at most {limit} seconds.", "Use an excerpt."
+        )
     tokens, offsets = tokenize(text)
     result = AlignmentResult(
         provenance=provenance,

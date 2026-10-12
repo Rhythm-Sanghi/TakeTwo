@@ -41,6 +41,7 @@ it("retains recovery guidance when an excerpt is saved but inventory refresh fai
     );
   render(
     <ExcerptForm
+      maximumDuration={45}
       recording={
         {
           id: "test-parent",
@@ -412,4 +413,28 @@ it("submits an unverified private draft without fictional rights or severity", a
   expect(metadata.category).toBe("unspecified");
   expect(metadata).not.toHaveProperty("speaker_id");
   expect(metadata).not.toHaveProperty("verification_date");
+});
+
+it.each([
+  [45, 44.9999375, true],
+  [45, 45, true],
+  [45, 45.0000625, false],
+  [12, 12, true],
+  [12, 12.0000625, false],
+  [undefined, 1, false],
+])("uses server budget %s for a %s second selection", (limit, end, enabled) => {
+  render(
+    <ExcerptForm
+      maximumDuration={limit}
+      recording={
+        { id: "fixture", role: "reference", origin: "source" } as Recording
+      }
+      selection={[0, end as number]}
+      references={[]}
+    />,
+  );
+  fireEvent.click(screen.getByText("Save selection as an analysis excerpt"));
+  const button = screen.getByRole("button", { name: "Save excerpt" });
+  if (enabled) expect(button).toBeEnabled();
+  else expect(button).toBeDisabled();
 });
