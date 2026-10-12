@@ -1,6 +1,6 @@
 # TakeTwo dataset engineering (Phase 1)
 
-Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **incomplete, not independently annotated or ready for publication**. This guide describes the dataset tools. Phase 2 alignment/acoustic tools are documented separately in [analysis engine](analysis-engine.md); no frontend or speech-scoring engine exists. [Dataset strategy](dataset-plan.md) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
+Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **incomplete, not independently annotated or ready for publication**. This guide describes the dataset tools. Alignment/acoustics, scoring and the web workspace are documented in [analysis engine](analysis-engine.md), [comparison engine](comparison-engine.md) and [frontend](frontend-workspace.md). [Dataset strategy](dataset-plan.md) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
 
 ## Install and verify on Windows
 

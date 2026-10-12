@@ -73,8 +73,28 @@ uv run python scripts/check_repository.py
 
 Commands: `compare`, `detect`, `score`, `evidence`, `import-review`, `inspect`, `validate`, `evaluate`, `export`, `schema`. Exit 3 explicitly marks scientific abstention. Unavailable dimensions never receive perfect scores or redistributed weights. Real input remains blocked by absent human mirrors/reviews; generated fixtures establish software behavior only.
 
-Next, collect consented human mirrors and independent transcript/timing/flaw reviews, then verify a legitimate eligible pair and held-out evaluation. The local dashboard is implemented; complete real-pair acceptance remains unverified. Public dataset/code release, maximum six-page submission report and 3-10 minute YouTube demonstration remain separate future deliverables. Phase 4 does not start final submission work.
+Next, collect consented human mirrors and independent transcript/timing/flaw reviews, then verify a legitimate eligible pair and held-out evaluation. The local dashboard is implemented; complete real-pair acceptance remains unverified. Phase 5 prepares the local submission package below. Public dataset/code release, video upload and submission remain owner actions; no public dataset or YouTube URL is available.
 
-## AI assistance
+## Submission package
 
-Codex assisted with the product rename, specification review, Phase 0 planning and Phase 1–4B implementation/tests, rights-source research, actual CPU runs, crash/restart and browser verification, and blank human collection materials. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.
+- [Actions requiring people, expected filenames and handoff](docs/ACTION-REQUIRED.md)
+- [Final official compliance audit and judging weights](docs/submission-compliance.md)
+- [Technical report editable source](docs/technical-report.md) and [rendered draft PDF](output/pdf/taketwo-technical-report.pdf)
+- [Five-minute demonstration script and recording checklist](docs/demo-script.md)
+- [Dataset publication and public download verification](docs/dataset-publication.md)
+- [Locked setup, review import and evaluation reproduction](docs/reproducibility.md)
+- [Attributions, licensing status and tool disclosure](docs/attributions.md)
+- [Devpost description draft and final artifact checklist](docs/submission-draft.md)
+- [Phase 5 checks actually executed](docs/phase5-validation.md)
+
+The human package includes [recording directions and explicitly unverified draft words](docs/recording-session.md), a [blank private consent/provenance form](docs/consent-provenance-form.md), and the existing independent annotation worksheet. No exact verified source transcript can be supplied until two humans check it. Both acquired masters share JFK; no participant or review evidence exists. Keep delivery-v0 unchanged and do not tune held-out labels. Missing real metrics, scores and confidence remain unavailable.
+
+Regenerate the report on Windows with `python scripts/build_submission_report.py` in a separate document-tool environment containing ReportLab; inspect it with pypdf/Poppler and confirm at most six pages. These authoring tools are not application dependencies. Source-code license selection and final public release review remain owner decisions. Existing dependencies/resources retain their own terms. No audio, model, consent record or runtime workspace is committed.
+
+## Known limitations
+
+Independent alignment/detection accuracy, rubric calibration, cross-speaker generalization and cross-environment equivalence remain unmeasured. The genuine draft salutation has no accepted pYIN frames under the current threshold; pitch, rates and scores can be unavailable. Comparison requires verified words and two independent timing/phrase reviews per member. Current web process supervision requires Windows; analysis is capped at 30 s. Actual 200% browser zoom and heard screen-reader output remain unverified. Automated tests do not establish production readiness or scientific validity.
+
+## AI assistance and attributions
+
+Codex assisted with the product rename, specification review, Phase 0 planning and Phase 1–4B implementation/tests, rights-source research, actual CPU runs, crash/restart and browser verification, blank human collection materials and Phase 5 submission preparation. Generated signal fixtures verify software behavior and are not the competition dataset. Rubric selections remain proposals awaiting real held-out evaluation. AI assistance must continue to be disclosed honestly as the project develops.

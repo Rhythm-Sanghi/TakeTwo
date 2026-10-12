@@ -54,6 +54,8 @@ These engineering documents are working specifications, not the six-page submiss
 
 ## Phase 4 integration evidence
 
+Current submission readiness is reconciled requirement by requirement in the [Phase 5 final compliance audit](submission-compliance.md). It supersedes historical readiness labels below without changing official criteria or weights. The six-page report draft and manual/public release gates are tracked there; no complete dataset or submission is claimed.
+
 [Phase 4 validation](phase4-validation.md) records the real local service/workspace, actual browser audio import/alignment/extraction/playback/export, typed contracts, software tests and remaining acceptance gates. Local success does not complete public dataset/report/video deliverables or establish independent detection accuracy.
 
 [Phase 4B validation](phase4b-validation.md) adds verified Windows process-crash recovery, bounded workers, retry, cache reuse and all-workspace narrow/accessibility checks. The [human pilot kit](human-pilot-kit.md) supplies recording and review procedures. R1/R2 accuracy/R3 real detection and D2 remain blocked by absent participant recordings and independent annotations; no metric or calibration claim closes those gates.
