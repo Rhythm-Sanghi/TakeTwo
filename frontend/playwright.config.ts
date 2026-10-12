@@ -3,13 +3,17 @@ import path from "node:path";
 
 const repository = path.resolve(import.meta.dirname, "..");
 const genuine = process.env.TAKETWO_REAL_SMOKE === "1";
+const pilot = process.env.TAKETWO_PILOT_SMOKE === "1";
 const workspace = path.join(
   repository,
   "local-data",
-  `${genuine ? "browser-real" : "browser-software"}-${Date.now()}`,
+  `${pilot ? "browser-pilot" : genuine ? "browser-real" : "browser-software"}-${Date.now()}`,
 );
 export default defineConfig({
   testDir: "./tests",
+  testMatch: pilot
+    ? ["pilot.spec.ts", "zoom.spec.ts"]
+    : ["workspace.spec.ts", "zoom.spec.ts"],
   timeout: genuine ? 360000 : 240000,
   workers: 1,
   fullyParallel: false,

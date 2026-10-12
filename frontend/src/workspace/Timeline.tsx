@@ -10,6 +10,7 @@ import type {
 } from "../api";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
+import { ExcerptForm } from "./RecordingTools";
 
 export function timeAtPosition(
   x: number,
@@ -135,6 +136,8 @@ export function Timeline({
   seek,
   onSelect,
   onPlay,
+  references = [],
+  onExcerpt,
 }: {
   recording: Recording;
   job: Job | null;
@@ -143,6 +146,8 @@ export function Timeline({
   seek: { time: number; end?: number; nonce: number } | null;
   onSelect: (region: Region) => void;
   onPlay: (element: HTMLAudioElement) => void;
+  references?: Recording[];
+  onExcerpt?: (item: Recording) => void | Promise<void>;
 }) {
   const duration = recording.normalized_info.duration_s;
   const [start, setStart] = useState(0);
@@ -186,7 +191,10 @@ export function Timeline({
         `/analyses/${job.id}/features/${recording.id}?name=${feature}&start_s=${start}&end_s=${end}&max_points=1500`,
       )
         .then((value) => {
-          if (active) setData(value);
+          if (active) {
+            setData(value);
+            setError("");
+          }
         })
         .catch((cause) => {
           if (active) setError(cause.message);
@@ -529,6 +537,14 @@ export function Timeline({
         </output>
       </div>
       {error && <p role="alert">{error}</p>}
+      {onExcerpt && (
+        <ExcerptForm
+          recording={recording}
+          selection={selection}
+          references={references}
+          onSaved={onExcerpt}
+        />
+      )}
       {visibleRegions.length > 0 && (
         <div className="toolbar" aria-label="Detected regions">
           {visibleRegions.map((region) => (
@@ -551,6 +567,15 @@ export function Timeline({
             Word alignment · {alignment.status} · automatic, independently
             unreviewed
           </summary>
+          {job && (
+            <a
+              className="button"
+              href={`/api/v1/analyses/${job.id}/alignments/${recording.id}`}
+              download="original-alignment.json"
+            >
+              Download original alignment JSON
+            </a>
+          )}
           {(alignment.diagnostics ?? []).map((d) => (
             <p key={d.code}>
               {d.message} {d.recovery}

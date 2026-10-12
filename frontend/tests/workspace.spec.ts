@@ -24,10 +24,24 @@ test("actual import → CPU processing → native playback → evidence → expo
   await page.keyboard.press("Enter");
   await expect(page.locator("main")).toBeFocused();
   async function fillImport(participant = false) {
-    if (participant)
+    await page
+      .getByLabel("Recording type")
+      .selectOption(participant ? "human_participant" : "public_reference");
+    if (participant) {
       await page
-        .getByLabel("Recording role")
-        .selectOption({ label: "Participant for generated-reference.wav" });
+        .getByLabel("Compare with reference")
+        .selectOption({ index: 1 });
+      await page
+        .getByLabel(
+          "I intend this take to contain the same words as the selected reference",
+        )
+        .check();
+    }
+    await page
+      .getByLabel(
+        "I have permission to store and process this recording locally",
+      )
+      .check();
     await page
       .getByLabel("Audio file", { exact: true })
       .setInputFiles(
@@ -45,26 +59,17 @@ test("actual import → CPU processing → native playback → evidence → expo
           ? "Vice President Johnson, Mr. Speaker, Mr. Chief Justice, President Eisenhower, Vice President Nixon, President Truman, Reverend Clergy, fellow citizens:"
           : "Generated signal fixture only.",
       );
-    if (!participant)
-      await page
-        .getByLabel("Speech family ID")
-        .fill(genuine ? "jfk-inaugural-salutation" : "browser-fixture-family");
+    if (!(await page.getByLabel("Speaker label (optional)").isVisible()))
+      await page.getByText("Source and provenance", { exact: true }).click();
     await page
-      .getByLabel("Speaker ID")
+      .getByLabel("Speaker label (optional)")
       .fill(
         genuine
           ? "john-f-kennedy"
           : `software-fixture-${participant ? "participant" : "reference"}`,
       );
     await page
-      .getByLabel("Source ID")
-      .fill(genuine ? "jfkwha-001" : `fixture-${participant ? "p" : "r"}`);
-    if (!participant)
-      await page
-        .getByLabel("Work ID")
-        .fill(genuine ? "jfk-inaugural-1961" : "fixture-work");
-    await page
-      .getByLabel("Source title / recording session")
+      .getByLabel("Recording title (optional)")
       .fill(
         genuine
           ? "JFK inaugural address — salutation draft excerpt"
@@ -77,19 +82,20 @@ test("actual import → CPU processing → native playback → evidence → expo
           ? "https://www.jfklibrary.org/asset-viewer/archives/jfkwha-001"
           : "https://example.invalid/software-fixture",
       );
-    await page.getByLabel("Access / recording date").fill("2026-10-11");
     if (participant)
       await page
         .getByLabel("Consent evidence reference")
         .fill("TEST ONLY; generated tone, no human speaker or consent claim");
     else
       await page
-        .getByLabel("Reference selection rationale")
+        .getByLabel("Reference selection rationale (optional)")
         .fill(
           genuine
             ? "Public-domain archival candidate for real acoustic inspection; transcript and excerpt remain independently unreviewed."
             : "TEST ONLY; generated signal is not an effective public speaker",
         );
+    if (!(await page.getByLabel("Rights holder").isVisible()))
+      await page.getByText("Rights and permissions", { exact: true }).click();
     await page
       .getByLabel("Rights holder")
       .fill(
@@ -127,11 +133,68 @@ test("actual import → CPU processing → native playback → evidence → expo
       page.getByRole("heading", { name: "Recording metadata", exact: true }),
     ).toBeVisible();
   }
+  await page.getByLabel("Audio file", { exact: true }).setInputFiles({
+    name: "damaged.wav",
+    mimeType: "audio/wav",
+    buffer: Buffer.from("not decoded audio"),
+  });
+  await page
+    .getByLabel("Spoken transcript")
+    .fill("Generated signal fixture only.");
+  await page
+    .getByLabel("I have permission to store and process this recording locally")
+    .check();
+  const invalidResponse = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/v1/recordings") && r.request().method() === "POST",
+  );
+  await page
+    .getByRole("button", { name: "Import recording", exact: true })
+    .click();
+  expect((await invalidResponse).status()).toBe(422);
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect(await (await request.get("/api/v1/recordings")).json()).toHaveLength(
+    0,
+  );
   await fillImport();
   await expect(
     page.getByText("unverified · 0 recorded reviewers"),
   ).toBeVisible();
-  if (!genuine) await fillImport(true);
+  if (!genuine) {
+    await page.getByLabel("Recording type").selectOption("human_participant");
+    await page.getByLabel("Compare with reference").selectOption({ index: 1 });
+    await page
+      .getByLabel("Audio file", { exact: true })
+      .setInputFiles(
+        path.join(
+          repository,
+          "local-data/browser-fixtures/generated-participant.wav",
+        ),
+      );
+    await page
+      .getByLabel("Spoken transcript")
+      .fill("Mismatched fixture words.");
+    await page
+      .getByLabel(
+        "I intend this take to contain the same words as the selected reference",
+      )
+      .check();
+    await page
+      .getByLabel(
+        "I have permission to store and process this recording locally",
+      )
+      .check();
+    await page
+      .getByRole("button", { name: "Import recording", exact: true })
+      .click();
+    await expect(page.getByRole("alert")).toContainText(
+      "transcript/family differs",
+    );
+    expect(await (await request.get("/api/v1/recordings")).json()).toHaveLength(
+      1,
+    );
+    await fillImport(true);
+  }
   await page
     .getByRole("button", { name: "Analysis Workspace", exact: true })
     .click();
@@ -167,7 +230,10 @@ test("actual import → CPU processing → native playback → evidence → expo
   await expect(page.getByText("Analysis completed: completed.")).toBeVisible({
     timeout: 210000,
   });
-  await expect(page.getByText("Overall: Unavailable")).toBeVisible();
+  // Completion publishes artifacts; report delivery still validates bound evidence.
+  await expect(page.getByText("Overall: Unavailable")).toBeVisible({
+    timeout: 30000,
+  });
   await expect(
     page.getByText(
       "Zero detected regions does not indicate a perfect performance.",
@@ -345,4 +411,164 @@ test("actual import → CPU processing → native playback → evidence → expo
     contentType: "application/json",
   });
   expect(errors).toEqual([]);
+  if (!genuine) {
+    await page.setViewportSize({ width: 1600, height: 1000 });
+    await page
+      .getByRole("button", { name: "Recording Library", exact: true })
+      .click();
+    await page
+      .getByLabel("Recording type")
+      .selectOption("controlled_reference");
+    await page
+      .getByLabel("Audio file", { exact: true })
+      .setInputFiles(
+        path.join(
+          repository,
+          "local-data/browser-fixtures/generated-controlled-reference.wav",
+        ),
+      );
+    await page
+      .getByLabel("Spoken transcript")
+      .fill("Generated signal fixture only.");
+    await page
+      .getByLabel(
+        "I have permission to store and process this recording locally",
+      )
+      .check();
+    await page
+      .getByRole("button", { name: "Import recording", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", {
+        name: "generated-controlled-reference.wav",
+        exact: true,
+      }),
+    ).toBeVisible();
+    const controlled = (
+      await (await request.get("/api/v1/recordings")).json()
+    ).find(
+      (r: { original_filename: string }) =>
+        r.original_filename === "generated-controlled-reference.wav",
+    );
+    expect(controlled.origin).toBe("self_recorded");
+    expect(controlled.provenance.rights.holder).toBeNull();
+    // Unrelated import must not destroy the persisted report's bound input context.
+    expect(
+      await (await request.get(`/api/v1/analyses/${job.id}/report`)).json(),
+    ).toEqual(result);
+    await page
+      .getByRole("button", { name: "Add participant", exact: true })
+      .click();
+    await expect(page.getByLabel("Compare with reference")).toHaveValue(
+      controlled.id,
+    );
+    await page
+      .getByLabel("Audio file", { exact: true })
+      .setInputFiles(
+        path.join(
+          repository,
+          "local-data/browser-fixtures/generated-controlled-participant.wav",
+        ),
+      );
+    await page
+      .getByLabel(
+        "I intend this take to contain the same words as the selected reference",
+      )
+      .check();
+    await page
+      .getByLabel(
+        "I have permission to store and process this recording locally",
+      )
+      .check();
+    await page
+      .getByRole("button", { name: "Import recording", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", {
+        name: "generated-controlled-participant.wav",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Analysis Workspace", exact: true })
+      .click();
+    await expect(page.getByLabel("Participant pair")).not.toHaveValue("");
+    await page
+      .getByRole("button", { name: "Run analysis", exact: true })
+      .click();
+    await expect(page.getByText("Analysis completed: completed.")).toBeVisible({
+      timeout: 60000,
+    });
+    await expect(page.getByText("Overall: Unavailable")).toBeVisible();
+    await page
+      .getByRole("button", { name: "Recording Library", exact: true })
+      .click();
+    await page
+      .getByText("Correct this pairing safely", { exact: true })
+      .click();
+    await page
+      .getByLabel("Correct reference")
+      .selectOption(job.request.reference_id);
+    await page
+      .getByRole("button", { name: "Prepare corrected version", exact: true })
+      .click();
+    await expect(
+      page.getByText(/New two-recording dataset version prepared/),
+    ).toBeVisible();
+    expect(await (await request.get("/api/v1/recordings")).json()).toHaveLength(
+      4,
+    );
+    expect(
+      await (
+        await request.get("/api/v1/analyses/" + job.id + "/export")
+      ).json(),
+    ).toEqual(result);
+    expect(errors).toEqual([]);
+    // Explicit fixture excerpts exercise the browser recovery path without guessing real speech cuts.
+    await page
+      .getByRole("button", { name: "Analysis Workspace", exact: true })
+      .click();
+    await page.getByLabel("reference selection start (s)").fill("0.2");
+    await page.getByLabel("reference selection end (s)").fill("1.8");
+    await page
+      .getByRole("region", { name: "reference timeline" })
+      .getByText("Save selection as an analysis excerpt")
+      .click();
+    const referenceCut = page.getByRole("form", { name: "reference excerpt" });
+    await referenceCut
+      .getByLabel("Exact excerpt transcript")
+      .fill("Generated signal fixture only.");
+    await referenceCut.getByRole("button", { name: "Save excerpt" }).click();
+    await expect(
+      page.getByRole("combobox", { name: "Reference recording", exact: true }),
+    ).not.toHaveValue(controlled.id);
+    const cutId = await page
+      .getByRole("combobox", { name: "Reference recording", exact: true })
+      .inputValue();
+    await page
+      .getByRole("button", { name: /^generated-controlled-participant.wav/ })
+      .click();
+    await page.getByLabel("participant selection start (s)").fill("0.3");
+    await page.getByLabel("participant selection end (s)").fill("1.7");
+    await page
+      .getByRole("region", { name: "participant timeline" })
+      .getByText("Save selection as an analysis excerpt")
+      .click();
+    const participantCut = page.getByRole("form", {
+      name: "participant excerpt",
+    });
+    await participantCut.getByLabel("Excerpt reference").selectOption(cutId);
+    await participantCut
+      .getByLabel("Exact excerpt transcript")
+      .fill("Generated signal fixture only.");
+    await participantCut.getByRole("button", { name: "Save excerpt" }).click();
+    await expect(
+      page.getByRole("combobox", { name: "Reference recording", exact: true }),
+    ).toHaveValue(cutId);
+    await expect(page.getByLabel("Participant pair")).not.toHaveValue("");
+    expect(await (await request.get("/api/v1/recordings")).json()).toHaveLength(
+      6,
+    );
+    expect(errors).toEqual([]);
+  }
 });

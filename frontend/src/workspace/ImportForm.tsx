@@ -1,89 +1,106 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { api } from "../api";
-import type { ImportRequest, Recording } from "../api";
+import { api, post } from "../api";
+import type { Recording } from "../api";
+import type { components } from "../api.generated";
 
+type Upload = components["schemas"]["LocalImportRequest"];
 export function ImportForm({
   recordings,
   onImported,
+  participantFor = "",
+  schemaVersion = 2,
+  onUpgraded,
 }: {
   recordings: Recording[];
-  onImported: (item: Recording) => void;
+  onImported: (item: Recording) => void | Promise<void>;
+  participantFor?: string;
+  schemaVersion?: number;
+  onUpgraded?: () => void;
 }) {
+  const [type, setType] =
+    useState<Upload["recording_type"]>("public_reference");
   const [reference, setReference] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const references = recordings.filter((r) => r.role === "reference");
+  const participant = type === "human_participant";
+  useEffect(() => {
+    if (participantFor) {
+      setType("human_participant");
+      setReference(participantFor);
+      setText(
+        recordings.find((r) => r.id === participantFor)?.transcript.text ?? "",
+      );
+    }
+  }, [participantFor, recordings]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const value = (name: string) => String(data.get(name) || "").trim();
-    const selected = references.find((r) => r.id === reference);
-    const rightsCleared = data.get("rightsCleared") === "on";
-    const metadata: ImportRequest = {
-      metadata: {
-        family_id: selected?.family_id ?? value("family"),
-        speaker_id: value("speaker"),
-        origin: selected ? "self_recorded" : "source",
-        channel:
-          value("channel") === "" ? null : (Number(value("channel")) as 0 | 1),
-        transcript: {
-          text,
-          language: "en",
-          status: "unverified",
-          reviewers: [],
-          verification_date: null,
-          revision: "v1",
-        },
-        provenance: {
-          source_id: value("sourceId"),
-          work_id: selected?.provenance.work_id ?? value("workId"),
-          source: value("source"),
-          source_url: value("url") || null,
-          collection_method: selected
-            ? "Consented participant recording imported locally"
-            : "Public source excerpt imported locally",
-          access_date: value("date"),
-          excerpt_offset_s: Number(value("offset") || 0),
-          baseline_rationale: selected ? null : value("rationale"),
-          consent_evidence: selected ? value("consent") : null,
-          rights: {
-            status: rightsCleared ? "cleared" : "pending",
-            holder: value("holder"),
-            license_name: value("license"),
-            evidence: value("rightsEvidence"),
-            attribution: value("attribution"),
-            permits_adaptation: rightsCleared,
-            permits_redistribution: rightsCleared,
-          },
-        },
-      },
-      reference_id: reference || null,
-      category: value("category") as ImportRequest["category"],
-      severity: Number(value("severity")) as ImportRequest["severity"],
+    const value = (key: string) => String(data.get(key) ?? "").trim();
+    const cleared = data.get("rightsCleared") === "on";
+    const hasRights =
+      cleared ||
+      ["holder", "license", "rightsEvidence", "attribution"].some((k) =>
+        value(k),
+      );
+    const metadata: Upload = {
+      recording_type: type,
+      transcript: text,
+      title: value("title") || null,
+      reference_id: participant ? reference || null : null,
+      local_permission: data.get("localPermission") === "on",
+      speaker_label: value("speaker") || null,
+      same_speaker_as_reference:
+        participant && data.get("sameSpeaker") === "on",
+      source_url: value("url") || null,
+      rationale: value("rationale") || null,
+      consent_evidence: value("consent") || null,
+      channel:
+        value("channel") === "" ? null : (Number(value("channel")) as 0 | 1),
+      category: (value("category") || "unspecified") as Upload["category"],
+      severity:
+        !value("category") || value("category") === "unspecified"
+          ? null
+          : (Number(value("severity") || 0) as Upload["severity"]),
+      rights: hasRights
+        ? {
+            status: cleared ? "cleared" : "pending",
+            holder: value("holder") || null,
+            license_name: value("license") || null,
+            evidence: value("rightsEvidence") || null,
+            attribution: value("attribution") || null,
+            permits_adaptation: cleared,
+            permits_redistribution: cleared,
+          }
+        : null,
     };
+    const file = data.get("audio") as File;
+    if (file.size > 104857600) {
+      setError("Audio exceeds 100 MiB. Choose a shorter WAV or FLAC.");
+      return;
+    }
     const body = new FormData();
-    body.append("audio", data.get("audio") as File);
+    body.append("audio", file);
     body.append("metadata", JSON.stringify(metadata));
     setBusy(true);
-    setSuccess("");
     setError("");
+    setSuccess("");
     try {
       const item = await api<Recording>("/recordings", {
         method: "POST",
         body,
       });
-      onImported(item);
+      await onImported(item);
       setSuccess(
-        `Imported ${item.original_filename}. Transcript remains unverified.`,
+        `Imported ${item.original_filename}. Text is unverified; public rights remain ${item.provenance.rights.status}.`,
       );
       form.reset();
-      setText("");
-      setReference("");
+      if (!participant) setText("");
     } catch (cause) {
       setError((cause as Error).message);
     } finally {
@@ -97,137 +114,229 @@ export function ImportForm({
       className="import-form"
     >
       <h2>Import recording</h2>
+      {schemaVersion === 1 && (
+        <div className="notice">
+          <p>
+            This older workspace needs explicit support for unknown
+            private-draft metadata. Enabling it retains a backup and all
+            original audio. Existing reports may need a fresh comparison; no
+            reviews are granted.
+          </p>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                await post("/dataset/upgrade", {});
+                onUpgraded?.();
+              } catch (cause) {
+                setError((cause as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Enable private draft imports
+          </button>
+        </div>
+      )}
       <p>
-        WAV / FLAC · 100 MiB · up to 600 s stored. Analysis currently supports
-        excerpts up to 30 s.
+        Choose a reference, then add recordings of the same words. WAV / FLAC ·
+        100 MiB · up to 600 s stored; analysis uses excerpts up to 30 s.
       </p>
-      <label>
-        Recording role
-        <select
-          value={reference}
-          onChange={(event) => {
-            setReference(event.target.value);
-            const item = references.find((r) => r.id === event.target.value);
-            if (item) setText(item.transcript.text);
-          }}
-        >
-          <option value="">Public source reference</option>
-          {references.map((r) => (
-            <option key={r.id} value={r.id}>
-              Participant for {r.original_filename}
+      <fieldset disabled={busy}>
+        <legend>Recording and transcript</legend>
+        <label>
+          Recording type
+          <select
+            value={type}
+            onChange={(e) => {
+              setType(e.target.value as Upload["recording_type"]);
+              setError("");
+            }}
+          >
+            <option value="public_reference">Public source reference</option>
+            <option value="controlled_reference">
+              Self-recorded controlled reference
             </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Audio file
-        <input
-          name="audio"
-          type="file"
-          accept=".wav,.flac,audio/wav,audio/flac"
-          required
-        />
-      </label>
-      <label>
-        Transcript file (UTF-8 .txt, optional)
-        <input
-          type="file"
-          accept=".txt,text/plain"
-          onChange={async (event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-            if (file.size > 400000) {
-              setError("Transcript file exceeds 400 kB.");
-              return;
-            }
-            try {
-              setText(
-                new TextDecoder("utf-8", { fatal: true }).decode(
-                  await file.arrayBuffer(),
-                ),
-              );
-            } catch {
-              setError("Transcript must be valid UTF-8.");
-            }
-          }}
-        />
-      </label>
-      <label>
-        Spoken transcript
-        <textarea
-          name="transcript"
-          required
-          maxLength={100000}
-          rows={4}
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-        />
-      </label>
-      <p className="notice">
-        Imported text remains unverified. Actual independent reviews are
-        required before scoring. Do not omit repeated or additional spoken
-        words.
-      </p>
-      <div className="form-grid">
-        {!reference && (
-          <label>
-            Speech family ID
-            <input
-              name="family"
-              pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,79}"
-              required
-            />
-          </label>
+            <option value="human_participant">
+              Human participant recording
+            </option>
+          </select>
+        </label>
+        {type === "controlled_reference" && (
+          <p className="notice">
+            A local practice baseline in your own voice. It does not replace the
+            public-speaker reference required for the competition dataset.
+          </p>
+        )}
+        {participant && (
+          <>
+            <label>
+              Compare with reference
+              <select
+                value={reference}
+                required
+                onChange={(e) => {
+                  setReference(e.target.value);
+                  setText(
+                    references.find((r) => r.id === e.target.value)?.transcript
+                      .text ?? "",
+                  );
+                }}
+              >
+                <option value="">Select a reference</option>
+                {references.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.provenance.source} · {r.original_filename}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {!references.length && (
+              <p className="notice">
+                Import a public or self-recorded reference first. Then return to
+                add a participant.
+              </p>
+            )}
+          </>
         )}
         <label>
-          Speaker ID
+          Audio file
+          <input
+            name="audio"
+            type="file"
+            accept=".wav,.flac,audio/wav,audio/flac"
+            required
+          />
+        </label>
+        <label>
+          Recording title (optional)
+          <input name="title" placeholder="Uses the filename if left empty" />
+        </label>
+        <label>
+          Spoken transcript
+          <textarea
+            name="transcript"
+            required
+            maxLength={100000}
+            rows={5}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </label>
+        <label>
+          Transcript file (UTF-8 .txt, optional)
+          <input
+            type="file"
+            accept=".txt,text/plain"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (file.size > 400000) {
+                setError("Transcript file exceeds 400 kB.");
+                return;
+              }
+              try {
+                setText(
+                  new TextDecoder("utf-8", { fatal: true }).decode(
+                    await file.arrayBuffer(),
+                  ),
+                );
+                setError("");
+              } catch {
+                setError("Transcript must be valid UTF-8.");
+              }
+            }}
+          />
+        </label>
+        <p className="notice">
+          Imported text remains unverified. Matching pasted text expresses the
+          intended relationship; it does not prove which words were spoken.
+          Independent reviews are required before scoring.
+        </p>
+        {participant && (
+          <label className="check">
+            <input type="checkbox" required />I intend this take to contain the
+            same words as the selected reference
+          </label>
+        )}
+        <label className="check">
+          <input type="checkbox" name="localPermission" required />I have
+          permission to store and process this recording locally
+        </label>
+        <p className="meta">
+          Local processing permission does not grant public redistribution.
+          Unknown license and ownership details remain unknown.
+        </p>
+      </fieldset>
+      <details>
+        <summary>Source and provenance</summary>
+        <label>
+          Speaker label (optional)
           <input
             name="speaker"
-            pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,79}"
-            required
+            placeholder="Use the same label for the same person"
           />
         </label>
-        <label>
-          Source ID
-          <input
-            name="sourceId"
-            pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,79}"
-            required
-          />
-        </label>
-        {!reference && (
-          <label>
-            Work ID
-            <input
-              name="workId"
-              pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,79}"
-              required
-            />
+        <p className="meta">
+          Unspecified speakers stay grouped together; different filenames never
+          establish independent people.
+        </p>
+        {participant && (
+          <label className="check">
+            <input type="checkbox" name="sameSpeaker" />
+            Same speaker as the selected reference
           </label>
         )}
-        <label>
-          Source title / recording session
-          <input name="source" required />
-        </label>
         <label>
           Source URL
           <input name="url" type="url" />
         </label>
+        {!participant && (
+          <label>
+            Reference selection rationale (optional)
+            <textarea name="rationale" rows={2} />
+          </label>
+        )}
         <label>
-          Access / recording date
-          <input name="date" type="date" required />
+          Consent evidence reference (optional)
+          <input name="consent" />
         </label>
-        <label>
-          Source excerpt offset (s)
-          <input
-            name="offset"
-            type="number"
-            min="0"
-            step="any"
-            defaultValue="0"
-            required
-          />
+        <p className="meta">
+          Keep signed forms and identities private. The system records actual
+          import time, not an assumed recording date.
+        </p>
+      </details>
+      <details>
+        <summary>Rights and permissions</summary>
+        <div className="form-grid">
+          {[
+            ["holder", "Rights holder"],
+            ["license", "License / permission name"],
+            ["rightsEvidence", "Rights evidence reference"],
+            ["attribution", "Attribution"],
+          ].map(([name, label]) => (
+            <label key={name}>
+              {label}
+              <input name={name} />
+            </label>
+          ))}
+        </div>
+        <label className="check">
+          <input type="checkbox" name="rightsCleared" />I have evidence
+          permitting adaptation and public redistribution
         </label>
+        <p>
+          Clearance requires all four actual rights fields and evidence of both
+          uses. Leave this unchecked for private practice with pending public
+          rights.
+        </p>
+      </details>
+      <details>
+        <summary>Recording details</summary>
         <label>
           Channel
           <select name="channel">
@@ -236,91 +345,65 @@ export function ImportForm({
             <option value="1">Channel 2</option>
           </select>
         </label>
-      </div>
-      {reference ? (
-        <label>
-          Consent evidence reference
-          <input name="consent" required />
-        </label>
-      ) : (
-        <label>
-          Reference selection rationale
-          <textarea name="rationale" rows={2} required />
-        </label>
-      )}
-      <fieldset>
-        <legend>Rights and provenance</legend>
-        <div className="form-grid">
-          <label>
-            Rights holder
-            <input name="holder" required />
-          </label>
-          <label>
-            License / permission name
-            <input name="license" required />
-          </label>
-          <label>
-            Rights evidence reference
-            <input name="rightsEvidence" required />
-          </label>
-          <label>
-            Attribution
-            <input name="attribution" required />
-          </label>
-        </div>
-        <label className="check">
-          <input type="checkbox" name="rightsCleared" /> I have evidence
-          permitting adaptation and public redistribution
-        </label>
         <p>
-          Unchecked records retain pending rights. Importing does not certify
-          permission or publish audio.
+          Duration, sample rate, channels and content hashes come from decoded
+          audio. Originals are preserved.
         </p>
-      </fieldset>
-      {reference ? (
-        <div className="form-grid">
-          <label>
-            Intended category
-            <select name="category">
-              <option value="acceptable">Acceptable alternative</option>
-              {[
-                "pacing",
-                "pause_behavior",
-                "energy_variation",
-                "pitch_dynamics",
-              ].map((c) => (
-                <option key={c} value={c}>
-                  {c.replaceAll("_", " ")}
+        {participant && (
+          <div className="form-grid">
+            <label>
+              Intended category
+              <select name="category">
+                <option value="unspecified">No labeled intent</option>
+                <option value="acceptable">
+                  Intended acceptable alternative
                 </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Intended severity
-            <select name="severity">
-              {[0, 1, 2, 3].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-          <p>
-            Intent is acquisition metadata, never detected ground truth.
-            Acceptable uses severity 0; other categories use 1–3.
-          </p>
-        </div>
-      ) : (
-        <>
-          <input type="hidden" name="category" value="acceptable" />
-          <input type="hidden" name="severity" value="0" />
-        </>
-      )}
+                {[
+                  "pacing",
+                  "pause_behavior",
+                  "energy_variation",
+                  "pitch_dynamics",
+                ].map((c) => (
+                  <option key={c} value={c}>
+                    {c.replaceAll("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Intended severity
+              <select name="severity">
+                {[0, 1, 2, 3].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p>
+              Acquisition intent is not detected ground truth. Acceptable uses
+              0; other categories use 1–3.
+            </p>
+          </div>
+        )}
+      </details>
+      <details>
+        <summary>Controlled synthetic alterations</summary>
+        <p>
+          Use the dataset generate command with a reproducible recipe and time
+          map. A transformed file cannot be imported as a genuine human take.
+          Generated artifacts remain explicitly synthetic and need independent
+          review.
+        </p>
+      </details>
       <p role="status" aria-live="polite" aria-atomic="true">
         {busy ? "Validating recording and provenance…" : success}
       </p>
       {error && <p role="alert">{error}</p>}
-      <button type="submit" disabled={busy}>
+      <button
+        type="submit"
+        disabled={busy || schemaVersion === 1 || (participant && !reference)}
+      >
         {busy ? "Validating recording…" : "Import recording"}
       </button>
     </form>

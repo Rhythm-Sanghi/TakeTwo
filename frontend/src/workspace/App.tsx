@@ -15,6 +15,7 @@ import { ImportForm } from "./ImportForm";
 import { Inspector, Location, Scores } from "./Evidence";
 import { Timeline } from "./Timeline";
 import { TokenOverlay } from "./TokenOverlay";
+import { PairCorrection, ReviewImport } from "./RecordingTools";
 
 type Page =
   | "Recording Library"
@@ -88,12 +89,12 @@ function Metadata({ item }: { item: Recording }) {
         <dt>Rights</dt>
         <dd>
           {item.provenance.rights.status} ·{" "}
-          {item.provenance.rights.license_name}
+          {item.provenance.rights.license_name ?? "Public license not provided"}
         </dd>
         <dt>Rights evidence</dt>
-        <dd>{item.provenance.rights.evidence}</dd>
+        <dd>{item.provenance.rights.evidence ?? "Not provided"}</dd>
         <dt>Attribution</dt>
-        <dd>{item.provenance.rights.attribution}</dd>
+        <dd>{item.provenance.rights.attribution ?? "Not provided"}</dd>
         <dt>Consent evidence</dt>
         <dd>{item.provenance.consent_evidence ?? "Not provided"}</dd>
         <dt>Transcript status</dt>
@@ -107,8 +108,9 @@ function Metadata({ item }: { item: Recording }) {
       <h3>Original transcript</h3>
       <p className="transcript">{item.transcript.text}</p>
       <p className="notice">
-        Corrections require a new dataset version and regenerated evidence using
-        the documented CLI. Original recordings and bound reviews are immutable.
+        Transcript or rights corrections require a reviewed new dataset version
+        and regenerated evidence. The pairing correction action prepares a
+        separate version. Original recordings and bound reviews are immutable.
         Deletion is unavailable while dependency-safe deletion is unsupported.
       </p>
     </section>
@@ -229,6 +231,7 @@ function Rubric({ policy }: { policy: Policy | null }) {
 export function App() {
   const [page, setPage] = useState<Page>("Recording Library");
   const [recordings, setRecordings] = useState<Recording[]>([]);
+  const [schemaVersion, setSchemaVersion] = useState(2);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
@@ -236,9 +239,11 @@ export function App() {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedId, setSelectedId] = useState("");
+  const [participantFor, setParticipantFor] = useState("");
   const [pairId, setPairId] = useState("");
   const [jobId, setJobId] = useState("");
   const [report, setReport] = useState<Report | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
   const [region, setRegion] = useState<Region | null>(null);
   const [seek, setSeek] = useState<
     Record<string, { time: number; end?: number; nonce: number }>
@@ -261,6 +266,9 @@ export function App() {
   const availablePairs = pairs.filter((p) => p.reference_id === reference?.id);
   const pair = availablePairs.find((p) => p.id === pairId);
   const participant = recordings.find((r) => r.id === pair?.participant_id);
+  const overLimit = [reference, participant].some(
+    (r) => r && r.normalized_info.duration_s > 30,
+  );
   const job = jobs.find((j) => j.id === jobId) ?? null;
   const jobMatches =
     job?.request.reference_id === reference?.id &&
@@ -270,7 +278,7 @@ export function App() {
 
   const refresh = useCallback(async () => {
     try {
-      const [r, p, j, h, pol, e, v] = await Promise.all([
+      const [r, p, j, h, pol, e, v, d] = await Promise.all([
         api<Recording[]>("/recordings"),
         api<Pair[]>("/pairs"),
         api<Job[]>("/analyses"),
@@ -278,8 +286,10 @@ export function App() {
         api<Policy>("/rubrics/delivery-v0"),
         api<Evaluation[]>("/evaluations"),
         api<Review[]>("/reviews"),
+        api<{ schema_version: number }>("/dataset"),
       ]);
       setRecordings(r);
+      setSchemaVersion(d.schema_version);
       setPairs(p);
       setJobs(j);
       setHealth(h);
@@ -287,6 +297,7 @@ export function App() {
       setEvaluations(e);
       setReviews(v);
       setError("");
+      return { recordings: r, pairs: p };
     } catch (cause) {
       setError((cause as Error).message);
     } finally {
@@ -310,6 +321,7 @@ export function App() {
     let active = true;
     setReport(null);
     setRegion(null);
+    setReportLoading(Boolean(activeJob?.report_path));
     if (activeJob?.report_path)
       api<Report>(`/analyses/${activeJob.id}/report`)
         .then((value) => {
@@ -317,17 +329,21 @@ export function App() {
         })
         .catch((cause) => {
           if (active) setError(cause.message);
+        })
+        .finally(() => {
+          if (active) setReportLoading(false);
         });
     return () => {
       active = false;
     };
-  }, [activeJob?.id, activeJob?.report_path]);
+  }, [activeJob?.id, activeJob?.report_path, recordings, reviews]);
 
   function navigate(next: Page) {
     setPage(next);
     requestAnimationFrame(() => heading.current?.focus());
   }
   function selectRecording(item: Recording) {
+    setParticipantFor("");
     setSelectedId(item.id);
     setPairId(pairs.find((p) => p.participant_id === item.id)?.id ?? "");
     setJobId("");
@@ -344,7 +360,7 @@ export function App() {
         retry?.request ?? {
           reference_id: reference.id,
           pair_id: pair?.id ?? null,
-          align,
+          align: align && Boolean(health?.alignment_configured),
         },
       );
       setJobs((current) => [item, ...current.filter((j) => j.id !== item.id)]);
@@ -384,6 +400,20 @@ export function App() {
     if (playback.current && playback.current !== element)
       playback.current.pause();
     playback.current = element;
+  }
+  async function imported(item: Recording) {
+    const current = await refresh();
+    if (!current)
+      throw new Error(
+        "Recording was stored but inventory refresh failed. Reconnect / refresh; do not re-import.",
+      );
+    setSelectedId(item.id);
+    setPairId(
+      current?.pairs.find((p) => p.participant_id === item.id)?.id ?? "",
+    );
+    setJobId("");
+    setReport(null);
+    setRegion(null);
   }
 
   return (
@@ -436,8 +466,8 @@ export function App() {
             <p role="status">Loading recordings…</p>
           ) : recordings.length === 0 ? (
             <p>
-              Library is empty. Import a public reference and its exact spoken
-              transcript.
+              Library is empty. Import a public or self-recorded reference and
+              the words spoken. Then add a participant.
             </p>
           ) : (
             <ul>
@@ -471,10 +501,17 @@ export function App() {
                     onClick={() => openHistory(item)}
                   >
                     <span>
-                      {item.created_at.slice(0, 19).replace("T", " ")} UTC
+                      {new Date(item.created_at)
+                        .toISOString()
+                        .slice(0, 19)
+                        .replace("T", " ")}{" "}
+                      UTC
                     </span>
                     <strong>
-                      {item.state} · {item.stage}
+                      {recordings.find(
+                        (r) => r.id === item.request.reference_id,
+                      )?.original_filename ?? "Recording"}{" "}
+                      · {item.state} · {item.stage}
                     </strong>
                     <span className="mono">{item.id.slice(0, 12)}</span>
                   </button>
@@ -502,17 +539,15 @@ export function App() {
               <section className="panel">
                 <ImportForm
                   recordings={recordings}
-                  onImported={(item) => {
-                    void refresh();
-                    setSelectedId(item.id);
-                    setPairId("");
-                  }}
+                  participantFor={participantFor}
+                  schemaVersion={schemaVersion}
+                  onUpgraded={() => void refresh()}
+                  onImported={imported}
                 />
               </section>
               <div>
                 {selected ? (
                   <>
-                    <Metadata item={selected} />
                     <section className="panel">
                       <h2>Pair relationships</h2>
                       {pairs
@@ -522,7 +557,7 @@ export function App() {
                             p.participant_id === selected.id,
                         )
                         .map((p) => (
-                          <p key={p.id}>
+                          <div key={p.id}>
                             <button
                               onClick={() => {
                                 setSelectedId(p.reference_id);
@@ -531,10 +566,21 @@ export function App() {
                                 navigate("Analysis Workspace");
                               }}
                             >
-                              Open pair {p.id}
+                              Compare{" "}
+                              {
+                                recordings.find(
+                                  (r) => r.id === p.participant_id,
+                                )?.original_filename
+                              }{" "}
+                              with{" "}
+                              {
+                                recordings.find((r) => r.id === p.reference_id)
+                                  ?.original_filename
+                              }
                             </button>{" "}
                             · {label(p.identity_status)}
-                          </p>
+                            <PairCorrection pair={p} recordings={recordings} />
+                          </div>
                         ))}
                       {!pairs.some(
                         (p) =>
@@ -549,16 +595,41 @@ export function App() {
                       <button onClick={() => navigate("Analysis Workspace")}>
                         Inspect audio in workspace
                       </button>
+                      {reference && (
+                        <button
+                          onClick={() => {
+                            setParticipantFor(reference.id);
+                            navigate("Recording Library");
+                          }}
+                        >
+                          Add participant
+                        </button>
+                      )}
+                      <details>
+                        <summary>What needs independent review?</summary>
+                        <p>
+                          Verify the spoken words with two independent
+                          listeners. Matching pasted text is not verification.
+                          Then check every aligned word and phrase; run a new
+                          analysis after importing real timing reviews. The
+                          Dataset and Evaluation area accepts actual review
+                          files. Corrections use a new dataset version; approval
+                          is never automatic.
+                        </p>
+                      </details>
                     </section>
+                    <Metadata item={selected} />
                   </>
                 ) : (
                   <section className="panel">
                     <h2>Start with a reference</h2>
                     <p>
-                      Import real public-source audio, provenance and the exact
-                      words spoken. Then add a consented participant recording
-                      of the same text. Synthetic derivatives imported through
-                      dataset tooling remain explicitly labeled.
+                      Choose Public source reference for archival speech, or
+                      Self-recorded controlled reference for private practice.
+                      Add a separate participant of the same words, then open
+                      Analysis Workspace. Missing reviews keep scores
+                      unavailable. Synthetic derivatives from dataset tools
+                      remain explicitly labeled.
                     </p>
                   </section>
                 )}
@@ -617,7 +688,7 @@ export function App() {
                   <label className="check">
                     <input
                       type="checkbox"
-                      checked={align}
+                      checked={align && Boolean(health?.alignment_configured)}
                       onChange={(event) => setAlign(event.target.checked)}
                       disabled={!health?.alignment_configured}
                     />{" "}
@@ -628,6 +699,7 @@ export function App() {
                     onClick={() => void start()}
                     disabled={
                       !reference ||
+                      overLimit ||
                       !health?.ready ||
                       starting ||
                       activeJob?.state === "running" ||
@@ -676,6 +748,15 @@ export function App() {
                     participant mirror.
                   </p>
                 )}
+                {overLimit && (
+                  <p className="notice">
+                    A selected recording exceeds the 30-second analysis limit.
+                    Playback remains available. Use each timeline's selection
+                    controls and Save selection as an analysis excerpt; supply
+                    the exact words for each cut, then choose the excerpt
+                    reference and participant.
+                  </p>
+                )}
                 <p className="meta">
                   30 s analysis limit · one CPU worker · no fabricated progress
                   estimate. Completed acoustic artifacts are reused only when
@@ -705,6 +786,8 @@ export function App() {
                       seek={seek[reference.id] ?? null}
                       onSelect={inspect}
                       onPlay={onPlay}
+                      references={recordings}
+                      onExcerpt={imported}
                     />
                   ) : (
                     <section className="panel">
@@ -724,6 +807,8 @@ export function App() {
                       seek={seek[participant.id] ?? null}
                       onSelect={inspect}
                       onPlay={onPlay}
+                      references={recordings}
+                      onExcerpt={imported}
                     />
                   )}
                   <section className="panel">
@@ -838,7 +923,16 @@ export function App() {
                     </section>
                   )}
                 </div>
-                <Inspector region={region} report={activeReport} />
+                {reportLoading ? (
+                  <aside className="panel" aria-busy="true">
+                    <h2>Evidence inspector</h2>
+                    <p role="status">
+                      Validating and loading the completed report…
+                    </p>
+                  </aside>
+                ) : (
+                  <Inspector region={region} report={activeReport} />
+                )}
               </div>
             </>
           )}
@@ -879,8 +973,23 @@ export function App() {
                       <th>Human-recorded participants</th>
                       <td>
                         {
-                          recordings.filter((r) => r.origin === "self_recorded")
-                            .length
+                          recordings.filter(
+                            (r) =>
+                              r.origin === "self_recorded" &&
+                              r.role === "participant",
+                          ).length
+                        }
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Controlled self-recorded references</th>
+                      <td>
+                        {
+                          recordings.filter(
+                            (r) =>
+                              r.origin === "self_recorded" &&
+                              r.role === "reference",
+                          ).length
                         }
                       </td>
                     </tr>
@@ -930,6 +1039,11 @@ export function App() {
                   evaluation; this view never generates approvals.
                 </p>
               </section>
+              <ReviewImport
+                jobs={jobs}
+                recordings={recordings}
+                onImported={() => void refresh()}
+              />
               <section className="panel">
                 <h2>Persisted evaluation runs</h2>
                 {!evaluations.length ? (

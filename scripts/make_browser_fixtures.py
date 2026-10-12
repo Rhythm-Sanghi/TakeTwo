@@ -10,7 +10,12 @@ import soundfile as sf
 def main():
     root = Path(__file__).resolve().parents[1] / "local-data/browser-fixtures"
     root.mkdir(parents=True, exist_ok=True)
-    for role, frequency in [("reference", 220), ("participant", 260)]:
+    for role, frequency in [
+        ("reference", 220),
+        ("participant", 260),
+        ("controlled-reference", 310),
+        ("controlled-participant", 370),
+    ]:
         time = np.arange(32000) / 16000
         samples = (0.2 * np.sin(2 * np.pi * frequency * time)).astype(np.float32)
         samples[8000:12000] = 0

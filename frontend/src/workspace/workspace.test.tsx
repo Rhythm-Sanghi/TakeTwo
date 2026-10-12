@@ -11,6 +11,7 @@ import type { Recording, Region, Report } from "../api";
 import { Inspector, Scores } from "./Evidence";
 import { sampleAtTime, timeAtPosition, Timeline } from "./Timeline";
 import { ImportForm } from "./ImportForm";
+import { ExcerptForm } from "./RecordingTools";
 
 vi.mock("uplot", () => ({
   default: class {
@@ -22,6 +23,48 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+
+it("retains recovery guidance when an excerpt is saved but inventory refresh fails", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ id: "test-cut" }) }),
+  );
+  const onSaved = vi
+    .fn()
+    .mockRejectedValue(
+      new Error(
+        "Recording was stored but inventory refresh failed. Reconnect / refresh; do not re-import.",
+      ),
+    );
+  render(
+    <ExcerptForm
+      recording={
+        {
+          id: "test-parent",
+          role: "reference",
+          origin: "self_recorded",
+        } as Recording
+      }
+      selection={[0, 1]}
+      references={[]}
+      onSaved={onSaved}
+    />,
+  );
+  await userEvent.click(
+    screen.getByText("Save selection as an analysis excerpt"),
+  );
+  await userEvent.type(
+    screen.getByLabelText("Exact excerpt transcript"),
+    "Fixture words.",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Save excerpt" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "do not re-import",
+  );
+  expect(onSaved).toHaveBeenCalledTimes(1);
 });
 
 // Component-only fixtures. These are not runtime reports, speech or human review claims.
@@ -207,7 +250,7 @@ it("import begins with unverified text and no invented approvals", async () => {
   expect(screen.getByLabelText("Audio file")).toBeRequired();
   expect(screen.getByLabelText("Spoken transcript")).toBeRequired();
   await user.tab();
-  expect(screen.getByLabelText("Recording role")).toHaveFocus();
+  expect(screen.getByLabelText("Recording type")).toHaveFocus();
 });
 it("seeks actual native audio and exposes numeric interval controls", async () => {
   vi.stubGlobal(
@@ -282,4 +325,91 @@ it("seeks actual native audio and exposes numeric interval controls", async () =
   expect(
     screen.queryByRole("img", { name: /Measured reference waveform/ }),
   ).not.toBeInTheDocument();
+});
+
+it("keeps human participant type visible before a reference exists", async () => {
+  const user = userEvent.setup();
+  render(<ImportForm recordings={[]} onImported={() => {}} />);
+  await user.selectOptions(
+    screen.getByLabelText("Recording type"),
+    "human_participant",
+  );
+  expect(
+    screen.getByText(/Import a public or self-recorded reference first/),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("button", { name: "Import recording" }),
+  ).toBeDisabled();
+});
+
+it("discloses advanced provenance and supports controlled local drafts without IDs", async () => {
+  const user = userEvent.setup();
+  render(<ImportForm recordings={[]} onImported={() => {}} />);
+  await user.selectOptions(
+    screen.getByLabelText("Recording type"),
+    "controlled_reference",
+  );
+  expect(screen.getByText(/does not replace the public-speaker/)).toBeVisible();
+  expect(screen.getByLabelText("Rights holder")).not.toBeVisible();
+  expect(screen.queryByLabelText("Speech family ID")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Source ID")).not.toBeInTheDocument();
+  expect(
+    screen.getByLabelText(
+      "I have permission to store and process this recording locally",
+    ),
+  ).toBeRequired();
+  expect(
+    screen.getByLabelText(
+      "I have permission to store and process this recording locally",
+    ),
+  ).not.toBeChecked();
+  await user.click(screen.getByText("Rights and permissions", { exact: true }));
+  expect(screen.getByLabelText("Rights holder")).toBeVisible();
+});
+
+it("submits an unverified private draft without fictional rights or severity", async () => {
+  const user = userEvent.setup();
+  const fetcher = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      id: "fixture",
+      original_filename: "generated.wav",
+      provenance: { rights: { status: "pending" } },
+    }),
+  });
+  vi.stubGlobal("fetch", fetcher);
+  const imported = vi.fn();
+  render(<ImportForm recordings={[]} onImported={imported} />);
+  await user.selectOptions(
+    screen.getByLabelText("Recording type"),
+    "controlled_reference",
+  );
+  await user.upload(
+    screen.getByLabelText("Audio file"),
+    new File(["test-only bytes"], "generated.wav", { type: "audio/wav" }),
+  );
+  expect(
+    (screen.getByLabelText("Audio file") as HTMLInputElement).files,
+  ).toHaveLength(1);
+  await user.type(
+    screen.getByLabelText("Spoken transcript"),
+    "Generated software fixture.",
+  );
+  await user.click(
+    screen.getByLabelText(
+      "I have permission to store and process this recording locally",
+    ),
+  );
+  // jsdom's required-file validity does not recognize the user-event FileList.
+  // Actual Chromium acceptance checks native validation; this checks the submitted contract.
+  fireEvent.submit(screen.getByRole("form", { name: "Import recording" }));
+  await waitFor(() => expect(imported).toHaveBeenCalled());
+  const body = fetcher.mock.calls[0][1].body as FormData;
+  const metadata = JSON.parse(String(body.get("metadata")));
+  expect(metadata.recording_type).toBe("controlled_reference");
+  expect(metadata.rights).toBeNull();
+  expect(metadata.severity).toBeNull();
+  expect(metadata.category).toBe("unspecified");
+  expect(metadata).not.toHaveProperty("speaker_id");
+  expect(metadata).not.toHaveProperty("verification_date");
 });
