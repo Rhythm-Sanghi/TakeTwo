@@ -6,7 +6,7 @@ from taketwo.analysis.contracts import AlignmentResult, FeatureResult
 from taketwo.analysis.storage import read_artifact as read_analysis
 from taketwo.analysis.storage import validate_identity
 from taketwo.dataset.audio import sha256
-from taketwo.dataset.schema import canonical_json, content_hash
+from taketwo.dataset.schema import Dataset, canonical_json, content_hash
 from taketwo.dataset.storage import managed_path, read_json, safe_path, write_new
 from taketwo.dataset.workspace import find_recording
 
@@ -95,13 +95,34 @@ def load_evidence(root, dataset, feature_path, alignment_path=None, review_paths
     )
 
 
+def bound_dataset(root, dataset, report: Report):
+    if report.dataset_sha256 == content_hash(dataset.model_dump(mode="json")):
+        return dataset
+    path = managed_path(root, f"derived/comparison-v1/dataset-{report.dataset_sha256}.json")
+    if not path.is_file():
+        raise ValueError(
+            "Dataset changed and the legacy report has no saved snapshot; compare again."
+        )
+    snapshot = Dataset.model_validate_json(canonical_json(read_json(path)))
+    if content_hash(snapshot.model_dump(mode="json")) != report.dataset_sha256:
+        raise ValueError("Dataset snapshot hash differs.")
+    for member in report.inputs:
+        rid = member.provenance.recording_id
+        if find_recording(snapshot, rid) != find_recording(dataset, rid):
+            raise ValueError("A report recording changed; compare again.")
+    if report.pair_id and next((p for p in snapshot.pairs if p.id == report.pair_id), None) != next(
+        (p for p in dataset.pairs if p.id == report.pair_id), None
+    ):
+        raise ValueError("Report pair changed; compare again.")
+    return snapshot
+
+
 def reproduce(root, dataset, report: Report):
     if report.implementation_sha256 != implementation_hash():
         raise ValueError(
             "Comparison implementation changed; compare again using cached Phase 2 artifacts."
         )
-    if report.dataset_sha256 != content_hash(dataset.model_dump(mode="json")):
-        raise ValueError("Dataset metadata changed; compare again.")
+    dataset = bound_dataset(root, dataset, report)
     evidence = []
     for member in report.inputs:
         feature_path = managed_path(root, member.features.path)

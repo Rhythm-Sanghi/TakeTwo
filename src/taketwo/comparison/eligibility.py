@@ -71,10 +71,13 @@ def recording_gates(
     if provenance.rights.status != "cleared":
         common.append(reason("rights_pending", "Relevant dataset rights are not cleared."))
     if recording.role == "reference" and (
-        recording.origin != "source" or not provenance.baseline_rationale
+        recording.origin not in {"source", "self_recorded"} or not provenance.baseline_rationale
     ):
         common.append(
-            reason("reference_provenance", "Reference needs real source and selection rationale.")
+            reason(
+                "reference_provenance",
+                "Reference needs genuine source/self-recorded origin and selection rationale.",
+            )
         )
     if recording.origin == "self_recorded" and not provenance.consent_evidence:
         common.append(reason("consent_missing", "Human recording consent reference is missing."))

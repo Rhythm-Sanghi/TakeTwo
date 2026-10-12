@@ -75,17 +75,22 @@ class Transcript(Model):
 
 class Rights(Model):
     status: Literal["pending", "cleared"]
-    holder: Text
-    license_name: Text
-    evidence: Text
-    attribution: Text
+    holder: Text | None
+    license_name: Text | None
+    evidence: Text | None
+    attribution: Text | None
     permits_adaptation: bool
     permits_redistribution: bool
 
     @model_validator(mode="after")
     def check_clearance(self) -> "Rights":
         if self.status == "cleared" and not (
-            self.permits_adaptation and self.permits_redistribution
+            self.permits_adaptation
+            and self.permits_redistribution
+            and self.holder
+            and self.license_name
+            and self.evidence
+            and self.attribution
         ):
             raise ValueError("cleared rights must permit adaptation and redistribution")
         return self
@@ -219,10 +224,19 @@ class Pair(Model):
     reference_id: Identifier
     participant_id: Identifier
     transcript_sha256: Digest
-    intended_flaw: Category
-    intended_severity: Severity
+    intended_flaw: Category | Literal["unspecified"]
+    intended_severity: Severity | None
     reviewed_severity: Severity | None = None
     identity_status: Literal["needs_review", "verified", "derived"]
+
+    @model_validator(mode="after")
+    def intent(self):
+        if self.intended_flaw == "unspecified":
+            if self.intended_severity is not None:
+                raise ValueError("Unspecified acquisition intent has no severity.")
+        elif self.intended_severity is None:
+            raise ValueError("An intended category requires its intended severity.")
+        return self
 
 
 class Annotation(Model):
@@ -273,12 +287,35 @@ class SplitReport(Model):
 
 
 class Dataset(Model):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[1, 2] = 2
     dataset_version: Identifier
     recordings: list[Recording] = Field(default_factory=list)
     pairs: list[Pair] = Field(default_factory=list)
     annotations: list[Annotation] = Field(default_factory=list)
     split: SplitReport | None = None
+
+    @model_validator(mode="after")
+    def legacy_fields(self):
+        if self.schema_version == 1 and (
+            any(
+                r.provenance.access_date is None
+                or any(
+                    v is None
+                    for v in (
+                        r.provenance.rights.holder,
+                        r.provenance.rights.license_name,
+                        r.provenance.rights.evidence,
+                        r.provenance.rights.attribution,
+                    )
+                )
+                for r in self.recordings
+            )
+            or any(
+                p.intended_flaw == "unspecified" or p.intended_severity is None for p in self.pairs
+            )
+        ):
+            raise ValueError("Unknown draft facts require explicit dataset schema v2 upgrade.")
+        return self
 
 
 class ImportSpec(Model):

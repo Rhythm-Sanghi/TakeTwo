@@ -2,6 +2,7 @@
 
 import csv
 import io
+import json
 import os
 import re
 import tempfile
@@ -28,22 +29,34 @@ from taketwo.analysis.storage import recording_input, validate_identity
 from taketwo.comparison.contracts import Evaluation, Policy, Report, Review, Span
 from taketwo.comparison.engine import acoustic_gate
 from taketwo.comparison.reviews import reviewed_timing
-from taketwo.comparison.storage import implementation_hash, read_artifact
+from taketwo.comparison.storage import bound_dataset, implementation_hash, read_artifact
 from taketwo.dataset.errors import DatasetError
-from taketwo.dataset.schema import Pair, Recording, Transcript, canonical_json, content_hash
-from taketwo.dataset.storage import load, managed_path, read_json, safe_path
+from taketwo.dataset.schema import (
+    Pair,
+    Recording,
+    Transcript,
+    canonical_json,
+    content_hash,
+)
+from taketwo.dataset.storage import load, managed_path, read_json, safe_path, unique_json
 from taketwo.dataset.workspace import find_recording, import_recording, initialize, summary
 
 from .contracts import (
     AnalysisRequest,
+    CorrectionRequest,
     DatasetSummary,
+    ExcerptRequest,
     FeatureWindow,
     Health,
     ImportRequest,
     Job,
+    LocalImportRequest,
     Overlay,
+    ReviewImportRequest,
     Waveform,
+    WorkspaceRevision,
 )
+from .imports import corrected_pair, excerpt, local_spec, upgrade_drafts
 from .jobs import Jobs
 from .processes import lease
 
@@ -245,13 +258,14 @@ def create_app(
         result = read_artifact(managed_path(root, job.report_path))
         if not isinstance(result, Report):
             raise ValueError("Stored artifact is not a comparison report.")
-        if (
-            result.dataset_sha256 != content_hash(load(root).model_dump(mode="json"))
-            or result.implementation_sha256 != implementation_hash()
-        ):
+        if result.implementation_sha256 != implementation_hash():
             raise HTTPException(
                 409, "Report inputs or comparison version changed; start a new analysis."
             )
+        try:
+            bound_dataset(root, load(root), result)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
         for member in result.inputs:
             features = analysis(job_id, member.provenance.recording_id, "features")
             if content_hash(features.model_dump(mode="json")) != member.features.sha256:
@@ -324,13 +338,12 @@ def create_app(
     ):
         if len(metadata.encode("utf-8")) > 1024 * 1024:
             raise HTTPException(413, "Import metadata exceeds 1 MiB.")
-        spec = ImportRequest.model_validate_json(metadata)
+        payload = json.loads(metadata, object_pairs_hook=unique_json)
+        if not isinstance(payload, dict):
+            raise ValueError("Import metadata must be a JSON object.")
+        spec = ImportRequest.model_validate_json(metadata) if "metadata" in payload else None
         if any(j.state == "running" for j in jobs.list()):
             raise HTTPException(409, "Analysis owns the dataset. Wait or cancel before importing.")
-        if (spec.category == "acceptable") != (spec.severity == 0):
-            raise ValueError("Only acceptable intended categories use severity zero.")
-        if spec.reference_id and recording(spec.reference_id).role != "reference":
-            raise ValueError("Participant import requires a reference recording.")
         filename = (audio.filename or "recording.wav").replace("\\", "/").split("/")[-1]
         filename = re.sub(r"[^A-Za-z0-9._-]", "_", filename)[:100]
         if (
@@ -355,6 +368,22 @@ def create_app(
                 "Supported audio MIME types are WAV, FLAC or binary; "
                 "actual contents are decoded and validated.",
             )
+        if spec is None:
+            local = LocalImportRequest.model_validate_json(metadata)
+            spec = ImportRequest(
+                metadata=local_spec(root, local, filename),
+                reference_id=local.reference_id,
+                category=local.category,
+                severity=local.severity,
+            )
+        if spec.category == "unspecified" and spec.severity is not None:
+            raise ValueError("Unspecified acquisition intent has no severity.")
+        if spec.category != "unspecified" and (spec.category == "acceptable") != (
+            spec.severity == 0
+        ):
+            raise ValueError("Only acceptable intended categories use severity zero.")
+        if spec.reference_id and recording(spec.reference_id).role != "reference":
+            raise ValueError("Participant import requires a reference recording.")
         try:
             with tempfile.TemporaryDirectory(prefix="taketwo-upload-") as directory:
                 path = Path(directory) / filename
@@ -380,6 +409,40 @@ def create_app(
     @app.get("/api/v1/pairs", response_model=list[Pair])
     def pairs():
         return load(root).pairs
+
+    @app.post("/api/v1/recordings/{rid}/excerpt", response_model=Recording, status_code=201)
+    def save_excerpt(rid: str, request: ExcerptRequest):
+        return excerpt(root, rid, request)
+
+    @app.post(
+        "/api/v1/pairs/{pair_id}/correction", response_model=WorkspaceRevision, status_code=201
+    )
+    def correct_pair(pair_id: str, request: CorrectionRequest):
+        return corrected_pair(root, pair_id, request.reference_id)
+
+    @app.post("/api/v1/reviews/import")
+    def import_review(request: ReviewImportRequest):
+        from argparse import Namespace
+
+        from taketwo.comparison.cli import run
+
+        job = jobs.get(request.job_id)
+        rid = request.review.provenance.recording_id
+        if rid not in job.artifacts:
+            raise ValueError("Review must bind a member of the selected analysis.")
+        relative = job.artifacts[rid].get("alignment")
+        with tempfile.TemporaryDirectory(prefix="taketwo-review-") as directory:
+            path = Path(directory) / "review.json"
+            path.write_text(request.review.model_dump_json(), encoding="utf-8")
+            result, _ = run(
+                Namespace(
+                    command="import-review",
+                    workspace=root,
+                    review=path,
+                    alignment=managed_path(root, relative) if relative else None,
+                )
+            )
+        return {"decision": result["decision"], "notice": result["notice"]}
 
     @app.get("/api/v1/recordings/{rid}/audio")
     def audio(rid: str):
@@ -551,6 +614,10 @@ def create_app(
     @app.get("/api/v1/dataset", response_model=DatasetSummary)
     def dataset_summary():
         return DatasetSummary.model_validate_json(canonical_json(summary(load(root))))
+
+    @app.post("/api/v1/dataset/upgrade", response_model=DatasetSummary)
+    def enable_drafts():
+        return summary(upgrade_drafts(root))
 
     @app.get("/api/v1/analyses/{job_id}/export")
     def export(job_id: str, format: str = "json"):

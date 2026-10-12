@@ -35,7 +35,7 @@ def main():
         if weight not in matrix:
             raise ValueError(f"Official judging weight missing: {weight}")
     expected = {
-        "dataset-schema-v1.json": Dataset.model_json_schema(),
+        "dataset-schema-v2.json": Dataset.model_json_schema(),
         "analysis-schema-v1.json": {
             "alignment": AlignmentResult.model_json_schema(),
             "features": FeatureResult.model_json_schema(),

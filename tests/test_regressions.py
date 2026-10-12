@@ -117,5 +117,5 @@ def test_reserved_windows_paths(tmp_path, name):
 
 
 def test_documented_schema_matches_runtime():
-    path = Path(__file__).resolve().parents[1] / "docs" / "dataset-schema-v1.json"
+    path = Path(__file__).resolve().parents[1] / "docs" / "dataset-schema-v2.json"
     assert json.loads(path.read_text(encoding="utf-8")) == Dataset.model_json_schema()

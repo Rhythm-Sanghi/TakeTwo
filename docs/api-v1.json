@@ -182,6 +182,140 @@
         }
       }
     },
+    "/api/v1/recordings/{rid}/excerpt": {
+      "post": {
+        "summary": "Save Excerpt",
+        "operationId": "save_excerpt_api_v1_recordings__rid__excerpt_post",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcerptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recording"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pairs/{pair_id}/correction": {
+      "post": {
+        "summary": "Correct Pair",
+        "operationId": "correct_pair_api_v1_pairs__pair_id__correction_post",
+        "parameters": [
+          {
+            "name": "pair_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pair Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceRevision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/import": {
+      "post": {
+        "summary": "Import Review",
+        "operationId": "import_review_api_v1_reviews_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/recordings/{rid}/audio": {
       "get": {
         "summary": "Audio",
@@ -710,7 +844,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/Review"
+                    "$ref": "#/components/schemas/Review-Output"
                   },
                   "type": "array",
                   "title": "Response Reviews Api V1 Reviews Get"
@@ -725,6 +859,24 @@
       "get": {
         "summary": "Dataset Summary",
         "operationId": "dataset_summary_api_v1_dataset_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dataset/upgrade": {
+      "post": {
+        "summary": "Enable Drafts",
+        "operationId": "enable_drafts_api_v1_dataset_upgrade_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1154,8 +1306,31 @@
         ],
         "title": "Body_upload_api_v1_recordings_post"
       },
+      "CorrectionRequest": {
+        "properties": {
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reference Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reference_id"
+        ],
+        "title": "CorrectionRequest"
+      },
       "DatasetSummary": {
         "properties": {
+          "schema_version": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "title": "Schema Version"
+          },
           "dataset_version": {
             "type": "string",
             "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
@@ -1214,6 +1389,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "schema_version",
           "dataset_version",
           "recordings",
           "pairs",
@@ -1664,6 +1840,46 @@
         "additionalProperties": false,
         "type": "object",
         "title": "EvaluationConfig"
+      },
+      "ExcerptRequest": {
+        "properties": {
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          },
+          "transcript": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Transcript"
+          },
+          "reference_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s",
+          "transcript"
+        ],
+        "title": "ExcerptRequest"
       },
       "Explanation": {
         "properties": {
@@ -2888,25 +3104,40 @@
             "title": "Transcript Sha256"
           },
           "intended_flaw": {
-            "type": "string",
-            "enum": [
-              "pacing",
-              "pause_behavior",
-              "energy_variation",
-              "pitch_dynamics",
-              "acceptable",
-              "recording_quality",
-              "alignment_uncertainty"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pacing",
+                  "pause_behavior",
+                  "energy_variation",
+                  "pitch_dynamics",
+                  "acceptable",
+                  "recording_quality",
+                  "alignment_uncertainty"
+                ]
+              },
+              {
+                "type": "string",
+                "const": "unspecified"
+              }
             ],
             "title": "Intended Flaw"
           },
           "intended_severity": {
-            "type": "integer",
-            "enum": [
-              0,
-              1,
-              2,
-              3
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "null"
+              }
             ],
             "title": "Intended Severity"
           },
@@ -3184,6 +3415,72 @@
           "versions"
         ],
         "title": "Processing"
+      },
+      "Provenance-Input": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "audio_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Audio Sha256"
+          },
+          "sample_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sample Sha256"
+          },
+          "transcript_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256"
+          },
+          "original_text_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Text Sha256"
+          },
+          "transcript_verified": {
+            "type": "boolean",
+            "title": "Transcript Verified"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Versions"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "dataset_version",
+          "audio_sha256",
+          "sample_sha256",
+          "transcript_sha256",
+          "original_text_sha256",
+          "transcript_verified",
+          "versions",
+          "implementation_sha256"
+        ],
+        "title": "Provenance"
       },
       "QualityReport": {
         "properties": {
@@ -3795,7 +4092,180 @@
         ],
         "title": "Resource"
       },
-      "Review": {
+      "Review-Input": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "review",
+            "title": "Kind",
+            "default": "review"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance-Input"
+          },
+          "alignment_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alignment Sha256"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "reviewer_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reviewer Id"
+          },
+          "reviewed_on": {
+            "type": "string",
+            "title": "Reviewed On"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Evidence Reference"
+          },
+          "independent": {
+            "type": "boolean",
+            "title": "Independent"
+          },
+          "blinded_to_predictions": {
+            "type": "boolean",
+            "title": "Blinded To Predictions"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected",
+              "unresolved"
+            ],
+            "title": "Decision"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Notes"
+          },
+          "corrected_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corrected Text"
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Words"
+          },
+          "phrase_spans": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Phrase Spans"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "title": "Labels"
+          },
+          "reviewed_spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "title": "Reviewed Spans"
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "scope",
+          "provenance",
+          "reviewer_id",
+          "reviewed_on",
+          "evidence_reference",
+          "independent",
+          "blinded_to_predictions",
+          "decision",
+          "notes"
+        ],
+        "title": "Review"
+      },
+      "Review-Output": {
         "properties": {
           "kind": {
             "type": "string",
@@ -3968,6 +4438,24 @@
         ],
         "title": "Review"
       },
+      "ReviewImportRequest": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "review": {
+            "$ref": "#/components/schemas/Review-Input"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "review"
+        ],
+        "title": "ReviewImportRequest"
+      },
       "Rights": {
         "additionalProperties": false,
         "properties": {
@@ -3980,28 +4468,56 @@
             "type": "string"
           },
           "holder": {
-            "maxLength": 100000,
-            "minLength": 1,
-            "title": "Holder",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Holder"
           },
           "license_name": {
-            "maxLength": 100000,
-            "minLength": 1,
-            "title": "License Name",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Name"
           },
           "evidence": {
-            "maxLength": 100000,
-            "minLength": 1,
-            "title": "Evidence",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence"
           },
           "attribution": {
-            "maxLength": 100000,
-            "minLength": 1,
-            "title": "Attribution",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribution"
           },
           "permits_adaptation": {
             "title": "Permits Adaptation",
@@ -4366,6 +4882,37 @@
         ],
         "title": "Waveform"
       },
+      "WorkspaceRevision": {
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "title": "Workspace"
+          },
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reference Id"
+          },
+          "participant_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Participant Id"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "workspace",
+          "reference_id",
+          "participant_id",
+          "notice"
+        ],
+        "title": "WorkspaceRevision"
+      },
       "taketwo__analysis__contracts__Provenance": {
         "properties": {
           "recording_id": {
@@ -4692,6 +5239,7 @@
           "category": {
             "default": "acceptable",
             "enum": [
+              "unspecified",
               "acceptable",
               "pacing",
               "pause_behavior",
@@ -4702,21 +5250,205 @@
             "type": "string"
           },
           "severity": {
-            "default": 0,
-            "enum": [
-              0,
-              1,
-              2,
-              3
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "title": "Severity",
-            "type": "integer"
+            "default": 0,
+            "title": "Severity"
           }
         },
         "required": [
           "metadata"
         ],
         "title": "ImportRequest",
+        "type": "object"
+      },
+      "LocalImportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "recording_type": {
+            "enum": [
+              "public_reference",
+              "controlled_reference",
+              "human_participant"
+            ],
+            "title": "Recording Type",
+            "type": "string"
+          },
+          "transcript": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Transcript",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Title"
+          },
+          "reference_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Id"
+          },
+          "local_permission": {
+            "title": "Local Permission",
+            "type": "boolean"
+          },
+          "speaker_label": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Speaker Label"
+          },
+          "same_speaker_as_reference": {
+            "default": false,
+            "title": "Same Speaker As Reference",
+            "type": "boolean"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Url"
+          },
+          "rationale": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rationale"
+          },
+          "consent_evidence": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Consent Evidence"
+          },
+          "rights": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Rights"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Channel"
+          },
+          "category": {
+            "default": "unspecified",
+            "enum": [
+              "unspecified",
+              "acceptable",
+              "pacing",
+              "pause_behavior",
+              "energy_variation",
+              "pitch_dynamics"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Severity"
+          }
+        },
+        "required": [
+          "recording_type",
+          "transcript",
+          "local_permission"
+        ],
+        "title": "LocalImportRequest",
         "type": "object"
       }
     }

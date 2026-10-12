@@ -29,7 +29,7 @@ from taketwo.comparison.contracts import Policy, Review
 from taketwo.comparison.engine import compare
 from taketwo.comparison.storage import implementation_hash, load_evidence, publish, read_artifact
 from taketwo.dataset.schema import canonical_json, content_hash
-from taketwo.dataset.storage import load, managed_path, read_json
+from taketwo.dataset.storage import load, managed_path, read_json, write_new
 from taketwo.dataset.workspace import check_dataset
 
 from .contracts import AnalysisRequest
@@ -153,6 +153,17 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
         content_hash(dataset.model_dump(mode="json")),
         implementation_hash(),
     )
+    # Retain the exact dataset context without making unrelated future imports stale inputs.
+    snapshot = (canonical_json(dataset.model_dump(mode="json")) + "\n").encode("utf-8")
+    staged = temporary / "dataset-snapshot.json"
+    write_new(staged, snapshot)
+    target = managed_path(root, f"derived/comparison-v1/dataset-{report.dataset_sha256}.json")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.link(staged, target)
+    except FileExistsError:
+        if target.read_bytes() != snapshot:
+            raise ValueError("Dataset snapshot differs; existing evidence was preserved.") from None
     path = publish_complete(root, temporary, report)
     stage("completed")
     atomic_json(

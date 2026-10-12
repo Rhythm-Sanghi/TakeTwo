@@ -92,7 +92,10 @@ def manifest_text(dataset: Dataset) -> str:
     rows = [
         {
             "kind": "header",
-            "data": {"schema_version": 1, "dataset_version": dataset.dataset_version},
+            "data": {
+                "schema_version": dataset.schema_version,
+                "dataset_version": dataset.dataset_version,
+            },
         }
     ]
     for kind, key in [

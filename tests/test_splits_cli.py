@@ -119,7 +119,7 @@ def test_cli_workflow(tmp_path, audio_path, metadata):
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["summary"]["origins"]["synthetic"] == 1
     assert command("export", root, "--output", output).returncode == 2
-    assert json.loads(command("schema").stdout)["properties"]["schema_version"]["const"] == 1
+    assert json.loads(command("schema").stdout)["properties"]["schema_version"]["enum"] == [1, 2]
 
 
 @pytest.mark.parametrize(

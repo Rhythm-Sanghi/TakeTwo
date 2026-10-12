@@ -137,17 +137,17 @@ def import_recording(
     *,
     reference_id: str | None = None,
     category: str = "acceptable",
-    severity: int = 0,
+    severity: int | None = 0,
 ) -> Recording:
     with workspace_lock(root):
         dataset = load(root)
         check_dataset(dataset, root)
         reference = find_recording(dataset, reference_id) if reference_id else None
-        if reference is None and spec.origin != "source":
+        if reference and reference.role != "reference":
             raise DatasetError(
-                "reference_origin",
-                "A reference must be a real source recording.",
-                "Import a rights-documented public source as reference.",
+                "reference_role",
+                "Pair target must be a reference.",
+                "Select a reference recording.",
             )
         tokens, offsets = tokenize(spec.transcript.text)
         transcript_hash = content_hash(tokens)
@@ -341,13 +341,19 @@ def assign_splits(root: Path, seed: int, ratios: tuple[float, float, float]) -> 
 
 def summary(dataset: Dataset) -> dict:
     return {
+        "schema_version": dataset.schema_version,
         "dataset_version": dataset.dataset_version,
         "recordings": len(dataset.recordings),
         "pairs": len(dataset.pairs),
         "annotations": len(dataset.annotations),
         "origins": dict(Counter(r.origin for r in dataset.recordings)),
         "annotation_review": dict(Counter(a.review_status for a in dataset.annotations)),
-        "severity": dict(Counter(str(p.intended_severity) for p in dataset.pairs)),
+        "severity": dict(
+            Counter(
+                str(p.intended_severity) if p.intended_severity is not None else "unlabeled"
+                for p in dataset.pairs
+            )
+        ),
         "split": dataset.split.model_dump(mode="json") if dataset.split else None,
         "competition_dataset_complete": False,
     }

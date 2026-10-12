@@ -5,15 +5,16 @@ import tempfile
 from pathlib import Path
 
 from taketwo.web.app import create_app
-from taketwo.web.contracts import ImportRequest
+from taketwo.web.contracts import ImportRequest, LocalImportRequest
 
 
 def contract():
     with tempfile.TemporaryDirectory(prefix="taketwo-schema-") as directory:
         schema = create_app(Path(directory) / "workspace").openapi()
-    metadata = ImportRequest.model_json_schema(ref_template="#/components/schemas/{model}")
-    schema["components"]["schemas"].update(metadata.pop("$defs"))
-    schema["components"]["schemas"]["ImportRequest"] = metadata
+    for contract in (ImportRequest, LocalImportRequest):
+        metadata = contract.model_json_schema(ref_template="#/components/schemas/{model}")
+        schema["components"]["schemas"].update(metadata.pop("$defs"))
+        schema["components"]["schemas"][contract.__name__] = metadata
     return schema
 
 

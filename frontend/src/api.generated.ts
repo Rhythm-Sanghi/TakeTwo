@@ -90,6 +90,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/recordings/{rid}/excerpt": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Save Excerpt */
+    post: operations["save_excerpt_api_v1_recordings__rid__excerpt_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/pairs/{pair_id}/correction": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Correct Pair */
+    post: operations["correct_pair_api_v1_pairs__pair_id__correction_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/reviews/import": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Import Review */
+    post: operations["import_review_api_v1_reviews_import_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/recordings/{rid}/audio": {
     parameters: {
       query?: never;
@@ -312,6 +363,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/dataset/upgrade": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Enable Drafts */
+    post: operations["enable_drafts_api_v1_dataset_upgrade_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/analyses/{job_id}/export": {
     parameters: {
       query?: never;
@@ -467,8 +535,18 @@ export interface components {
       /** Metadata */
       metadata: string;
     };
+    /** CorrectionRequest */
+    CorrectionRequest: {
+      /** Reference Id */
+      reference_id: string;
+    };
     /** DatasetSummary */
     DatasetSummary: {
+      /**
+       * Schema Version
+       * @enum {integer}
+       */
+      schema_version: 1 | 2;
       /** Dataset Version */
       dataset_version: string;
       /** Recordings */
@@ -646,6 +724,17 @@ export interface components {
        * @default 17
        */
       seed: number;
+    };
+    /** ExcerptRequest */
+    ExcerptRequest: {
+      /** Start S */
+      start_s: number;
+      /** End S */
+      end_s: number;
+      /** Transcript */
+      transcript: string;
+      /** Reference Id */
+      reference_id?: string | null;
     };
     /** Explanation */
     Explanation: {
@@ -1071,23 +1160,20 @@ export interface components {
       participant_id: string;
       /** Transcript Sha256 */
       transcript_sha256: string;
-      /**
-       * Intended Flaw
-       * @enum {string}
-       */
+      /** Intended Flaw */
       intended_flaw:
-        | "pacing"
-        | "pause_behavior"
-        | "energy_variation"
-        | "pitch_dynamics"
-        | "acceptable"
-        | "recording_quality"
-        | "alignment_uncertainty";
-      /**
-       * Intended Severity
-       * @enum {integer}
-       */
-      intended_severity: 0 | 1 | 2 | 3;
+        | (
+            | "pacing"
+            | "pause_behavior"
+            | "energy_variation"
+            | "pitch_dynamics"
+            | "acceptable"
+            | "recording_quality"
+            | "alignment_uncertainty"
+          )
+        | "unspecified";
+      /** Intended Severity */
+      intended_severity: (0 | 1 | 2 | 3) | null;
       /** Reviewed Severity */
       reviewed_severity?: (0 | 1 | 2 | 3) | null;
       /**
@@ -1259,6 +1345,29 @@ export interface components {
       versions: {
         [key: string]: string;
       };
+    };
+    /** Provenance */
+    "Provenance-Input": {
+      /** Recording Id */
+      recording_id: string;
+      /** Dataset Version */
+      dataset_version: string;
+      /** Audio Sha256 */
+      audio_sha256: string;
+      /** Sample Sha256 */
+      sample_sha256: string;
+      /** Transcript Sha256 */
+      transcript_sha256: string;
+      /** Original Text Sha256 */
+      original_text_sha256: string;
+      /** Transcript Verified */
+      transcript_verified: boolean;
+      /** Versions */
+      versions: {
+        [key: string]: string;
+      };
+      /** Implementation Sha256 */
+      implementation_sha256: string;
     };
     /** QualityReport */
     QualityReport: {
@@ -1447,7 +1556,63 @@ export interface components {
       source_url: string;
     };
     /** Review */
-    Review: {
+    "Review-Input": {
+      /**
+       * Kind
+       * @default review
+       * @constant
+       */
+      kind: "review";
+      /**
+       * Schema Version
+       * @default 1
+       * @constant
+       */
+      schema_version: 1;
+      /** Id */
+      id: string;
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "transcript" | "timing" | "flaws";
+      provenance: components["schemas"]["Provenance-Input"];
+      /** Alignment Sha256 */
+      alignment_sha256?: string | null;
+      /** Pair Id */
+      pair_id?: string | null;
+      /** Reviewer Id */
+      reviewer_id: string;
+      /** Reviewed On */
+      reviewed_on: string;
+      /** Evidence Reference */
+      evidence_reference: string;
+      /** Independent */
+      independent: boolean;
+      /** Blinded To Predictions */
+      blinded_to_predictions: boolean;
+      /**
+       * Decision
+       * @enum {string}
+       */
+      decision: "approved" | "rejected" | "unresolved";
+      /** Notes */
+      notes: string;
+      /** Corrected Text */
+      corrected_text?: string | null;
+      /** Words */
+      words?: components["schemas"]["Interval"][];
+      /** Phrase Spans */
+      phrase_spans?: [number, number][];
+      /** Labels */
+      labels?: components["schemas"]["Label"][];
+      /** Reviewed Spans */
+      reviewed_spans?: components["schemas"]["Span"][];
+      /** Supersedes */
+      supersedes?: string | null;
+    };
+    /** Review */
+    "Review-Output": {
       /**
        * Kind
        * @default review
@@ -1502,6 +1667,12 @@ export interface components {
       /** Supersedes */
       supersedes?: string | null;
     };
+    /** ReviewImportRequest */
+    ReviewImportRequest: {
+      /** Job Id */
+      job_id: string;
+      review: components["schemas"]["Review-Input"];
+    };
     /** Rights */
     Rights: {
       /**
@@ -1510,13 +1681,13 @@ export interface components {
        */
       status: "pending" | "cleared";
       /** Holder */
-      holder: string;
+      holder: string | null;
       /** License Name */
-      license_name: string;
+      license_name: string | null;
       /** Evidence */
-      evidence: string;
+      evidence: string | null;
       /** Attribution */
-      attribution: string;
+      attribution: string | null;
       /** Permits Adaptation */
       permits_adaptation: boolean;
       /** Permits Redistribution */
@@ -1641,6 +1812,17 @@ export interface components {
       /** Bins */
       bins: [number, number, number, number][];
     };
+    /** WorkspaceRevision */
+    WorkspaceRevision: {
+      /** Workspace */
+      workspace: string;
+      /** Reference Id */
+      reference_id: string;
+      /** Participant Id */
+      participant_id: string;
+      /** Notice */
+      notice: string;
+    };
     /** Provenance */
     taketwo__analysis__contracts__Provenance: {
       /** Recording Id */
@@ -1741,6 +1923,7 @@ export interface components {
        * @enum {string}
        */
       category:
+        | "unspecified"
         | "acceptable"
         | "pacing"
         | "pause_behavior"
@@ -1749,9 +1932,80 @@ export interface components {
       /**
        * Severity
        * @default 0
-       * @enum {integer}
        */
-      severity: 0 | 1 | 2 | 3;
+      severity: (0 | 1 | 2 | 3) | null;
+    };
+    /** LocalImportRequest */
+    LocalImportRequest: {
+      /**
+       * Recording Type
+       * @enum {string}
+       */
+      recording_type:
+        "public_reference" | "controlled_reference" | "human_participant";
+      /** Transcript */
+      transcript: string;
+      /**
+       * Title
+       * @default null
+       */
+      title: string | null;
+      /**
+       * Reference Id
+       * @default null
+       */
+      reference_id: string | null;
+      /** Local Permission */
+      local_permission: boolean;
+      /**
+       * Speaker Label
+       * @default null
+       */
+      speaker_label: string | null;
+      /**
+       * Same Speaker As Reference
+       * @default false
+       */
+      same_speaker_as_reference: boolean;
+      /**
+       * Source Url
+       * @default null
+       */
+      source_url: string | null;
+      /**
+       * Rationale
+       * @default null
+       */
+      rationale: string | null;
+      /**
+       * Consent Evidence
+       * @default null
+       */
+      consent_evidence: string | null;
+      /** @default null */
+      rights: components["schemas"]["Rights"] | null;
+      /**
+       * Channel
+       * @default null
+       */
+      channel: (0 | 1) | null;
+      /**
+       * Category
+       * @default unspecified
+       * @enum {string}
+       */
+      category:
+        | "unspecified"
+        | "acceptable"
+        | "pacing"
+        | "pause_behavior"
+        | "energy_variation"
+        | "pitch_dynamics";
+      /**
+       * Severity
+       * @default null
+       */
+      severity: (0 | 1 | 2 | 3) | null;
     };
   };
   responses: never;
@@ -1913,6 +2167,109 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Pair"][];
+        };
+      };
+    };
+  };
+  save_excerpt_api_v1_recordings__rid__excerpt_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        rid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExcerptRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Recording"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  correct_pair_api_v1_pairs__pair_id__correction_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        pair_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CorrectionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WorkspaceRevision"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  import_review_api_v1_reviews_import_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviewImportRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -2286,12 +2643,32 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Review"][];
+          "application/json": components["schemas"]["Review-Output"][];
         };
       };
     };
   };
   dataset_summary_api_v1_dataset_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DatasetSummary"];
+        };
+      };
+    };
+  };
+  enable_drafts_api_v1_dataset_upgrade_post: {
     parameters: {
       query?: never;
       header?: never;

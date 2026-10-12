@@ -5,22 +5,75 @@ from typing import Literal
 from pydantic import Field
 
 from taketwo.analysis.contracts import Diagnostic, Interval, QualityReport
-from taketwo.dataset.schema import Identifier, ImportSpec, Model, SplitReport
+from taketwo.comparison.contracts import Review
+from taketwo.dataset.schema import Identifier, ImportSpec, Model, Rights, SplitReport, Text
 
 
 class ImportRequest(Model):
     metadata: ImportSpec
     reference_id: Identifier | None = None
     category: Literal[
-        "acceptable", "pacing", "pause_behavior", "energy_variation", "pitch_dynamics"
+        "unspecified",
+        "acceptable",
+        "pacing",
+        "pause_behavior",
+        "energy_variation",
+        "pitch_dynamics",
     ] = "acceptable"
-    severity: Literal[0, 1, 2, 3] = 0
+    severity: Literal[0, 1, 2, 3] | None = 0
 
 
 class AnalysisRequest(Model):
     reference_id: Identifier
     pair_id: Identifier | None = None
     align: bool = True
+
+
+class LocalImportRequest(Model):
+    recording_type: Literal["public_reference", "controlled_reference", "human_participant"]
+    transcript: Text
+    title: Text | None = None
+    reference_id: Identifier | None = None
+    local_permission: bool
+    speaker_label: Text | None = None
+    same_speaker_as_reference: bool = False
+    source_url: Text | None = None
+    rationale: Text | None = None
+    consent_evidence: Text | None = None
+    rights: Rights | None = None
+    channel: Literal[0, 1] | None = None
+    category: Literal[
+        "unspecified",
+        "acceptable",
+        "pacing",
+        "pause_behavior",
+        "energy_variation",
+        "pitch_dynamics",
+    ] = "unspecified"
+    severity: Literal[0, 1, 2, 3] | None = None
+
+
+class ExcerptRequest(Model):
+    start_s: float = Field(ge=0)
+    end_s: float = Field(gt=0)
+    transcript: Text
+    reference_id: Identifier | None = None
+
+
+class CorrectionRequest(Model):
+    reference_id: Identifier
+
+
+class WorkspaceRevision(Model):
+    workspace: str
+    reference_id: Identifier
+    participant_id: Identifier
+    notice: str
+
+
+class ReviewImportRequest(Model):
+    job_id: str
+    review: Review
 
 
 class Job(Model):
@@ -89,6 +142,7 @@ class Overlay(Model):
 
 
 class DatasetSummary(Model):
+    schema_version: Literal[1, 2]
     dataset_version: Identifier
     recordings: int
     pairs: int

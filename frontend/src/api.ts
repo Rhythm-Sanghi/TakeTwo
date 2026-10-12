@@ -13,7 +13,7 @@ export type FeatureWindow = components["schemas"]["FeatureWindow"];
 export type Alignment = components["schemas"]["AlignmentResult"];
 export type ImportRequest = components["schemas"]["ImportRequest"];
 export type Evaluation = components["schemas"]["Evaluation"];
-export type Review = components["schemas"]["Review"];
+export type Review = components["schemas"]["Review-Output"];
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/v1${path}`, init);

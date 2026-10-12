@@ -65,10 +65,13 @@ def validate(
         if recording.origin == "self_recorded" and not recording.provenance.consent_evidence:
             issue("consent", "Human recording requires a consent evidence reference.", rid)
         if recording.role == "reference":
-            if recording.origin != "source" or not recording.provenance.baseline_rationale:
+            if (
+                recording.origin not in {"source", "self_recorded"}
+                or not recording.provenance.baseline_rationale
+            ):
                 issue(
                     "reference_provenance",
-                    "Reference requires real source and selection rationale.",
+                    "Reference needs genuine source/self-recorded origin and selection rationale.",
                     rid,
                 )
         if recording.origin == "synthetic" and not recording.transformation:
@@ -283,7 +286,9 @@ def validate(
                 pair.id,
                 warning=not publication,
             )
-        if (pair.intended_flaw == "acceptable") != (pair.intended_severity == 0):
+        if pair.intended_flaw != "unspecified" and (pair.intended_flaw == "acceptable") != (
+            pair.intended_severity == 0
+        ):
             issue("severity", "Only acceptable pairs use intended severity zero.", pair.id)
         reviewed = [
             a
@@ -437,7 +442,9 @@ def validate(
     elif publication:
         issue("split_missing", "Publication requires an audited split report.", "split")
     if publication:
-        references = [r for r in dataset.recordings if r.role == "reference"]
+        references = [
+            r for r in dataset.recordings if r.role == "reference" and r.origin == "source"
+        ]
         if len({r.family_id for r in references}) < 2:
             issue("pilot_missing", "At least two reviewed source families are required.", "dataset")
         human_pairs = [
