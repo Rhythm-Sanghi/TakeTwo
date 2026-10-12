@@ -1,8 +1,8 @@
 """Bounded local queue, SQLite history, supervised CPU process and tree cancellation."""
 
 import os
+import shutil
 import sqlite3
-import subprocess
 import sys
 import tempfile
 import threading
@@ -13,29 +13,15 @@ from pathlib import Path
 
 from taketwo.analysis.contracts import Diagnostic
 from taketwo.dataset.schema import canonical_json, content_hash
-from taketwo.dataset.storage import managed_path, read_json, workspace_lock
+from taketwo.dataset.storage import managed_path, read_json, safe_path
 
 from .contracts import AnalysisRequest, Job
+from .processes import ProcessTree, lease, stop_orphan
 from .worker import atomic_json
 
 
 def now():
     return datetime.now(UTC).isoformat()
-
-
-def stop_process(process):
-    if process.poll() is None:
-        if os.name == "nt":
-            subprocess.run(
-                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=15,
-                check=False,
-            )
-        if process.poll() is None:
-            process.kill()
-        process.wait(timeout=15)
 
 
 class Jobs:
@@ -57,6 +43,7 @@ class Jobs:
     def recover(self):
         for job in self.list():
             if job.state in {"running", "queued"}:
+                stop_orphan(self.root, job.id)
                 job.state, job.stage = "failed", "interrupted"
                 job.error = Diagnostic(
                     code="interrupted",
@@ -74,6 +61,17 @@ class Jobs:
 
     def start(self):
         self.recover()
+        # The service lease is already held; no other supervisor can own these trees.
+        with lease(self.root, ".dataset.lock"):
+            runtime = managed_path(self.root, ".runtime")
+            for directory in runtime.glob("taketwo-job-*"):
+                safe_path(directory, root=self.root)
+                if not directory.is_dir():
+                    continue
+                # Verify every deletion target before recursively removing managed temp data.
+                for path in directory.rglob("*"):
+                    safe_path(path, root=self.root)
+                shutil.rmtree(directory)
         self.thread.start()
 
     def close(self):
@@ -153,14 +151,16 @@ class Jobs:
                 return
             job.state, job.stage = "running", "validating"
             self.save(job)
-        process = None
+        process, tree = None, None
+        begin = time.monotonic()
         try:
             runtime = managed_path(self.root, ".runtime")
             runtime.mkdir(exist_ok=True)
             # Parent owns the dataset lock: forced worker termination cannot leave it stale.
             with (
-                workspace_lock(self.root),
+                lease(self.root, ".dataset.lock"),
                 tempfile.TemporaryDirectory(prefix="taketwo-job-", dir=runtime) as directory,
+                ProcessTree(self.root, job.id) as tree,
             ):
                 temporary = Path(directory)
                 atomic_json(temporary / "request.json", job.request.model_dump(mode="json"))
@@ -175,14 +175,8 @@ class Jobs:
                 command = [sys.executable, "-m", "taketwo.web.worker", str(self.root), directory]
                 if self.config:
                     command.append(str(self.config))
-                process = subprocess.Popen(
-                    command,
-                    env=env,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
-                )
-                begin = time.monotonic()
+                process = tree.spawn(command, env, temporary)
+                atomic_json(temporary / "worker.json", {"pid": process.pid})
                 while process.poll() is None:
                     with self.lock:
                         job = self.get(job.id)
@@ -201,7 +195,10 @@ class Jobs:
                             job.stage = read_json(temporary / "stage.json")["stage"]
                         self.save(job)
                     time.sleep(0.1)
-                stop_process(process)
+                tree.stop()
+                process.wait(timeout=15)
+                job.elapsed_s = time.monotonic() - begin
+                job.peak_commit_bytes = tree.peak_commit_bytes()
                 with self.lock:
                     if (temporary / "artifacts.json").exists():
                         job.artifacts = read_json(temporary / "artifacts.json")
@@ -213,6 +210,8 @@ class Jobs:
                                 result["report_path"],
                             )
                             job.state, job.stage = "completed", "completed"
+                            job.stage_elapsed_s = result["stage_elapsed_s"]
+                            job.cache_hits = result["cache_hits"]
                         else:
                             job.state, job.stage = "failed", "failed"
                             job.error = (
@@ -228,8 +227,10 @@ class Jobs:
                             )
                     self.save(job)
         except Exception:
+            if tree and tree.handle:
+                tree.stop()
             if process:
-                stop_process(process)
+                process.wait(timeout=15)
             job.state, job.stage = "failed", "failed"
             job.error = Diagnostic(
                 code="workspace_unavailable",
@@ -237,3 +238,6 @@ class Jobs:
                 recovery="Finish other CLI operations and check local storage before retrying.",
             )
             self.save(job)
+        finally:
+            if tree:
+                tree.close()

@@ -1960,6 +1960,12 @@
             "const": 1,
             "title": "Worker Concurrency",
             "default": 1
+          },
+          "maximum_worker_commit_bytes": {
+            "type": "integer",
+            "const": 4294967296,
+            "title": "Maximum Worker Commit Bytes",
+            "default": 4294967296
           }
         },
         "additionalProperties": false,
@@ -2211,6 +2217,44 @@
             "type": "boolean",
             "title": "Cancel Requested",
             "default": false
+          },
+          "elapsed_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed S"
+          },
+          "peak_commit_bytes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Commit Bytes"
+          },
+          "stage_elapsed_s": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Stage Elapsed S"
+          },
+          "cache_hits": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cache Hits"
           }
         },
         "additionalProperties": false,

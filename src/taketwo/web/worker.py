@@ -5,6 +5,15 @@ import sys
 import time
 from pathlib import Path
 
+# No engine import or descendant process may precede kernel job assignment.
+# If the parent dies before assignment/gate publication, exit without doing any work.
+if __name__ == "__main__" and os.environ.get("TAKETWO_WORKER_GATE"):
+    deadline = time.monotonic() + 5
+    while not Path(os.environ["TAKETWO_WORKER_GATE"]).exists():
+        if time.monotonic() >= deadline:
+            sys.exit(130)
+        time.sleep(0.01)
+
 from taketwo.analysis.alignment import align
 from taketwo.analysis.contracts import (
     AlignmentConfig,
@@ -74,7 +83,15 @@ def cached(root, recording_id, contract, config, alignment_hash=None):
 
 
 def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config: Path | None):
+    previous, started = None, time.monotonic()
+    timings, hits = {}, []
+
     def stage(name):
+        nonlocal previous, started
+        now = time.monotonic()
+        if previous:
+            timings[previous] = now - started
+        previous, started = name, now
         atomic_json(temporary / "stage.json", {"stage": name})
 
     stage("validating")
@@ -103,6 +120,8 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
         if request.align and config:
             stage(f"aligning {recording.role}")
             alignment_path, alignment = cached(root, rid, AlignmentResult, config)
+            if alignment is not None:
+                hits.append(f"alignment:{rid}")
             if alignment is None:
                 alignment = align(
                     managed_path(root, recording.normalized_path),
@@ -115,6 +134,8 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
         stage(f"extracting {recording.role}")
         alignment_hash = content_hash(alignment.model_dump(mode="json")) if alignment else None
         feature_path, features = cached(root, rid, FeatureResult, FeatureConfig(), alignment_hash)
+        if features is not None:
+            hits.append(f"features:{rid}")
         if features is None:
             features = extract(samples, provenance, FeatureConfig(), alignment)
             feature_path = publish_complete(root, temporary, features)
@@ -133,9 +154,15 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
         implementation_hash(),
     )
     path = publish_complete(root, temporary, report)
+    stage("completed")
     atomic_json(
         temporary / "result.json",
-        {"report_path": path.relative_to(root).as_posix(), "artifacts": artifacts},
+        {
+            "report_path": path.relative_to(root).as_posix(),
+            "artifacts": artifacts,
+            "stage_elapsed_s": timings,
+            "cache_hits": hits,
+        },
     )
 
 

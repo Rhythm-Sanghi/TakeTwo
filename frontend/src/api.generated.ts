@@ -819,6 +819,12 @@ export interface components {
        * @constant
        */
       worker_concurrency: 1;
+      /**
+       * Maximum Worker Commit Bytes
+       * @default 4294967296
+       * @constant
+       */
+      maximum_worker_commit_bytes: 4294967296;
     };
     /** InputEvidence */
     InputEvidence: {
@@ -894,6 +900,16 @@ export interface components {
        * @default false
        */
       cancel_requested: boolean;
+      /** Elapsed S */
+      elapsed_s?: number | null;
+      /** Peak Commit Bytes */
+      peak_commit_bytes?: number | null;
+      /** Stage Elapsed S */
+      stage_elapsed_s?: {
+        [key: string]: number;
+      };
+      /** Cache Hits */
+      cache_hits?: string[];
     };
     /** Label */
     Label: {

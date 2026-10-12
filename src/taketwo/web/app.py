@@ -45,6 +45,7 @@ from .contracts import (
     Waveform,
 )
 from .jobs import Jobs
+from .processes import lease
 
 MAX_UPLOAD = 100 * 1024 * 1024
 ORIGINS = [
@@ -125,15 +126,12 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app):
         # An exclusive lease prevents two HTTP services from supervising the same history.
-        lease = managed_path(root, ".service.lock")
-        descriptor = os.open(lease, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-        try:
-            os.close(descriptor)
-            jobs.start()
-            yield
-        finally:
-            jobs.close()
-            lease.unlink(missing_ok=True)
+        with lease(root, ".service.lock"):
+            try:
+                jobs.start()
+                yield
+            finally:
+                jobs.close()
 
     app = FastAPI(
         title="TakeTwo", description="Speech analysis workspace", version="1.0.0", lifespan=lifespan

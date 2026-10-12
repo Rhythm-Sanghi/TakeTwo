@@ -34,6 +34,10 @@ class Job(Model):
     report_path: str | None = None
     artifacts: dict[str, dict[str, str]] = Field(default_factory=dict)
     cancel_requested: bool = False
+    elapsed_s: float | None = Field(default=None, ge=0)
+    peak_commit_bytes: int | None = Field(default=None, ge=0)
+    stage_elapsed_s: dict[str, float] = Field(default_factory=dict)
+    cache_hits: list[str] = Field(default_factory=list)
 
 
 class Health(Model):
@@ -46,6 +50,7 @@ class Health(Model):
     maximum_analysis_duration_s: Literal[30] = 30
     maximum_upload_bytes: Literal[104857600] = 104857600
     worker_concurrency: Literal[1] = 1
+    maximum_worker_commit_bytes: Literal[4294967296] = 4294967296
 
 
 class Waveform(Model):
