@@ -29,7 +29,7 @@ export function Scores({ report }: { report: Report }) {
         {report.policy.version} · {label(report.eligibility.state)} · all four
         dimensions required. Unavailable weights are never redistributed.
       </p>
-      <table>
+      <table tabIndex={0} aria-label="Dimension scores and coverage">
         <thead>
           <tr>
             <th>Dimension</th>

@@ -238,7 +238,7 @@ it("seeks actual native audio and exposes numeric interval controls", async () =
     normalized_info: { duration_s: 2 },
   } as Recording;
   const onPlay = vi.fn();
-  render(
+  const view = render(
     <Timeline
       recording={item}
       job={null}
@@ -257,8 +257,29 @@ it("seeks actual native audio and exposes numeric interval controls", async () =
   fireEvent.play(audio);
   expect(onPlay).toHaveBeenCalledWith(audio);
   expect(screen.getByText(/sample 20000/)).toBeInTheDocument();
-  fireEvent.change(screen.getByLabelText("Selection start (s)"), {
+  fireEvent.change(screen.getByLabelText("reference selection start (s)"), {
     target: { value: ".5" },
   });
   expect(screen.getByText("Selection 1.500 s")).toBeInTheDocument();
+  await waitFor(() =>
+    expect(
+      screen.getByRole("img", { name: /Measured reference waveform/ }),
+    ).toBeVisible(),
+  );
+  vi.mocked(fetch).mockReturnValue(new Promise(() => {}));
+  view.rerender(
+    <Timeline
+      recording={{ ...item, id: "another-recording" }}
+      job={null}
+      regions={[]}
+      selected={null}
+      seek={null}
+      onSelect={() => {}}
+      onPlay={onPlay}
+    />,
+  );
+  expect(screen.getByText("Loading reference waveform…")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("img", { name: /Measured reference waveform/ }),
+  ).not.toBeInTheDocument();
 });

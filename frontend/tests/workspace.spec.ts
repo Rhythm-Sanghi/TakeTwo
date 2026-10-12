@@ -16,6 +16,13 @@ test("actual import → CPU processing → native playback → evidence → expo
     page.getByRole("heading", { name: "Recording Library", exact: true }),
   ).toBeVisible();
   await expect(page.getByText(/Library is empty/)).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Skip to workspace" }),
+  ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("main")).toBeFocused();
   async function fillImport(participant = false) {
     if (participant)
       await page
@@ -182,6 +189,7 @@ test("actual import → CPU processing → native playback → evidence → expo
         genuine_source: genuine,
         software_fixture: !genuine,
         job_state: job.state,
+        job_measurements: job,
         elapsed_job_s:
           (Date.parse(job.updated_at) - Date.parse(job.created_at)) / 1000,
         spectral_frames: result.inputs.map(
@@ -218,6 +226,10 @@ test("actual import → CPU processing → native playback → evidence → expo
   await expect
     .poll(() => audio.evaluate((node: HTMLAudioElement) => node.currentTime))
     .toBeCloseTo(0.5, 1);
+  await page.getByLabel("Seek reference", { exact: true }).press("ArrowRight");
+  await expect
+    .poll(() => audio.evaluate((node: HTMLAudioElement) => node.currentTime))
+    .toBeGreaterThan(0.5);
   await audio.evaluate((node: HTMLAudioElement) => node.play());
   await expect
     .poll(() => audio.evaluate((node: HTMLAudioElement) => node.currentTime))
@@ -244,14 +256,81 @@ test("actual import → CPU processing → native playback → evidence → expo
   await expect(
     page.getByText("delivery-v0 · reference agreement", { exact: true }),
   ).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
     .getByRole("button", { name: "Dataset and Evaluation", exact: true })
     .click();
   await expect(page.getByText(/No evaluation results exist/)).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.setViewportSize({ width: 800, height: 1000 });
   await page.screenshot({
     path: testInfo.outputPath("responsive-evaluation.png"),
     fullPage: true,
+  });
+  await page.setViewportSize({ width: 320, height: 800 });
+  for (const area of [
+    "Recording Library",
+    "Analysis Workspace",
+    "Rubric and Evidence",
+    "Dataset and Evaluation",
+  ]) {
+    await page.getByRole("button", { name: area, exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: area, exact: true }),
+    ).toBeFocused();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  }
+  await page.screenshot({
+    path: testInfo.outputPath("narrow-evaluation.png"),
+    fullPage: true,
+  });
+  // Retry the exact request after genuine cancellation; no mocked lifecycle response.
+  await page
+    .getByRole("button", { name: "Analysis Workspace", exact: true })
+    .click();
+  const cancelled = await (
+    await request.post("/api/v1/analyses", { data: job.request })
+  ).json();
+  await request.post(`/api/v1/analyses/${cancelled.id}/cancel`);
+  await expect
+    .poll(
+      async () =>
+        (await (await request.get(`/api/v1/analyses/${cancelled.id}`)).json())
+          .state,
+    )
+    .toBe("cancelled");
+  await page.getByRole("button", { name: "Refresh workspace" }).click();
+  await page
+    .getByRole("button", { name: new RegExp(cancelled.id.slice(0, 12)) })
+    .click();
+  await page.getByRole("button", { name: "Retry this analysis" }).click();
+  await expect
+    .poll(
+      async () => {
+        const latest = (
+          await (await request.get("/api/v1/analyses")).json()
+        )[0];
+        if (latest.state === "failed")
+          throw new Error(JSON.stringify(latest.error));
+        return latest.id !== cancelled.id && latest.state === "completed";
+      },
+      { timeout: 60000 },
+    )
+    .toBe(true);
+  const cached = (await (await request.get("/api/v1/analyses")).json())[0];
+  expect(cached.cache_hits).toContain(`features:${job.request.reference_id}`);
+  if (genuine)
+    expect(cached.cache_hits).toContain(
+      `alignment:${job.request.reference_id}`,
+    );
+  await testInfo.attach("cached-job.json", {
+    body: JSON.stringify(cached, null, 2),
+    contentType: "application/json",
   });
   expect(errors).toEqual([]);
 });

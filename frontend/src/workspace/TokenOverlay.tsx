@@ -111,8 +111,16 @@ export function TokenOverlay({
             </p>
             <details>
               <summary>Matched word values and native seek positions</summary>
-              <div className="table-scroll">
-                <table>
+              <div
+                className="table-scroll"
+                tabIndex={0}
+                role="region"
+                aria-label="Matched word measurements"
+              >
+                <table
+                  tabIndex={0}
+                  aria-label="Matched words and native positions"
+                >
                   <thead>
                     <tr>
                       <th>Word index / text</th>

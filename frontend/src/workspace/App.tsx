@@ -125,7 +125,7 @@ function Rubric({ policy }: { policy: Policy | null }) {
         not measure persuasion, emotion or overall speaking ability. Effective
         alternative deliveries can differ.
       </p>
-      <table>
+      <table tabIndex={0} aria-label="Rubric definitions">
         <thead>
           <tr>
             <th>Dimension</th>
@@ -334,16 +334,19 @@ export function App() {
     setReport(null);
     setRegion(null);
   }
-  async function start() {
+  async function start(retry?: Job) {
     if (!reference) return;
     setStarting(true);
     setError("");
     try {
-      const item = await post<Job>("/analyses", {
-        reference_id: reference.id,
-        pair_id: pair?.id ?? null,
-        align,
-      });
+      const item = await post<Job>(
+        "/analyses",
+        retry?.request ?? {
+          reference_id: reference.id,
+          pair_id: pair?.id ?? null,
+          align,
+        },
+      );
       setJobs((current) => [item, ...current.filter((j) => j.id !== item.id)]);
       setJobId(item.id);
     } catch (cause) {
@@ -482,7 +485,7 @@ export function App() {
             <p className="meta">No analyses have run.</p>
           )}
         </aside>
-        <main id="main">
+        <main id="main" tabIndex={-1}>
           <h1 tabIndex={-1} ref={heading}>
             {page}
           </h1>
@@ -634,6 +637,15 @@ export function App() {
                     {starting ? "Queuing…" : "Run analysis"}
                   </button>
                   {activeJob &&
+                    ["failed", "cancelled"].includes(activeJob.state) && (
+                      <button
+                        onClick={() => void start(activeJob)}
+                        disabled={starting || !health?.ready}
+                      >
+                        Retry this analysis
+                      </button>
+                    )}
+                  {activeJob &&
                     (activeJob.state === "running" ||
                       activeJob.state === "queued") && (
                       <button
@@ -669,13 +681,17 @@ export function App() {
                   estimate. Completed acoustic artifacts are reused only when
                   input/configuration/code hashes match.
                 </p>
-                {activeJob && (
-                  <p role="status" aria-live="polite">
-                    Analysis {activeJob.state}: {activeJob.stage}.{" "}
-                    {activeJob.error &&
-                      `${activeJob.error.message} ${activeJob.error.recovery}`}
-                  </p>
-                )}
+                <p role="status" aria-live="polite" aria-atomic="true">
+                  {activeJob ? (
+                    <>
+                      Analysis {activeJob.state}: {activeJob.stage}.{" "}
+                      {activeJob.error &&
+                        `${activeJob.error.message} ${activeJob.error.recovery}`}
+                    </>
+                  ) : (
+                    "No analysis selected."
+                  )}
+                </p>
               </section>
               <div className="analysis-grid">
                 <div className="timeline-stack">
@@ -767,7 +783,7 @@ export function App() {
                       <Scores report={activeReport} />
                       <h2>Detected deviations</h2>
                       {activeReport.regions.length ? (
-                        <table>
+                        <table tabIndex={0} aria-label="Detected deviations">
                           <thead>
                             <tr>
                               <th>Category</th>
@@ -845,7 +861,7 @@ export function App() {
             <>
               <section className="panel">
                 <h2>Dataset readiness</h2>
-                <table>
+                <table tabIndex={0} aria-label="Dataset readiness counts">
                   <thead>
                     <tr>
                       <th>Evidence</th>

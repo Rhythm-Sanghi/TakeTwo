@@ -99,8 +99,13 @@ function FeatureChart({
       </p>
       <details>
         <summary>Nonvisual chart values ({data.values.length} points)</summary>
-        <div className="table-scroll">
-          <table>
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Acoustic chart values"
+        >
+          <table tabIndex={0} aria-label="Acoustic measurements by native time">
             <thead>
               <tr>
                 <th>Native time (s)</th>
@@ -155,6 +160,7 @@ export function Timeline({
   const hasFeatures = Boolean(job?.artifacts?.[recording.id]?.features);
   useEffect(() => {
     let active = true;
+    setWaveform(null);
     api<Waveform>(
       `/recordings/${recording.id}/waveform?start_s=${start}&end_s=${end}&bins=1500`,
     )
@@ -382,13 +388,22 @@ export function Timeline({
         >
           Zoom out
         </button>
-        <button onClick={() => pan(-1)} disabled={start <= 0}>
+        <button
+          aria-label={`Earlier ${recording.role} window`}
+          onClick={() => pan(-1)}
+          disabled={start <= 0}
+        >
           Earlier
         </button>
-        <button onClick={() => pan(1)} disabled={end >= duration}>
+        <button
+          aria-label={`Later ${recording.role} window`}
+          onClick={() => pan(1)}
+          disabled={end >= duration}
+        >
           Later
         </button>
         <button
+          aria-label={`Fit ${recording.role} recording`}
           onClick={() => {
             setStart(0);
             setEnd(duration);
@@ -404,6 +419,8 @@ export function Timeline({
         ref={canvas}
         className="waveform"
         role="img"
+        style={{ visibility: waveform ? "visible" : "hidden" }}
+        aria-hidden={!waveform}
         aria-label={`Measured ${recording.role} waveform, ${number(start)} to ${number(end)} seconds. Use seek and selection controls below.`}
         onPointerDown={(event) => {
           pointerStart.current = timeAtPosition(
@@ -431,6 +448,9 @@ export function Timeline({
           pointerStart.current = null;
         }}
       />
+      {!waveform && !error && (
+        <p role="status">Loading {recording.role} waveform…</p>
+      )}
       <div className="time-axis mono">
         <span>{number(start)} s</span>
         <span>Amplitude · full scale ±1</span>
@@ -440,6 +460,7 @@ export function Timeline({
         Seek {recording.role} (s)
         <input
           aria-label={`Seek ${recording.role}`}
+          aria-valuetext={`${number(cursor)} seconds of ${number(duration)} seconds`}
           type="range"
           min="0"
           max={duration}
@@ -449,12 +470,13 @@ export function Timeline({
         />
       </label>
       <div className="toolbar">
-        <output className="mono">
+        <output className="mono" aria-live="off">
           Playhead {number(cursor)} s / sample {sampleAtTime(cursor)}
         </output>
         <label>
           Selection start (s)
           <input
+            aria-label={`${recording.role} selection start (s)`}
             type="number"
             min="0"
             max={selection[1]}
@@ -471,6 +493,7 @@ export function Timeline({
         <label>
           Selection end (s)
           <input
+            aria-label={`${recording.role} selection end (s)`}
             type="number"
             min={selection[0]}
             max={duration}
@@ -556,6 +579,7 @@ export function Timeline({
           <label>
             Acoustic series
             <select
+              aria-label={`${recording.role} acoustic series`}
               value={feature}
               onChange={(event) => setFeature(event.target.value)}
             >
@@ -574,6 +598,9 @@ export function Timeline({
               ))}
             </select>
           </label>
+          {!data && !error && (
+            <p role="status">Loading {recording.role} acoustic measurements…</p>
+          )}
           {data && (
             <>
               <FeatureChart

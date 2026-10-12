@@ -316,7 +316,9 @@ export function ImportForm({
           <input type="hidden" name="severity" value="0" />
         </>
       )}
-      {success && <p role="status">{success}</p>}
+      <p role="status" aria-live="polite" aria-atomic="true">
+        {busy ? "Validating recording and provenance…" : success}
+      </p>
       {error && <p role="alert">{error}</p>}
       <button type="submit" disabled={busy}>
         {busy ? "Validating recording…" : "Import recording"}
