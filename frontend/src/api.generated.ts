@@ -397,10 +397,368 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/review-workspace/mode": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Mode */
+    get: operations["mode_api_v1_review_workspace_mode_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/sessions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create */
+    post: operations["create_api_v1_review_workspace_sessions_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/inventory": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Inventory */
+    get: operations["inventory_api_v1_review_workspace_inventory_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/unlock": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Unlock */
+    post: operations["unlock_api_v1_review_workspace_unlock_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/resume": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Resume */
+    post: operations["resume_api_v1_review_workspace__sid__resume_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/activate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Activate */
+    post: operations["activate_api_v1_review_workspace__sid__activate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get */
+    get: operations["get_api_v1_review_workspace__sid__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/draft": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Save */
+    post: operations["save_api_v1_review_workspace__sid__draft_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/listen": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Listen */
+    post: operations["listen_api_v1_review_workspace__sid__listen_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/inspect": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Inspect */
+    post: operations["inspect_api_v1_review_workspace__sid__inspect_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/validation": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Validation */
+    get: operations["validation_api_v1_review_workspace__sid__validation_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Submit */
+    post: operations["submit_api_v1_review_workspace__sid__submit_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export */
+    get: operations["export_api_v1_review_workspace__sid__export_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Summary */
+    get: operations["summary_api_v1_review_workspace__sid__summary_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/audio": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Media */
+    get: operations["media_api_v1_review_workspace__sid__audio_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/reference-audio": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Reference Media */
+    get: operations["reference_media_api_v1_review_workspace__sid__reference_audio_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/{sid}/waveform": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Peaks */
+    get: operations["peaks_api_v1_review_workspace__sid__waveform_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/review-workspace/adjudications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Adjudicate */
+    post: operations["adjudicate_api_v1_review_workspace_adjudications_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** ActivateReview */
+    ActivateReview: {
+      /** Access Token */
+      access_token: string;
+    };
+    /** Adjudication */
+    Adjudication: {
+      /** Recording Id */
+      recording_id: string;
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "transcript" | "timing" | "flaws";
+      /** Review Ids */
+      review_ids: string[];
+      /** Adjudicator Id */
+      adjudicator_id: string;
+      /** Explanation */
+      explanation: string;
+      /** Resolution */
+      resolution: string;
+    };
+    /** AdjudicationRecord */
+    AdjudicationRecord: {
+      /** Recording Id */
+      recording_id: string;
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "transcript" | "timing" | "flaws";
+      /** Review Ids */
+      review_ids: string[];
+      /** Adjudicator Id */
+      adjudicator_id: string;
+      /** Explanation */
+      explanation: string;
+      /** Resolution */
+      resolution: string;
+      /** Id */
+      id: string;
+      /** Created At */
+      created_at: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "awaiting_reviewer_revisions" | "agreement_recorded";
+      /** Consensus Issue */
+      consensus_issue: string | null;
+    };
     /** AlignmentConfig */
     AlignmentConfig: {
       /**
@@ -608,6 +966,12 @@ export interface components {
       weighted_penalty: number;
       /** Reasons */
       reasons: components["schemas"]["Reason"][];
+    };
+    /** DraftSave */
+    DraftSave: {
+      /** Revision */
+      revision: number;
+      draft: components["schemas"]["ReviewDraft-Input"];
     };
     /** Eligibility */
     Eligibility: {
@@ -1016,6 +1380,13 @@ export interface components {
       /** Uncertainty S */
       uncertainty_s?: number | null;
     };
+    /** ListeningEvent */
+    ListeningEvent: {
+      /** Start S */
+      start_s: number;
+      /** End S */
+      end_s: number;
+    };
     /** Match */
     Match: {
       /** Prediction Id */
@@ -1117,6 +1488,11 @@ export interface components {
        * @enum {integer}
        */
       severity: 1 | 2 | 3;
+    };
+    /** OperatorKey */
+    OperatorKey: {
+      /** Operator Key */
+      operator_key: string;
     };
     /** Overlay */
     Overlay: {
@@ -1660,11 +2036,234 @@ export interface components {
       /** Supersedes */
       supersedes?: string | null;
     };
+    /** ReviewAssignment */
+    ReviewAssignment: {
+      /** Recording Id */
+      recording_id: string;
+      /** Reviewer Id */
+      reviewer_id: string;
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "transcript" | "timing" | "flaws";
+      /** Job Id */
+      job_id?: string | null;
+      /** Pair Id */
+      pair_id?: string | null;
+      /** Supersedes */
+      supersedes?: string | null;
+    };
+    /** ReviewDisagreement */
+    ReviewDisagreement: {
+      /** Recording Id */
+      recording_id: string;
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "transcript" | "timing" | "flaws";
+      /** Issue */
+      issue: string | null;
+      /** Reviews */
+      reviews: components["schemas"]["Review-Output"][];
+    };
+    /** ReviewDraft */
+    "ReviewDraft-Input": {
+      /**
+       * Corrected Text
+       * @default
+       */
+      corrected_text: string;
+      /** Words */
+      words?: components["schemas"]["Interval"][];
+      /** Phrase Spans */
+      phrase_spans?: [number, number][];
+      /** Labels */
+      labels?: components["schemas"]["Label"][];
+      /** Unclear Spans */
+      unclear_spans?: components["schemas"]["Span"][];
+      /** Uncertain Words */
+      uncertain_words?: number[];
+      /**
+       * Decision
+       * @default unresolved
+       * @enum {string}
+       */
+      decision: "approved" | "rejected" | "unresolved";
+      /**
+       * Independent
+       * @default false
+       */
+      independent: boolean;
+      /**
+       * Blinded To Predictions
+       * @default false
+       */
+      blinded_to_predictions: boolean;
+      /**
+       * Evidence Reference
+       * @default
+       */
+      evidence_reference: string;
+      /**
+       * Notes
+       * @default
+       */
+      notes: string;
+    };
+    /** ReviewDraft */
+    "ReviewDraft-Output": {
+      /**
+       * Corrected Text
+       * @default
+       */
+      corrected_text: string;
+      /** Words */
+      words?: components["schemas"]["Interval"][];
+      /** Phrase Spans */
+      phrase_spans?: [number, number][];
+      /** Labels */
+      labels?: components["schemas"]["Label"][];
+      /** Unclear Spans */
+      unclear_spans?: components["schemas"]["Span"][];
+      /** Uncertain Words */
+      uncertain_words?: number[];
+      /**
+       * Decision
+       * @default unresolved
+       * @enum {string}
+       */
+      decision: "approved" | "rejected" | "unresolved";
+      /**
+       * Independent
+       * @default false
+       */
+      independent: boolean;
+      /**
+       * Blinded To Predictions
+       * @default false
+       */
+      blinded_to_predictions: boolean;
+      /**
+       * Evidence Reference
+       * @default
+       */
+      evidence_reference: string;
+      /**
+       * Notes
+       * @default
+       */
+      notes: string;
+    };
+    /** ReviewGrant */
+    ReviewGrant: {
+      /** Session Id */
+      session_id: string;
+      /** Access Token */
+      access_token: string;
+    };
     /** ReviewImportRequest */
     ReviewImportRequest: {
       /** Job Id */
       job_id: string;
       review: components["schemas"]["Review-Input"];
+    };
+    /** ReviewInventory */
+    ReviewInventory: {
+      /** Sessions */
+      sessions: components["schemas"]["ReviewSession"][];
+      /** Disagreements */
+      disagreements: components["schemas"]["ReviewDisagreement"][];
+      /** Decisions */
+      decisions: components["schemas"]["AdjudicationRecord"][];
+    };
+    /** ReviewMode */
+    ReviewMode: {
+      /** Active Session */
+      active_session: string | null;
+    };
+    /** ReviewSession */
+    ReviewSession: {
+      /**
+       * Schema Version
+       * @default 1
+       * @constant
+       */
+      schema_version: 1;
+      /** Id */
+      id: string;
+      assignment: components["schemas"]["ReviewAssignment"];
+      /**
+       * State
+       * @default draft
+       * @enum {string}
+       */
+      state: "draft" | "submitted";
+      /** Created At */
+      created_at: string;
+      /** Updated At */
+      updated_at: string;
+      /** Submitted At */
+      submitted_at?: string | null;
+      /**
+       * Revision
+       * @default 0
+       */
+      revision: number;
+      /**
+       * Edit Revision
+       * @default 0
+       */
+      edit_revision: number;
+      /** Recording Name */
+      recording_name: string;
+      /** Duration S */
+      duration_s: number;
+      provenance: components["schemas"]["taketwo__analysis__contracts__Provenance"];
+      /** Recording Sha256 */
+      recording_sha256: string;
+      /** Alignment Sha256 */
+      alignment_sha256: string | null;
+      /** Pair Sha256 */
+      pair_sha256?: string | null;
+      /** Original Text */
+      original_text: string;
+      /** Machine Text */
+      machine_text: string | null;
+      /** Suggestions */
+      suggestions: components["schemas"]["Interval"][];
+      /** Assisted Alignment */
+      assisted_alignment: boolean;
+      draft: components["schemas"]["ReviewDraft-Output"];
+      /** Listened Spans */
+      listened_spans?: components["schemas"]["Span"][];
+      /** Inspected Words */
+      inspected_words?: number[];
+      review?: components["schemas"]["Review-Output"] | null;
+      /** Integrity Sha256 */
+      integrity_sha256?: string | null;
+    };
+    /** ReviewSummary */
+    ReviewSummary: {
+      session: components["schemas"]["ReviewSession"];
+      validation: components["schemas"]["ReviewValidation"];
+    };
+    /** ReviewValidation */
+    ReviewValidation: {
+      /** Can Submit */
+      can_submit: boolean;
+      /** Issues */
+      issues: string[];
+      /** Alignment Needs Regeneration */
+      alignment_needs_regeneration: boolean;
+      /** Listened S */
+      listened_s: number;
+      /**
+       * Scientific Notice
+       * @default Submission stores a reviewer assertion, not authenticated identity or scientific eligibility. Verified dataset text, agreement, rights and all existing gates still apply.
+       */
+      scientific_notice: string;
     };
     /** Rights */
     Rights: {
@@ -1804,6 +2403,11 @@ export interface components {
       aggregation: "sample_min_max";
       /** Bins */
       bins: [number, number, number, number][];
+    };
+    /** WordInspection */
+    WordInspection: {
+      /** Token Index */
+      token_index: number;
     };
     /** WorkspaceRevision */
     WorkspaceRevision: {
@@ -2701,6 +3305,607 @@ export interface operations {
         };
         content: {
           "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  mode_api_v1_review_workspace_mode_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewMode"];
+        };
+      };
+    };
+  };
+  create_api_v1_review_workspace_sessions_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "x-review-operator"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviewAssignment"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewGrant"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  inventory_api_v1_review_workspace_inventory_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        "x-review-operator"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewInventory"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  unlock_api_v1_review_workspace_unlock_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["OperatorKey"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  resume_api_v1_review_workspace__sid__resume_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "x-review-operator"?: string | null;
+      };
+      path: {
+        sid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewGrant"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  activate_api_v1_review_workspace__sid__activate_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActivateReview"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_api_v1_review_workspace__sid__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  save_api_v1_review_workspace__sid__draft_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DraftSave"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  listen_api_v1_review_workspace__sid__listen_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ListeningEvent"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  inspect_api_v1_review_workspace__sid__inspect_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["WordInspection"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  validation_api_v1_review_workspace__sid__validation_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewValidation"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  submit_api_v1_review_workspace__sid__submit_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DraftSave"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSession"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  export_api_v1_review_workspace__sid__export_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  summary_api_v1_review_workspace__sid__summary_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewSummary"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  media_api_v1_review_workspace__sid__audio_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  reference_media_api_v1_review_workspace__sid__reference_audio_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  peaks_api_v1_review_workspace__sid__waveform_get: {
+    parameters: {
+      query?: {
+        start_s?: number;
+        end_s?: number;
+        bins?: number;
+      };
+      header?: never;
+      path: {
+        sid: string;
+      };
+      cookie?: {
+        taketwo_review?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Waveform"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adjudicate_api_v1_review_workspace_adjudications_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        "x-review-operator"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Adjudication"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdjudicationRecord"];
         };
       };
       /** @description Validation Error */

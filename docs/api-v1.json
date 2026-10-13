@@ -937,10 +937,1151 @@
           }
         }
       }
+    },
+    "/api/v1/review-workspace/mode": {
+      "get": {
+        "summary": "Mode",
+        "operationId": "mode_api_v1_review_workspace_mode_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/sessions": {
+      "post": {
+        "summary": "Create",
+        "operationId": "create_api_v1_review_workspace_sessions_post",
+        "parameters": [
+          {
+            "name": "x-review-operator",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Operator"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewAssignment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewGrant"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/inventory": {
+      "get": {
+        "summary": "Inventory",
+        "operationId": "inventory_api_v1_review_workspace_inventory_get",
+        "parameters": [
+          {
+            "name": "x-review-operator",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Operator"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewInventory"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/unlock": {
+      "post": {
+        "summary": "Unlock",
+        "operationId": "unlock_api_v1_review_workspace_unlock_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperatorKey"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/resume": {
+      "post": {
+        "summary": "Resume",
+        "operationId": "resume_api_v1_review_workspace__sid__resume_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "x-review-operator",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Operator"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewGrant"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/activate": {
+      "post": {
+        "summary": "Activate",
+        "operationId": "activate_api_v1_review_workspace__sid__activate_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}": {
+      "get": {
+        "summary": "Get",
+        "operationId": "get_api_v1_review_workspace__sid__get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/draft": {
+      "post": {
+        "summary": "Save",
+        "operationId": "save_api_v1_review_workspace__sid__draft_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/listen": {
+      "post": {
+        "summary": "Listen",
+        "operationId": "listen_api_v1_review_workspace__sid__listen_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListeningEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/inspect": {
+      "post": {
+        "summary": "Inspect",
+        "operationId": "inspect_api_v1_review_workspace__sid__inspect_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WordInspection"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/validation": {
+      "get": {
+        "summary": "Validation",
+        "operationId": "validation_api_v1_review_workspace__sid__validation_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewValidation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/submit": {
+      "post": {
+        "summary": "Submit",
+        "operationId": "submit_api_v1_review_workspace__sid__submit_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSession"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/export": {
+      "get": {
+        "summary": "Export",
+        "operationId": "export_api_v1_review_workspace__sid__export_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/summary": {
+      "get": {
+        "summary": "Summary",
+        "operationId": "summary_api_v1_review_workspace__sid__summary_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/audio": {
+      "get": {
+        "summary": "Media",
+        "operationId": "media_api_v1_review_workspace__sid__audio_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/reference-audio": {
+      "get": {
+        "summary": "Reference Media",
+        "operationId": "reference_media_api_v1_review_workspace__sid__reference_audio_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/{sid}/waveform": {
+      "get": {
+        "summary": "Peaks",
+        "operationId": "peaks_api_v1_review_workspace__sid__waveform_get",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "start_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 600,
+              "minimum": 0,
+              "default": 0,
+              "title": "Start S"
+            }
+          },
+          {
+            "name": "end_s",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 600,
+              "exclusiveMinimum": 0,
+              "default": 600,
+              "title": "End S"
+            }
+          },
+          {
+            "name": "bins",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Bins"
+            }
+          },
+          {
+            "name": "taketwo_review",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taketwo Review"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Waveform"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/review-workspace/adjudications": {
+      "post": {
+        "summary": "Adjudicate",
+        "operationId": "adjudicate_api_v1_review_workspace_adjudications_post",
+        "parameters": [
+          {
+            "name": "x-review-operator",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Operator"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Adjudication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjudicationRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ActivateReview": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Access Token"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "access_token"
+        ],
+        "title": "ActivateReview"
+      },
+      "Adjudication": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "review_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Review Ids"
+          },
+          "adjudicator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Adjudicator Id"
+          },
+          "explanation": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Explanation"
+          },
+          "resolution": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Resolution"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "scope",
+          "review_ids",
+          "adjudicator_id",
+          "explanation",
+          "resolution"
+        ],
+        "title": "Adjudication"
+      },
+      "AdjudicationRecord": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "review_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Review Ids"
+          },
+          "adjudicator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Adjudicator Id"
+          },
+          "explanation": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Explanation"
+          },
+          "resolution": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Resolution"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Created At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "awaiting_reviewer_revisions",
+              "agreement_recorded"
+            ],
+            "title": "Status"
+          },
+          "consensus_issue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consensus Issue"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "scope",
+          "review_ids",
+          "adjudicator_id",
+          "explanation",
+          "resolution",
+          "id",
+          "created_at",
+          "status",
+          "consensus_issue"
+        ],
+        "title": "AdjudicationRecord"
+      },
       "AlignmentConfig": {
         "properties": {
           "backend": {
@@ -1509,6 +2650,25 @@
           "reasons"
         ],
         "title": "DimensionScore"
+      },
+      "DraftSave": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/ReviewDraft-Input"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "draft"
+        ],
+        "title": "DraftSave"
       },
       "Eligibility": {
         "properties": {
@@ -2562,6 +3722,27 @@
         ],
         "title": "Label"
       },
+      "ListeningEvent": {
+        "properties": {
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s"
+        ],
+        "title": "ListeningEvent"
+      },
       "Match": {
         "properties": {
           "prediction_id": {
@@ -2988,6 +4169,22 @@
           "severity"
         ],
         "title": "Operation"
+      },
+      "OperatorKey": {
+        "properties": {
+          "operator_key": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Operator Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operator_key"
+        ],
+        "title": "OperatorKey"
       },
       "Overlay": {
         "properties": {
@@ -4437,6 +5634,330 @@
         ],
         "title": "Review"
       },
+      "ReviewAssignment": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "reviewer_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reviewer Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "reviewer_id",
+          "scope"
+        ],
+        "title": "ReviewAssignment"
+      },
+      "ReviewDisagreement": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transcript",
+              "timing",
+              "flaws"
+            ],
+            "title": "Scope"
+          },
+          "issue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue"
+          },
+          "reviews": {
+            "items": {
+              "$ref": "#/components/schemas/Review-Output"
+            },
+            "type": "array",
+            "title": "Reviews"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "scope",
+          "issue",
+          "reviews"
+        ],
+        "title": "ReviewDisagreement"
+      },
+      "ReviewDraft-Input": {
+        "properties": {
+          "corrected_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Corrected Text",
+            "default": ""
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Words"
+          },
+          "phrase_spans": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Phrase Spans"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Labels"
+          },
+          "unclear_spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Unclear Spans"
+          },
+          "uncertain_words": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Uncertain Words"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected",
+              "unresolved"
+            ],
+            "title": "Decision",
+            "default": "unresolved"
+          },
+          "independent": {
+            "type": "boolean",
+            "title": "Independent",
+            "default": false
+          },
+          "blinded_to_predictions": {
+            "type": "boolean",
+            "title": "Blinded To Predictions",
+            "default": false
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Evidence Reference",
+            "default": ""
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReviewDraft"
+      },
+      "ReviewDraft-Output": {
+        "properties": {
+          "corrected_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Corrected Text",
+            "default": ""
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Words"
+          },
+          "phrase_spans": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Phrase Spans"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Labels"
+          },
+          "unclear_spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Unclear Spans"
+          },
+          "uncertain_words": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 3000,
+            "title": "Uncertain Words"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected",
+              "unresolved"
+            ],
+            "title": "Decision",
+            "default": "unresolved"
+          },
+          "independent": {
+            "type": "boolean",
+            "title": "Independent",
+            "default": false
+          },
+          "blinded_to_predictions": {
+            "type": "boolean",
+            "title": "Blinded To Predictions",
+            "default": false
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Evidence Reference",
+            "default": ""
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReviewDraft"
+      },
+      "ReviewGrant": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Session Id"
+          },
+          "access_token": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Access Token"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "access_token"
+        ],
+        "title": "ReviewGrant"
+      },
       "ReviewImportRequest": {
         "properties": {
           "job_id": {
@@ -4454,6 +5975,305 @@
           "review"
         ],
         "title": "ReviewImportRequest"
+      },
+      "ReviewInventory": {
+        "properties": {
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewSession"
+            },
+            "type": "array",
+            "title": "Sessions"
+          },
+          "disagreements": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewDisagreement"
+            },
+            "type": "array",
+            "title": "Disagreements"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/AdjudicationRecord"
+            },
+            "type": "array",
+            "title": "Decisions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessions",
+          "disagreements",
+          "decisions"
+        ],
+        "title": "ReviewInventory"
+      },
+      "ReviewMode": {
+        "properties": {
+          "active_session": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Session"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "active_session"
+        ],
+        "title": "ReviewMode"
+      },
+      "ReviewSession": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "assignment": {
+            "$ref": "#/components/schemas/ReviewAssignment"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted"
+            ],
+            "title": "State",
+            "default": "draft"
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Updated At"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision",
+            "default": 0
+          },
+          "edit_revision": {
+            "type": "integer",
+            "title": "Edit Revision",
+            "default": 0
+          },
+          "recording_name": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Recording Name"
+          },
+          "duration_s": {
+            "type": "number",
+            "title": "Duration S"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__analysis__contracts__Provenance"
+          },
+          "recording_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Recording Sha256"
+          },
+          "alignment_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alignment Sha256"
+          },
+          "pair_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Sha256"
+          },
+          "original_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Original Text"
+          },
+          "machine_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Machine Text"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "assisted_alignment": {
+            "type": "boolean",
+            "title": "Assisted Alignment"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/ReviewDraft-Output"
+          },
+          "listened_spans": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "title": "Listened Spans"
+          },
+          "inspected_words": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Inspected Words"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Review-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "integrity_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Integrity Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "assignment",
+          "created_at",
+          "updated_at",
+          "recording_name",
+          "duration_s",
+          "provenance",
+          "recording_sha256",
+          "alignment_sha256",
+          "original_text",
+          "machine_text",
+          "suggestions",
+          "assisted_alignment",
+          "draft"
+        ],
+        "title": "ReviewSession"
+      },
+      "ReviewSummary": {
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/ReviewSession"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ReviewValidation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session",
+          "validation"
+        ],
+        "title": "ReviewSummary"
+      },
+      "ReviewValidation": {
+        "properties": {
+          "can_submit": {
+            "type": "boolean",
+            "title": "Can Submit"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "alignment_needs_regeneration": {
+            "type": "boolean",
+            "title": "Alignment Needs Regeneration"
+          },
+          "listened_s": {
+            "type": "number",
+            "title": "Listened S"
+          },
+          "scientific_notice": {
+            "type": "string",
+            "title": "Scientific Notice",
+            "default": "Submission stores a reviewer assertion, not authenticated identity or scientific eligibility. Verified dataset text, agreement, rights and all existing gates still apply."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "can_submit",
+          "issues",
+          "alignment_needs_regeneration",
+          "listened_s"
+        ],
+        "title": "ReviewValidation"
       },
       "Rights": {
         "additionalProperties": false,
@@ -4880,6 +6700,21 @@
           "bins"
         ],
         "title": "Waveform"
+      },
+      "WordInspection": {
+        "properties": {
+          "token_index": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Token Index"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token_index"
+        ],
+        "title": "WordInspection"
       },
       "WorkspaceRevision": {
         "properties": {

@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from taketwo.analysis.contracts import Diagnostic, Interval, QualityReport
 from taketwo.analysis.limits import DEFAULT_MAX_ANALYSIS_DURATION_S, maximum_analysis_duration_s
@@ -75,6 +75,16 @@ class WorkspaceRevision(Model):
 class ReviewImportRequest(Model):
     job_id: str
     review: Review
+
+    @field_validator("review", mode="before")
+    @classmethod
+    def json_review(cls, value):
+        # Review phrase tuples are JSON arrays at the HTTP boundary, as in CLI imports.
+        from taketwo.dataset.schema import canonical_json
+
+        return (
+            Review.model_validate_json(canonical_json(value)) if isinstance(value, dict) else value
+        )
 
 
 class Job(Model):

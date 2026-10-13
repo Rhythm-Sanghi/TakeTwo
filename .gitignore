@@ -20,6 +20,9 @@ local-data/
 models/
 *.sqlite
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+.review-operator-key
 *.sqlite-wal
 *.sqlite-shm
 tmp/

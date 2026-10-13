@@ -60,6 +60,7 @@ from .contracts import (
 from .imports import corrected_pair, excerpt, local_spec, upgrade_drafts
 from .jobs import Jobs
 from .processes import lease
+from .review_api import handoff_denied, install_reviews
 
 MAX_UPLOAD = 100 * 1024 * 1024
 ORIGINS = [
@@ -159,11 +160,18 @@ def create_app(
         CORSMiddleware,
         allow_origins=ORIGINS,
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-Review-Operator"],
     )
 
     @app.middleware("http")
     async def boundary(request: Request, call_next):
+        if handoff_denied(app, request):
+            return error(
+                403,
+                "review_handoff",
+                "Independent reviewer handoff is active.",
+                "Ask the local operator to end handoff before using analysis or peer evidence.",
+            )
         if request.method not in {"GET", "HEAD", "OPTIONS"}:
             same_origin = f"{request.url.scheme}://{request.headers.get('host', '')}"
             if request.headers.get("origin") not in [None, same_origin, *ORIGINS]:
@@ -173,6 +181,10 @@ def create_app(
             length = request.headers.get("content-length")
             if length is None:
                 return error(411, "length_required", "A bounded Content-Length is required.")
+            if request.url.path.startswith("/api/v1/review-workspace") and (
+                not length.isdigit() or len(length) > 12 or int(length) > 1024 * 1024
+            ):
+                return error(413, "review_limit", "Review request exceeds 1 MiB.")
             if not length.isdigit() or len(length) > 12 or int(length) > MAX_UPLOAD + 1024 * 1024:
                 return error(
                     413,
@@ -675,6 +687,8 @@ def create_app(
             media_type=media,
             headers={"Content-Disposition": f'attachment; filename="taketwo-{job_id}.{extension}"'},
         )
+
+    install_reviews(app, root, jobs, audio, waveform)
 
     if frontend and frontend.is_dir():
         app.mount("/", StaticFiles(directory=frontend, html=True), name="workspace")
