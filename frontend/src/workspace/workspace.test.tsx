@@ -4,14 +4,23 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import type { Recording, Region, Report } from "../api";
 import { Inspector, Scores } from "./Evidence";
-import { sampleAtTime, timeAtPosition, Timeline } from "./Timeline";
+import {
+  FeatureChart,
+  sampleAtTime,
+  timeAtPosition,
+  Timeline,
+} from "./Timeline";
 import { ImportForm } from "./ImportForm";
 import { ExcerptForm } from "./RecordingTools";
+import { DatasetReadiness } from "./DatasetReadiness";
+import type { DatasetSummary } from "./DatasetReadiness";
+import { ReviewWorkspace } from "./ReviewWorkspace";
 
 vi.mock("uplot", () => ({
   default: class {
@@ -170,10 +179,246 @@ it("leads withheld scores with recovery language and keeps codes in diagnostics"
       }}
     />,
   );
+  fireEvent.click(screen.getByText("pacing · detailed eligibility"));
   expect(screen.getByText(message)).toBeVisible();
   expect(screen.getByText("timing_review_required")).not.toBeVisible();
   fireEvent.click(screen.getAllByText("Diagnostic reason codes")[0]);
   expect(screen.getByText("timing_review_required")).toBeVisible();
+});
+
+it("deduplicates shared blockers while preserving dimension diagnostics", () => {
+  const reason = {
+    code: "transcript_unverified",
+    message: "Verify the exact spoken text.",
+  };
+  render(
+    <Scores
+      report={{
+        ...report,
+        eligibility: { state: "REVIEW_REQUIRED", reasons: [reason] },
+        feature_eligibility: Object.fromEntries(
+          Object.keys(report.feature_eligibility).map((name) => [
+            name,
+            { state: "REVIEW_REQUIRED", reasons: [reason, reason] },
+          ]),
+        ) as Report["feature_eligibility"],
+      }}
+    />,
+  );
+  expect(screen.getAllByText(reason.message)).toHaveLength(1);
+  expect(screen.getByText("Comparison awaiting review")).toBeVisible();
+  expect(
+    screen.getByText("pacing · detailed eligibility").parentElement,
+  ).not.toHaveAttribute("open");
+  fireEvent.click(screen.getByText("pacing · detailed eligibility"));
+  expect(
+    screen.getAllByText(/Scientific eligibility: REVIEW REQUIRED/)[0],
+  ).toBeVisible();
+});
+
+it.each([0.8, 0.006, 0, null])(
+  "labels accepted-frame pitch as diagnostic at coverage %s",
+  (fraction) => {
+    const input = {
+      origin: "self_recorded",
+      provenance: { recording_id: "fixture", transcript_verified: false },
+      duration_s: 30,
+      spectral_frame_count: 2998,
+      pitch_valid_fraction: fraction ?? 0,
+      pitch_baseline_hz: fraction === null ? null : 186.7,
+      feature_config: { voicing_threshold: 0.8 },
+      energy_baseline_dbfs: -30,
+      quality: { rms: 0.1, peak: 0.2 },
+      reviews: [],
+      features: { sha256: "0".repeat(64) },
+    } as unknown as Report["inputs"][number];
+    const view = render(
+      <Inspector region={null} report={{ ...report, inputs: [input] }} />,
+    );
+    const evidence = within(
+      view.container.querySelector(".input-evidence") as HTMLElement,
+    );
+    expect(
+      evidence.getByText("Pitch baseline — diagnostic only"),
+    ).toBeVisible();
+    expect(
+      evidence.getByText(`${((fraction ?? 0) * 100).toFixed(2)}%`),
+    ).toBeVisible();
+    expect(
+      evidence.getByText(/Required reliable coverage: 50% per scored phrase/),
+    ).toBeVisible();
+    if (fraction !== null)
+      expect(
+        screen.getByText(/186.7 Hz · median of accepted F0 frames only/),
+      ).toBeVisible();
+    if ((fraction ?? 0) < 0.5)
+      expect(
+        screen.getByText(
+          /Pitch scoring unavailable: insufficient reliable voiced frames/,
+        ),
+      ).toBeVisible();
+  },
+);
+
+it("uses backend inventory and opens operator preparation without granting access", async () => {
+  const onReview = vi.fn();
+  const recordings = [
+    {
+      id: "fixture-take",
+      original_filename: "tone.wav",
+      role: "participant",
+      normalized_info: { duration_s: 2 },
+    },
+  ] as Recording[];
+  const readiness = {
+    recording_id: "fixture-take",
+    next_action: "transcript",
+    review_scope: "transcript",
+    message: "Complete independent transcript checks.",
+    review_status: { transcript: "One assertion; another required" },
+  } as const;
+  const summary = {
+    inventory_counts: {
+      human_participant_takes: 4,
+      distinct_speaker_ids: 1,
+      connected_families: 1,
+      verified_transcripts: 0,
+    },
+    review_readiness: [readiness],
+  } as unknown as DatasetSummary;
+  const view = render(
+    <DatasetReadiness
+      summary={summary}
+      recordings={recordings}
+      selectedId="fixture-take"
+      onSelect={vi.fn()}
+      onReview={onReview}
+    />,
+  );
+  expect(
+    screen.getByRole("row", { name: "Human-recorded participant takes 4" }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("row", { name: "Distinct recorded speaker IDs 1" }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("row", { name: "Verified transcripts 0" }),
+  ).toBeVisible();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Open Review Workspace" }),
+  );
+  expect(onReview).toHaveBeenCalledWith(readiness);
+  view.unmount();
+  const fetcher = vi.fn();
+  vi.stubGlobal("fetch", fetcher);
+  render(
+    <ReviewWorkspace
+      recordings={recordings}
+      jobs={[]}
+      pairs={[]}
+      initial={readiness}
+    />,
+  );
+  expect(screen.getByLabelText("Recording", { exact: true })).toHaveValue(
+    "fixture-take",
+  );
+  expect(
+    screen.getByRole("button", { name: "Start reviewer handoff" }),
+  ).toBeDisabled();
+  expect(fetcher).not.toHaveBeenCalled();
+});
+
+it("retains independently available dimensions when pitch eligibility is absent", () => {
+  render(
+    <Scores
+      report={{
+        ...report,
+        feature_eligibility: {
+          ...report.feature_eligibility,
+          pitch_dynamics: undefined,
+        } as unknown as Report["feature_eligibility"],
+        dimensions: report.dimensions.map((d) =>
+          d.dimension === "energy_variation"
+            ? {
+                ...d,
+                score: 72,
+                coverage: 1,
+                eligible_count: 2,
+                expected_count: 2,
+              }
+            : d,
+        ),
+      }}
+    />,
+  );
+  expect(screen.getByText("72.0")).toBeVisible();
+  expect(screen.getByText("Overall: Unavailable")).toBeVisible();
+});
+
+it("handles absent analysis and absent pitch input measurements without inventing a baseline", () => {
+  const view = render(<Inspector report={null} region={null} />);
+  expect(
+    screen.getByText("Run analysis to inspect measured evidence."),
+  ).toBeVisible();
+  view.rerender(<Inspector report={report} region={null} />);
+  expect(screen.queryByText(/Hz/)).not.toBeInTheDocument();
+});
+
+it("keeps empty and entirely missing chart series unavailable", () => {
+  const data = {
+    name: "f0",
+    unit: "Hz",
+    times_s: [],
+    values: [],
+    frame_length: 1024,
+    hop_length: 160,
+    aggregation: "native_frames",
+  } as unknown as import("../api").FeatureWindow;
+  const view = render(
+    <FeatureChart data={data} start={0} end={30} role="reference" />,
+  );
+  expect(
+    screen.getByText(/Pitch evidence unavailable: no reliable frames/),
+  ).toBeVisible();
+  expect(view.container.querySelector(".chart-plot")).toBeNull();
+  view.rerender(
+    <FeatureChart
+      data={{ ...data, times_s: [0.032, 29.962], values: [null, null] }}
+      start={0}
+      end={30}
+      role="reference"
+    />,
+  );
+  expect(view.container.querySelector(".chart-plot")).toBeNull();
+  expect(screen.getByText(/0.000–30.000 s/)).toBeVisible();
+});
+
+it("distinguishes a loading inventory from an actual empty dataset", () => {
+  const props = {
+    recordings: [],
+    selectedId: "",
+    onSelect: vi.fn(),
+    onReview: vi.fn(),
+  };
+  const view = render(<DatasetReadiness {...props} summary={null} loading />);
+  expect(
+    screen.getByText("Loading dataset inventory and review readiness…"),
+  ).toBeVisible();
+  expect(
+    screen.queryByText(/Import a permitted recording before/),
+  ).not.toBeInTheDocument();
+  view.rerender(
+    <DatasetReadiness
+      {...props}
+      summary={
+        {
+          inventory_counts: {},
+          review_readiness: [],
+        } as unknown as DatasetSummary
+      }
+    />,
+  );
+  expect(screen.getByText(/Import a permitted recording before/)).toBeVisible();
 });
 
 describe("native timeline coordinates", () => {
@@ -302,6 +547,8 @@ it("seeks actual native audio and exposes numeric interval controls", async () =
     id: "fixture",
     role: "reference",
     original_filename: "generated-fixture.wav",
+    origin: "source",
+    transcript: { status: "unverified" },
     normalized_info: { duration_s: 2 },
   } as Recording;
   const onPlay = vi.fn();

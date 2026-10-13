@@ -57,6 +57,9 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
     await expect(
       page.getByRole("heading", { name: "Recording Library", exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByText("Local workspace ready", { exact: true }),
+    ).toBeVisible();
     const before = await page.evaluate(() => ({
       width: innerWidth,
       dpr: devicePixelRatio,
@@ -76,6 +79,7 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       dpr: devicePixelRatio,
     }));
     expect(after.width).toBeLessThanOrEqual(before.width / 2 + 1);
+    let chartLoadMs: number | null = null;
     for (const area of [
       "Recording Library",
       "Analysis Workspace",
@@ -87,6 +91,40 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       await expect(
         page.getByRole("heading", { name: area, exact: true }),
       ).toBeFocused();
+      if (area === "Analysis Workspace") {
+        const completed = page
+          .locator(".library")
+          .getByRole("button")
+          .filter({ hasText: "completed" });
+        if (await completed.count()) {
+          const chartStarted = Date.now();
+          await completed.first().click();
+          await expect(
+            page.locator(".feature-chart .chart-plot").first(),
+          ).toBeVisible({ timeout: 30000 }); // Same delivery budget as the completed report workflow.
+          chartLoadMs = Date.now() - chartStarted;
+          await expect
+            .poll(() =>
+              page
+                .locator(".feature-chart")
+                .evaluateAll((nodes) =>
+                  nodes.every(
+                    (node) =>
+                      node.querySelector(".uplot")!.getBoundingClientRect()
+                        .width <=
+                      node.clientWidth + 1,
+                  ),
+                ),
+            )
+            .toBe(true);
+          await page
+            .locator(".feature-chart")
+            .first()
+            .screenshot({
+              path: testInfo.outputPath("200-percent-populated-chart.png"),
+            });
+        }
+      }
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -118,6 +156,7 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       factor,
       before,
       after,
+      chartLoadMs,
       browser: context.browser()?.version(),
     };
     const evidencePath = testInfo.outputPath("native-tab-zoom.json");

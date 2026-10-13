@@ -106,18 +106,26 @@ export function ReviewWorkspace({
   recordings,
   jobs,
   pairs,
+  initial,
 }: {
   recordings: Recording[];
   jobs: Job[];
   pairs: Pair[];
+  initial?: {
+    recording_id: string;
+    review_scope?: "transcript" | "timing" | "flaws" | null;
+    job_id?: string | null;
+  } | null;
 }) {
   const [key, setKey] = useState("");
-  const [rid, setRid] = useState(recordings[0]?.id ?? "");
+  const [rid, setRid] = useState(
+    initial?.recording_id ?? recordings[0]?.id ?? "",
+  );
   const [reviewer, setReviewer] = useState("");
   const [scope, setScope] = useState<"transcript" | "timing" | "flaws">(
-    "transcript",
+    initial?.review_scope ?? "transcript",
   );
-  const [jobId, setJobId] = useState("");
+  const [jobId, setJobId] = useState(initial?.job_id ?? "");
   const [supersedes, setSupersedes] = useState("");
   const [inventory, setInventory] = useState<Inventory | null>(null);
   const [status, setStatus] = useState("");

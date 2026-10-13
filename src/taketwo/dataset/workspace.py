@@ -28,7 +28,7 @@ from .schema import (
     content_hash,
     tokenize,
 )
-from .splits import make_split
+from .splits import connected_groups, make_split
 from .storage import load, managed_path, safe_path, save, workspace_lock, write_new
 from .transform import CATEGORIES, apply_recipe
 from .validation import validate
@@ -356,4 +356,21 @@ def summary(dataset: Dataset) -> dict:
         ),
         "split": dataset.split.model_dump(mode="json") if dataset.split else None,
         "competition_dataset_complete": False,
+        "inventory_counts": {
+            "distinct_speaker_ids": len({r.speaker_id for r in dataset.recordings}),
+            "connected_families": len(connected_groups(dataset)),
+            "reference_takes": sum(r.role == "reference" for r in dataset.recordings),
+            "participant_takes": sum(r.role == "participant" for r in dataset.recordings),
+            "human_participant_takes": sum(
+                r.origin == "self_recorded" and r.role == "participant" for r in dataset.recordings
+            ),
+            "controlled_reference_takes": sum(
+                r.origin == "self_recorded" and r.role == "reference" for r in dataset.recordings
+            ),
+            "public_source_candidates": sum(r.origin == "source" for r in dataset.recordings),
+            "synthetic_derivatives": sum(r.origin == "synthetic" for r in dataset.recordings),
+            "verified_transcripts": sum(
+                r.transcript.status == "verified" for r in dataset.recordings
+            ),
+        },
     }

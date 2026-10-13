@@ -60,6 +60,7 @@ from .contracts import (
 from .imports import corrected_pair, excerpt, local_spec, upgrade_drafts
 from .jobs import Jobs
 from .processes import lease
+from .readiness import review_readiness
 from .review_api import handoff_denied, install_reviews
 
 MAX_UPLOAD = 100 * 1024 * 1024
@@ -628,7 +629,41 @@ def create_app(
 
     @app.get("/api/v1/dataset", response_model=DatasetSummary)
     def dataset_summary():
-        return DatasetSummary.model_validate_json(canonical_json(summary(load(root))))
+        dataset = load(root)
+        result = summary(dataset)
+        assertions = reviews()
+        result["inventory_counts"].update(
+            submitted_independent_assertions=sum(r.independent for r in assertions),
+            timing_reviews=sum(r.scope == "timing" for r in assertions),
+            flaw_reviews=sum(r.scope == "flaws" for r in assertions),
+        )
+        processing = {}
+        # Earlier rights/transcript steps do not depend on processing history.
+        # Avoid parsing large frame artifacts just to display those workflow hints.
+        verified_ids = {r.id for r in dataset.recordings if r.transcript.status == "verified"}
+        for job in jobs.list():
+            if job.state != "completed":
+                continue
+            for rid in job.artifacts:
+                if rid not in verified_ids or rid in processing:
+                    continue
+                try:
+                    features = analysis(job.id, rid, "features")
+                    alignment = analysis(job.id, rid, "alignment")
+                    if (
+                        alignment.status == "succeeded"
+                        and features.provenance == alignment.provenance
+                    ):
+                        processing[rid] = job.id
+                except (ValueError, KeyError, OSError, HTTPException):
+                    continue  # A stale/missing artifact does not qualify as current processing.
+        result["review_readiness"] = [
+            item.model_dump(mode="json")
+            for item in review_readiness(
+                dataset, app.state.review_workspace.inventory(), processing
+            )
+        ]
+        return DatasetSummary.model_validate_json(canonical_json(result))
 
     @app.post("/api/v1/dataset/upgrade", response_model=DatasetSummary)
     def enable_drafts():

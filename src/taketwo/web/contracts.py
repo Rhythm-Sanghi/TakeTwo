@@ -154,6 +154,18 @@ class Overlay(Model):
     participant_values: list[float | None]
 
 
+class RecordingReadiness(Model):
+    recording_id: Identifier
+    next_action: Literal[
+        "rights", "transcript", "reviewed_version", "processing", "timing", "flaws", "comparison"
+    ]
+    message: str
+    review_scope: Literal["transcript", "timing", "flaws"] | None = None
+    job_id: str | None = None
+    pair_id: Identifier | None = None
+    review_status: dict[str, str] = Field(default_factory=dict)
+
+
 class DatasetSummary(Model):
     schema_version: Literal[1, 2]
     dataset_version: Identifier
@@ -165,3 +177,5 @@ class DatasetSummary(Model):
     severity: dict[str, int]
     split: SplitReport | None
     competition_dataset_complete: Literal[False] = False
+    inventory_counts: dict[str, int] = Field(default_factory=dict)
+    review_readiness: list[RecordingReadiness] = Field(default_factory=list)

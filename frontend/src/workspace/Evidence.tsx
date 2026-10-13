@@ -19,6 +19,20 @@ export function Location({
   );
 }
 export function Scores({ report }: { report: Report }) {
+  const key = (r: { code: string; message: string }) =>
+    r.code + "\0" + r.message;
+  const gates = Object.values(report.feature_eligibility).filter(Boolean);
+  const shared = new Map(
+    (report.eligibility.reasons ?? []).map((r) => [key(r), r]),
+  );
+  for (const gate of gates)
+    for (const r of gate.reasons ?? []) {
+      if (
+        gates.filter((g) => g.reasons?.some((other) => key(other) === key(r)))
+          .length > 1
+      )
+        shared.set(key(r), r);
+    }
   return (
     <section aria-label="Rubric scores">
       <div className="section-heading">
@@ -29,6 +43,20 @@ export function Scores({ report }: { report: Report }) {
         {report.policy.version} · {label(report.eligibility.state)} · all four
         dimensions required. Unavailable weights are never redistributed.
       </p>
+      {shared.size > 0 && (
+        <div className="comparison-blockers">
+          <h3>
+            {report.eligibility.state === "REVIEW_REQUIRED"
+              ? "Comparison awaiting review"
+              : "Comparison evidence blockers"}
+          </h3>
+          <ul>
+            {Array.from(shared.values()).map((r) => (
+              <li key={key(r)}>{r.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <table tabIndex={0} aria-label="Dimension scores and coverage">
         <thead>
           <tr>
@@ -37,6 +65,7 @@ export function Scores({ report }: { report: Report }) {
             <th>Score / 100</th>
             <th>Coverage</th>
             <th>Eligible / expected</th>
+            <th>Evidence status</th>
           </tr>
         </thead>
         <tbody>
@@ -57,48 +86,63 @@ export function Scores({ report }: { report: Report }) {
               <td>
                 {d.eligible_count} / {d.expected_count}
               </td>
+              <td>
+                {label(
+                  report.feature_eligibility[d.dimension]?.state ??
+                    "Unavailable",
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <details open={report.overall_score == null}>
-        <summary>Eligibility and withheld-score reasons</summary>
-        {Object.entries(report.feature_eligibility).map(([name, gate]) => (
-          <div key={name}>
-            <h3>
-              {label(name)} · {label(gate.state)}
-            </h3>
-            <ul>
-              {Array.from(
-                new Map(
-                  (gate.reasons ?? []).map((r) => [r.code + r.message, r]),
-                ).values(),
-              ).map((r, i) => (
-                <li key={i}>{r.message}</li>
+      <div className="dimension-diagnostics">
+        {report.dimensions.map((d) => {
+          const gate = report.feature_eligibility[d.dimension];
+          const unique = Array.from(
+            new Map((gate?.reasons ?? []).map((r) => [key(r), r])).values(),
+          ).filter((r) => !shared.has(key(r)));
+          return (
+            <details key={d.dimension}>
+              <summary>{label(d.dimension)} · detailed eligibility</summary>
+              <p>
+                Scientific eligibility: {label(gate?.state ?? "Unavailable")}.{" "}
+                {d.eligible_count} eligible / {d.expected_count} expected
+                observations; coverage {number(d.coverage * 100, 1)}%. Required
+                coverage: {number(report.policy.minimum_coverage * 100, 0)}%;
+                minimum observations:{" "}
+                {d.dimension === "pause_behavior"
+                  ? report.policy.minimum_gaps
+                  : report.policy.minimum_phrases}
+                .
+              </p>
+              {shared.size > 0 && <p>Shared blockers are listed once above.</p>}
+              {unique.map((r) => (
+                <p key={key(r)}>{r.message}</p>
               ))}
-            </ul>
-            {Boolean(gate.reasons?.length) && (
+              {d.reasons.map((r) => (
+                <p key={key(r)}>{r.message}</p>
+              ))}
               <details>
                 <summary>Diagnostic reason codes</summary>
                 <ul>
-                  {Array.from(new Set(gate.reasons?.map((r) => r.code))).map(
-                    (code) => (
-                      <li key={code}>
-                        <code>{code}</code>
-                      </li>
+                  {Array.from(
+                    new Set(
+                      [...(gate?.reasons ?? []), ...d.reasons].map(
+                        (r) => r.code,
+                      ),
                     ),
-                  )}
+                  ).map((code) => (
+                    <li key={code}>
+                      <code>{code}</code>
+                    </li>
+                  ))}
                 </ul>
               </details>
-            )}
-            {report.dimensions
-              .find((d) => d.dimension === name)
-              ?.reasons.map((r) => (
-                <p key={r.code}>{r.message}</p>
-              ))}
-          </div>
-        ))}
-      </details>
+            </details>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -188,8 +232,110 @@ export function Inspector({
                 : "No threshold crossings were detected under this policy."}
           </p>
           <h3>Actual input evidence</h3>
+          {report.inputs.length > 0 && (
+            <div className="print-only">
+              <table aria-label="Printed input measurement summary">
+                <thead>
+                  <tr>
+                    <th>Measurement</th>
+                    {report.inputs.map((input, index) => (
+                      <th key={input.provenance.recording_id}>
+                        {index === 0 ? "Reference" : "Participant"}
+                        <br />
+                        {input.provenance.recording_id}
+                        <br />
+                        {input.origin}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      ["Duration (s)", (input) => number(input.duration_s)],
+                      [
+                        "Spectral frames",
+                        (input) => String(input.spectral_frame_count),
+                      ],
+                      [
+                        "Reliable pitch coverage",
+                        (input) =>
+                          `${number(input.pitch_valid_fraction * 100, 2)}%`,
+                      ],
+                      [
+                        "Pitch baseline — diagnostic only (Hz)",
+                        (input) => number(input.pitch_baseline_hz, 1),
+                      ],
+                      [
+                        "Accepted F0 confidence mask",
+                        (input) =>
+                          number(input.feature_config.voicing_threshold, 2),
+                      ],
+                      [
+                        "Energy baseline (dBFS)",
+                        (input) => number(input.energy_baseline_dbfs),
+                      ],
+                      [
+                        "RMS / peak (full scale)",
+                        (input) =>
+                          `${number(input.quality.rms, 6)} / ${number(input.quality.peak, 6)}`,
+                      ],
+                      [
+                        "Transcript reviewed",
+                        (input) =>
+                          input.provenance.transcript_verified
+                            ? "Verified"
+                            : "Unverified",
+                      ],
+                      [
+                        "Independent review artifacts",
+                        (input) => String(input.reviews.length),
+                      ],
+                    ] satisfies [
+                      string,
+                      (input: Report["inputs"][number]) => string,
+                    ][]
+                  ).map(([name, value]) => (
+                    <tr key={name}>
+                      <th scope="row">{name}</th>
+                      {report.inputs.map((input) => (
+                        <td key={input.provenance.recording_id}>
+                          {value(input)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p>
+                Pitch baselines are medians of accepted F0 frames only, not
+                robust estimates over the whole recording. Required reliable
+                coverage:{" "}
+                {number(report.policy.minimum_pitch_fraction * 100, 0)}% per
+                scored phrase; recording-wide coverage is diagnostic. Scientific
+                pitch eligibility:{" "}
+                {label(
+                  report.feature_eligibility.pitch_dynamics?.state ??
+                    "Unavailable",
+                )}
+                . Pitch-dynamics score:{" "}
+                {number(
+                  report.dimensions.find(
+                    (d) => d.dimension === "pitch_dynamics",
+                  )?.score,
+                  1,
+                )}
+                . When reliable voiced frames are insufficient, pitch scoring is
+                unavailable; other gates and observation requirements also
+                apply.
+              </p>
+            </div>
+          )}
           {report.inputs.map((input) => (
-            <section key={input.provenance.recording_id}>
+            <section
+              className="input-evidence"
+              key={input.provenance.recording_id}
+            >
               <h3>
                 {input.origin} · {input.provenance.recording_id}
               </h3>
@@ -198,12 +344,38 @@ export function Inspector({
                 <dd>{number(input.duration_s)} s</dd>
                 <dt>Spectral frames</dt>
                 <dd>{input.spectral_frame_count}</dd>
-                <dt>Pitch-valid fraction</dt>
-                <dd>{number(input.pitch_valid_fraction)}</dd>
+                <dt>Reliable pitch coverage</dt>
+                <dd>{number(input.pitch_valid_fraction * 100, 2)}%</dd>
                 <dt>Energy baseline</dt>
                 <dd>{number(input.energy_baseline_dbfs)} dBFS</dd>
-                <dt>Pitch baseline</dt>
-                <dd>{number(input.pitch_baseline_hz)} Hz</dd>
+                <dt>Pitch baseline — diagnostic only</dt>
+                <dd>
+                  {input.pitch_baseline_hz == null
+                    ? "Unavailable"
+                    : `${number(input.pitch_baseline_hz, 1)} Hz · median of accepted F0 frames only`}
+                </dd>
+                <dt>Pitch evidence and scoring</dt>
+                <dd>
+                  Required reliable coverage:{" "}
+                  {number(report.policy.minimum_pitch_fraction * 100, 0)}% per
+                  scored phrase. Accepted F0 uses the stored confidence mask (
+                  {number(input.feature_config.voicing_threshold, 2)}).{" "}
+                  Scientific pitch eligibility:{" "}
+                  {label(
+                    report.feature_eligibility.pitch_dynamics?.state ??
+                      "Unavailable",
+                  )}
+                  .{" "}
+                  {report.dimensions.find(
+                    (d) => d.dimension === "pitch_dynamics",
+                  )?.score != null
+                    ? "Pitch-dynamics score available in the rubric table."
+                    : input.pitch_baseline_hz == null ||
+                        input.pitch_valid_fraction <
+                          report.policy.minimum_pitch_fraction
+                      ? "Pitch scoring unavailable: insufficient reliable voiced frames. Recording-wide coverage is diagnostic; phrase eligibility and all other gates still apply."
+                      : "Pitch scoring unavailable: inspect the pitch dimension for evidence, coverage and observation requirements."}
+                </dd>
                 <dt>RMS / peak</dt>
                 <dd>
                   {number(input.quality.rms, 6)} /{" "}

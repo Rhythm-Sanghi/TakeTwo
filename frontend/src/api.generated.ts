@@ -932,6 +932,12 @@ export interface components {
        * @constant
        */
       competition_dataset_complete: false;
+      /** Inventory Counts */
+      inventory_counts?: {
+        [key: string]: number;
+      };
+      /** Review Readiness */
+      review_readiness?: components["schemas"]["RecordingReadiness"][];
     };
     /** Diagnostic */
     Diagnostic: {
@@ -1819,6 +1825,35 @@ export interface components {
       transformation: components["schemas"]["Transformation"] | null;
       /** Quality Flags */
       quality_flags: string[];
+    };
+    /** RecordingReadiness */
+    RecordingReadiness: {
+      /** Recording Id */
+      recording_id: string;
+      /**
+       * Next Action
+       * @enum {string}
+       */
+      next_action:
+        | "rights"
+        | "transcript"
+        | "reviewed_version"
+        | "processing"
+        | "timing"
+        | "flaws"
+        | "comparison";
+      /** Message */
+      message: string;
+      /** Review Scope */
+      review_scope?: ("transcript" | "timing" | "flaws") | null;
+      /** Job Id */
+      job_id?: string | null;
+      /** Pair Id */
+      pair_id?: string | null;
+      /** Review Status */
+      review_status?: {
+        [key: string]: string;
+      };
     };
     /** Region */
     Region: {

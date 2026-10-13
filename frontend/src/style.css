@@ -474,6 +474,30 @@ table button {
 }
 .feature-chart {
   margin: 12px 0;
+  min-width: 0;
+  max-width: 100%;
+}
+.print-identity {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.print-chart {
+  display: none;
+}
+.print-only {
+  display: none;
+}
+.panel > label select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.dimension-diagnostics details {
+  margin-top: 8px;
+}
+.feature-chart > div {
+  min-width: 0;
+  max-width: 100%;
 }
 .feature-chart > p {
   font-size: 12px;
@@ -573,5 +597,169 @@ footer {
     scroll-behavior: auto !important;
     transition: none !important;
     animation: none !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+@media print {
+  :root {
+    font-size: 10pt;
+    background: white;
+    color: #202824;
+  }
+  body,
+  .app-header,
+  .workspace-shell,
+  main {
+    background: white;
+  }
+  .app-header {
+    padding: 0 0 8pt;
+  }
+  .environment,
+  .skip,
+  nav,
+  .library,
+  footer,
+  .print-controls,
+  .analysis-controls,
+  .native-correspondence,
+  .token-overlay:has(.notice),
+  button,
+  .button,
+  input,
+  select,
+  textarea,
+  audio,
+  .track > label,
+  .analysis-grid label,
+  .track > .toolbar,
+  .track > details,
+  .dimension-diagnostics,
+  .inspector > details,
+  .chart-values,
+  .input-evidence,
+  .chart-plot,
+  .toolbar:has(select) {
+    display: none !important;
+  }
+  .workspace-shell,
+  .analysis-grid {
+    display: block;
+  }
+  main {
+    padding: 10pt 0 0;
+  }
+  h1 {
+    font-size: 16pt;
+  }
+  h2 {
+    font-size: 12pt;
+  }
+  h3 {
+    font-size: 10pt;
+  }
+  h1,
+  h2,
+  h3,
+  summary {
+    break-after: avoid;
+  }
+  p {
+    margin: 6pt 0;
+  }
+  .panel,
+  .track,
+  .inspector {
+    margin: 0 0 10pt;
+    padding: 8pt;
+    border: 1px solid #b7beb8;
+  }
+  .track,
+  .feature-chart,
+  .comparison-blockers,
+  .inspector section,
+  table {
+    break-inside: avoid;
+  }
+  .analysis-grid > *,
+  .timeline-stack,
+  .inspector {
+    width: 100%;
+    min-width: 0;
+  }
+  .inspector {
+    font-size: 10pt;
+  }
+  .inspector dl {
+    display: grid;
+    grid-template-columns: 150pt minmax(0, 1fr);
+    gap: 3pt 10pt;
+  }
+  .inspector dt,
+  .inspector dd {
+    margin: 0;
+  }
+  table {
+    display: table;
+    width: 100%;
+    overflow: visible;
+    font-size: 9pt;
+  }
+  th,
+  td {
+    padding: 4pt;
+  }
+  .feature-chart > p,
+  .meta,
+  .print-identity {
+    font-size: 9pt;
+  }
+  .feature-chart {
+    margin: 8pt 0;
+  }
+  .uplot {
+    max-width: 100%;
+  }
+  .uplot canvas {
+    max-width: 100%;
+  }
+  .print-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .print-only {
+    display: block;
+    font-size: 9pt;
+    overflow-wrap: anywhere;
+  }
+  .score-panel,
+  .inspector {
+    break-inside: avoid;
+  }
+  .inspector th {
+    overflow-wrap: anywhere;
+  }
+  .waveform {
+    height: 80pt;
+  }
+  .notice {
+    background: white;
+    border-left: 2pt solid #235a50;
+    padding: 6pt;
+  }
+  .brand strong {
+    font-size: 15pt;
+  }
+  .brand span {
+    font-size: 10pt;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 }

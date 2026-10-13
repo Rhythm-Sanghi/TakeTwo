@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import { api, number } from "../api";
 import type { components } from "../api.generated";
+import { installPlotPrint } from "./plotPrint";
 
 type Overlay = components["schemas"]["Overlay"];
 
@@ -16,6 +17,7 @@ export function TokenOverlay({
   const [data, setData] = useState<Overlay | null>(null);
   const [error, setError] = useState("");
   const target = useRef<HTMLDivElement>(null);
+  const printImage = useRef<HTMLImageElement>(null);
   useEffect(() => {
     let active = true;
     setData(null);
@@ -42,7 +44,7 @@ export function TokenOverlay({
     const element = target.current;
     const plot = new uPlot(
       {
-        width: Math.max(260, element.clientWidth),
+        width: Math.max(1, element.clientWidth),
         height: 200,
         scales: { x: { time: false } },
         axes: [
@@ -68,17 +70,24 @@ export function TokenOverlay({
       ],
       element,
     );
-    const observer = new ResizeObserver(() =>
-      plot.setSize({ width: Math.max(260, element.clientWidth), height: 200 }),
-    );
+    const resize = () =>
+      plot.setSize({ width: Math.max(1, element.clientWidth), height: 200 });
+    const observer = new ResizeObserver(resize);
     observer.observe(element);
+    const removePrint = printImage.current
+      ? installPlotPrint(plot, element, printImage.current, 200)
+      : () => {};
     return () => {
       observer.disconnect();
+      removePrint();
       plot.destroy();
     };
   }, [data]);
   return (
-    <section className="panel" aria-label="Canonical word acoustic overlay">
+    <section
+      className="panel token-overlay"
+      aria-label="Canonical word acoustic overlay"
+    >
       <h2>Matched-word acoustic overlay</h2>
       <p>
         Reference and participant use reviewed canonical word correspondence.
@@ -102,14 +111,19 @@ export function TokenOverlay({
       ) : (
         data && (
           <>
-            <div ref={target} aria-hidden="true" />
+            <div className="chart-plot" ref={target} aria-hidden="true" />
+            <img
+              className="print-chart"
+              ref={printImage}
+              alt={`Reviewed matched-word ${data.unit} chart; native seek positions remain in the live table`}
+            />
             <p className="meta">
               Median of eligible complete native frames inside each
               independently reviewed word. Energy uses 400-sample windows; pitch
               uses 1024; hop 160 at 16 kHz. Missing or unreliable word
               measurements remain gaps.
             </p>
-            <details>
+            <details className="chart-values">
               <summary>Matched word values and native seek positions</summary>
               <div
                 className="table-scroll"

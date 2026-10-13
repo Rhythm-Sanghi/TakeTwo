@@ -88,7 +88,12 @@ export default defineConfig({
       ? ["duration.spec.ts"]
       : pilot
         ? ["pilot.spec.ts", "zoom.spec.ts"]
-        : ["workspace.spec.ts", "zoom.spec.ts", "zz-review.spec.ts"],
+        : [
+            "workspace.spec.ts",
+            "zoom.spec.ts",
+            "zy-presentation.spec.ts",
+            "zz-review.spec.ts",
+          ],
   timeout: genuine || reviewPilot ? 900000 : 240000,
   workers: 1,
   fullyParallel: false,

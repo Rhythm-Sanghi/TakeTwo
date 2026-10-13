@@ -16,6 +16,8 @@ import { Inspector, Location, Scores } from "./Evidence";
 import { Timeline } from "./Timeline";
 import { TokenOverlay } from "./TokenOverlay";
 import { PairCorrection, ReviewImport } from "./RecordingTools";
+import { DatasetReadiness } from "./DatasetReadiness";
+import type { DatasetSummary, Readiness } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
 type Page =
@@ -235,6 +237,10 @@ export function App() {
   const [page, setPage] = useState<Page>("Recording Library");
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [schemaVersion, setSchemaVersion] = useState(2);
+  const [datasetSummary, setDatasetSummary] = useState<DatasetSummary | null>(
+    null,
+  );
+  const [reviewTarget, setReviewTarget] = useState<Readiness | null>(null);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
@@ -291,10 +297,11 @@ export function App() {
         api<Policy>("/rubrics/delivery-v0"),
         api<Evaluation[]>("/evaluations"),
         api<Review[]>("/reviews"),
-        api<{ schema_version: number }>("/dataset"),
+        api<DatasetSummary>("/dataset"),
       ]);
       setRecordings(r);
       setSchemaVersion(d.schema_version);
+      setDatasetSummary(d);
       setPairs(p);
       setJobs(j);
       setHealth(h);
@@ -536,6 +543,7 @@ export function App() {
               recordings={recordings}
               jobs={jobs}
               pairs={pairs}
+              initial={reviewTarget}
             />
           )}
           {error && (
@@ -789,6 +797,19 @@ export function App() {
                   )}
                 </p>
               </section>
+              <div className="print-controls">
+                <button onClick={() => window.print()} disabled={!activeReport}>
+                  Print analysis summary
+                </button>
+              </div>
+              {activeReport && (
+                <p className="print-only">
+                  Analysis {activeJob?.id} · dataset{" "}
+                  {activeReport.dataset_version} · {activeReport.policy.version}
+                  . Machine processing does not verify transcripts, reviewed
+                  evidence or accuracy.
+                </p>
+              )}
               <div className="analysis-grid">
                 <div className="timeline-stack">
                   {reference ? (
@@ -828,7 +849,7 @@ export function App() {
                       onExcerpt={imported}
                     />
                   )}
-                  <section className="panel">
+                  <section className="panel native-correspondence">
                     <h2>Native-time correspondence</h2>
                     <p>
                       Each track retains its own seconds and cursor. Selecting a
@@ -881,7 +902,7 @@ export function App() {
                     />
                   )}
                   {activeReport && (
-                    <section className="panel">
+                    <section className="panel score-panel">
                       <Scores report={activeReport} />
                       <h2>Detected deviations</h2>
                       {activeReport.regions.length ? (
@@ -917,7 +938,7 @@ export function App() {
                       ) : (
                         <p>
                           {activeReport.overall_score == null
-                            ? "Detection unavailable: evidence gates are unmet."
+                            ? "Flaw detection unavailable until the required evidence is reviewed."
                             : "No threshold crossings detected under this rubric."}
                         </p>
                       )}
@@ -970,92 +991,20 @@ export function App() {
           )}
           {page === "Dataset and Evaluation" && (
             <>
-              <section className="panel">
-                <h2>Dataset readiness</h2>
-                <table tabIndex={0} aria-label="Dataset readiness counts">
-                  <thead>
-                    <tr>
-                      <th>Evidence</th>
-                      <th>Actual workspace count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th>Public-source candidates</th>
-                      <td>
-                        {recordings.filter((r) => r.origin === "source").length}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Human-recorded participants</th>
-                      <td>
-                        {
-                          recordings.filter(
-                            (r) =>
-                              r.origin === "self_recorded" &&
-                              r.role === "participant",
-                          ).length
-                        }
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Controlled self-recorded references</th>
-                      <td>
-                        {
-                          recordings.filter(
-                            (r) =>
-                              r.origin === "self_recorded" &&
-                              r.role === "reference",
-                          ).length
-                        }
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Synthetic derivatives</th>
-                      <td>
-                        {
-                          recordings.filter((r) => r.origin === "synthetic")
-                            .length
-                        }
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Verified transcripts</th>
-                      <td>
-                        {
-                          recordings.filter(
-                            (r) => r.transcript.status === "verified",
-                          ).length
-                        }
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Independent review assertions</th>
-                      <td>{reviews.filter((r) => r.independent).length}</td>
-                    </tr>
-                    <tr>
-                      <th>Timing / flaw review artifacts</th>
-                      <td>
-                        {reviews.filter((r) => r.scope === "timing").length} /{" "}
-                        {reviews.filter((r) => r.scope === "flaws").length}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p className="notice">
-                  Competition dataset readiness is not certified. Counts are
-                  inventory, not proof of reviewer independence, licensed
-                  release or independent accuracy. Machine alignment is separate
-                  from human ground truth.
-                </p>
-                <p>
-                  Collect independent transcript checks, agreeing timing/phrase
-                  reviews and blinded flaw inventories. Preserve acceptable
-                  alternatives and split-disjoint families. Use the dataset and
-                  comparison CLI to validate, import review assertions and run
-                  evaluation; this view never generates approvals.
-                </p>
-              </section>
+              <DatasetReadiness
+                summary={datasetSummary}
+                loading={loading}
+                recordings={recordings}
+                selectedId={selected?.id ?? ""}
+                onSelect={(id) => {
+                  const item = recordings.find((r) => r.id === id);
+                  if (item) selectRecording(item);
+                }}
+                onReview={(item) => {
+                  setReviewTarget(item);
+                  navigate("Review Workspace");
+                }}
+              />
               <ReviewImport
                 jobs={jobs}
                 recordings={recordings}

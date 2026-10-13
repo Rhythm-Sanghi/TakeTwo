@@ -2525,6 +2525,20 @@
             "const": false,
             "title": "Competition Dataset Complete",
             "default": false
+          },
+          "inventory_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Inventory Counts"
+          },
+          "review_readiness": {
+            "items": {
+              "$ref": "#/components/schemas/RecordingReadiness"
+            },
+            "type": "array",
+            "title": "Review Readiness"
           }
         },
         "additionalProperties": false,
@@ -4955,6 +4969,86 @@
           "quality_flags"
         ],
         "title": "Recording"
+      },
+      "RecordingReadiness": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "next_action": {
+            "type": "string",
+            "enum": [
+              "rights",
+              "transcript",
+              "reviewed_version",
+              "processing",
+              "timing",
+              "flaws",
+              "comparison"
+            ],
+            "title": "Next Action"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "review_scope": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "transcript",
+                  "timing",
+                  "flaws"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Scope"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "review_status": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Review Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "next_action",
+          "message"
+        ],
+        "title": "RecordingReadiness"
       },
       "Region": {
         "properties": {

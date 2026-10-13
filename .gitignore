@@ -31,3 +31,5 @@ tmp/
 
 # Current submission PDF is an owner-review draft; publish only after approval.
 /output/pdf/taketwo-technical-report-current.pdf
+# Browser analysis summaries can contain private recording and review evidence.
+/output/pdf/taketwo-analysis-summary.pdf

@@ -11,6 +11,7 @@ import type {
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import { ExcerptForm } from "./RecordingTools";
+import { installPlotPrint } from "./plotPrint";
 
 export function timeAtPosition(
   x: number,
@@ -24,7 +25,7 @@ export function sampleAtTime(time: number) {
   return Math.round(time * 16000);
 }
 
-function FeatureChart({
+export function FeatureChart({
   data,
   start,
   end,
@@ -36,16 +37,30 @@ function FeatureChart({
   role: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const printImage = useRef<HTMLImageElement>(null);
   useEffect(() => {
-    if (!container.current || !data.times_s.length) return;
+    if (
+      !container.current ||
+      !data.times_s.length ||
+      !data.values.some((v) => v != null)
+    )
+      return;
     const target = container.current;
     const plot = new uPlot(
       {
-        width: Math.max(260, target.clientWidth),
+        width: Math.max(1, target.clientWidth),
         height: 175,
         legend: { show: false },
         cursor: { show: true, drag: { x: false, y: false } },
-        scales: { x: { time: false, min: start, max: end } },
+        scales: { x: { time: false, range: () => [start, end] } },
+        hooks: {
+          draw: [
+            (plot) => {
+              target.dataset.domainStart = String(plot.scales.x.min);
+              target.dataset.domainEnd = String(plot.scales.x.max);
+            },
+          ],
+        },
         axes: [
           { label: "Native time (s)", size: 45 },
           { label: data.unit, size: 65 },
@@ -64,12 +79,16 @@ function FeatureChart({
       [data.times_s, data.values],
       target,
     );
-    const observer = new ResizeObserver(() =>
-      plot.setSize({ width: Math.max(260, target.clientWidth), height: 175 }),
-    );
+    const resize = () =>
+      plot.setSize({ width: Math.max(1, target.clientWidth), height: 175 });
+    const observer = new ResizeObserver(resize);
     observer.observe(target);
+    const removePrint = printImage.current
+      ? installPlotPrint(plot, target, printImage.current, 190)
+      : () => {};
     return () => {
       observer.disconnect();
+      removePrint();
       plot.destroy();
     };
   }, [data, start, end, role]);
@@ -86,7 +105,14 @@ function FeatureChart({
         · {role} {role === "reference" ? "solid" : "dashed"}
       </p>
       {available ? (
-        <div ref={container} aria-hidden="true" />
+        <>
+          <div className="chart-plot" ref={container} aria-hidden="true" />
+          <img
+            className="print-chart"
+            ref={printImage}
+            alt={`${role} ${data.name}, native time ${number(start)} to ${number(end)} seconds; ${data.unit}`}
+          />
+        </>
       ) : (
         <p className="notice">
           {data.name.includes("pitch") || data.name === "f0"
@@ -95,10 +121,18 @@ function FeatureChart({
         </p>
       )}
       <p className="meta">
+        Viewing native time: {number(start)}–{number(end)} s. Observed frame
+        centers:{" "}
+        {data.times_s.length
+          ? `${number(data.times_s[0])}–${number(data.times_s.at(-1))} s`
+          : "Unavailable"}
+        . {data.values.length} plotted points.
+      </p>
+      <p className="meta">
         Frame {data.frame_length} samples / hop {data.hop_length} samples at 16
         kHz · {label(data.aggregation)}. Missing frames remain gaps.
       </p>
-      <details>
+      <details className="chart-values">
         <summary>Nonvisual chart values ({data.values.length} points)</summary>
         <div
           className="table-scroll"
@@ -371,6 +405,15 @@ export function Timeline({
         </h2>
         <span className="mono">{number(duration)} s · 16 kHz</span>
       </div>
+      <p className="print-identity">
+        {recording.id} · {recording.role} / {label(recording.origin)} ·
+        transcript {recording.transcript.status}. Native viewing window{" "}
+        {number(start)}–{number(end)} s{" "}
+        {start === 0 && end === duration
+          ? "(full recording)"
+          : "(selected window)"}
+        .
+      </p>
       <audio
         ref={audio}
         controls
