@@ -46,7 +46,7 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 
 | ID / source p2 | Deliverable | Component / phase | Acceptance criterion | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Reviewed release commit and public link | Planned |
+| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public master verified at 35a1486; repair CI pending authorized push | Published code; CI verification incomplete |
 | D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Planned |
 | D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
 | D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | PDF page count and visual/content review | Planned |
@@ -65,3 +65,5 @@ Current submission readiness is reconciled requirement by requirement in the [Ph
 [Phase 4B validation](phase4b-validation.md) adds verified Windows process-crash recovery, bounded workers, retry, cache reuse and all-workspace narrow/accessibility checks. The [human pilot kit](human-pilot-kit.md) supplies recording and review procedures. R1/R2 accuracy/R3 real detection and D2 remain blocked by absent participant recordings and independent annotations; no metric or calibration claim closes those gates.
 
 Current repair status (2026-10-13): five genuine private practice recordings remain outside Git and lack independent ground truth/public consent. Structured semantic flaw agreement, maximum-cardinality evaluation and journaled review publication are covered by software regressions; they do not close R1–R3 human-data gates. MIT licenses original code/documentation only. See [final repair audit](final-repair-audit.md).
+
+Current hosted-verification and deliverable status is in [CI/submission verification](ci-submission-validation.md). The three audited repair commits are public; new changes remain local. Historical phase readiness is not current remote status.

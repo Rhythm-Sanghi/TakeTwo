@@ -1,6 +1,18 @@
 # Track C submission compliance
 
-Current-status addendum (2026-10-13): five genuine private same-person practice recordings and intended text are available, with no independent transcript/timing/flaw ground truth or public-release consent. MIT is owner-selected, copyright (c) 2026 Rhythm Sanghi, for original code/documentation only. The current application has five workspace areas, including Review Workspace. Current software corrections and evidence are in [final repair audit](final-repair-audit.md). The dated Phase 5 statements and existing six-page PDF below remain historical; the final submission PDF still needs owner reconciliation and regeneration. OpenAI Codex was extensively used for implementation/testing/integration/documentation; ChatGPT assisted architecture, interpretation, technical review and instructions.
+Current status (2026-10-13): audited source commits are public on master at 35a1486; the first Actions run failed three build-prerequisite tests. Current CI repairs remain local pending fresh push authorization. Five private practice takes have no independent approvals/public consent. See [current verification and deliverable gates](ci-submission-validation.md). Dated phase evidence below remains historical.
+
+## Current official deliverables
+
+| Deliverable | Status | Exact evidence / remaining action |
+| --- | --- | --- |
+| Public GitHub code/documentation | Incomplete: technical verification | master at 35a1486 is public; run 38350507487 failed three tests. Local repairs await authorized push and full green Actions |
+| Public paired dataset/text/alignment labels | Blocked by human action | Five private unreviewed practice takes and JFK candidates exist; no approved release corpus/download URL |
+| Interactive prototype | Incomplete: human acceptance | Five functional areas and genuine automatic processing verified; independent eligible pair/region demonstration and spoken accessibility remain open |
+| Technical document <=6 pages | Incomplete: owner approval | Current six-page PDF rendered and visually inspected locally; ignored by Git, source updated, historical source/PDF preserved |
+| YouTube demonstration 3-10 minutes | Blocked by human action | Exact five-minute script prepared; no approved public footage, upload or URL |
+
+The organizer deadline is October 15, 2026 at 00:15 IST, verified in [current evidence](ci-submission-validation.md). No software-fixture metric closes scientific acceptance.
 
 This is the historical Phase 5 readiness snapshot. Current product repairs and the later user-supplied private practice takes are recorded in [product validation](product-validation.md) and [the recording guide](recording-import-guide.md). No newly supplied take is automatically a verified/public competition example; official scientific/public deliverable gates remain open.
 

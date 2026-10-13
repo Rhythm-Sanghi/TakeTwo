@@ -7,22 +7,23 @@ TakeTwo — Speech analysis workspace. Run PowerShell from the repository root. 
 ```powershell
 uv sync --locked
 uv lock --check
+npm --prefix frontend ci
+npm --prefix frontend run build
 uv run pytest -q
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
 uv build --no-sources
 uv run python scripts/export_api.py
-npm --prefix frontend ci
 npm --prefix frontend run contracts
 npm --prefix frontend run typecheck
 npm --prefix frontend run lint
 npm --prefix frontend run test
 npm --prefix frontend run build
 uv run python scripts/make_browser_fixtures.py
-npm --prefix frontend exec playwright install chromium
+npm --prefix frontend exec -- playwright install chromium
 npm --prefix frontend run e2e
 uv run python scripts/check_repository.py
-uv run python scripts/audit_release.py
+uv run python scripts/audit_release.py --packages
 git diff --check
 ```
 
@@ -76,3 +77,9 @@ uv run taketwo-dataset validate $workspace --publication --reproduce
 Preserve `delivery-v0` and its policy hash. For a future held-out study create a new reviewed calibrated policy using training residual Q95 floors, fixed widths, validation-group evidence and `frozen=true`; compare with `--policy <actual-policy.json>`. Only then use evaluation mode `held_out` on disjoint test groups (at least three for full acceptance). No code change is needed to import valid data/reviews and run these existing commands. Missing evidence cannot be filled by changing thresholds or using `software_fixture` mode.
 
 Save code/lock/model/config/data/review/report hashes, commands, exit codes, hardware, OS, seeds, exclusions and full FP/FN lists. Repeat on a clean second environment; investigate any decision difference. Same-Windows exact feature replay is established; cross-environment tolerance is proposed, not measured. Refer to [scoring evaluation](scoring-policy.md) for denominators and uncertainty.
+
+## Current technical-report draft
+
+Use a separate ReportLab document-tool environment on Windows; do not add authoring packages to TakeTwo runtime dependencies. Run `python scripts/build_submission_report.py --date "13 OCT 2026"`. It renders current `docs/technical-report.md` to the Git-ignored owner-review file `output/pdf/taketwo-technical-report-current.pdf`, enforces six pages and rejects the historical PDF destination. Render/inspect every page before delivery. The archived source and historical PDF stay unchanged. A later public report release requires explicit owner approval; do not force-add this draft.
+
+Source archives use an explicit Hatch manifest; after building, `scripts/audit_release.py --packages` also rejects unsafe wheel/sdist members. The wheel is API/CLI only; frontend source is preserved in the sdist for `npm ci`/build. LF checkouts are enforced by Git attributes. Old artifacts with differing byte-based source hashes require explicit recomputation; preserve originals rather than rewriting provenance.

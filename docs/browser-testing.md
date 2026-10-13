@@ -12,7 +12,7 @@ npx playwright install chromium
 npm run e2e
 ```
 
-The generated tones and explicitly labeled review assertions exercise software only. The server uses a fresh ignored workspace and must own port 8765. Stop an idle local service before testing. A real failed test is a failure, even if another workflow passes. Native zoom is a separate actual extension/tab-zoom check; a recorded host launch failure leaves that check unverified.
+The generated tones and explicitly labeled review assertions exercise software only. The server uses a fresh ignored workspace. Port 8765 is the default; set TAKETWO_BROWSER_PORT to an unused local port (for example 8877) to keep an existing private service running. The setting accepts integers 1-65535 and applies to API, browser and native-zoom checks. If using the default occupied port, stop only the known idle service before testing. A real failed test is a failure, even if another workflow passes. Native zoom is a separate actual extension/tab-zoom check; a recorded host launch failure leaves that check unverified.
 
 ## Private genuine fixtures
 
@@ -40,6 +40,12 @@ For the optional JFK salutation import suite, additionally prepare `--archive $s
 
 ## Native zoom and human accessibility
 
-`TAKETWO_ZOOM_EXECUTABLE` optionally selects a compatible full Chromium executable for the isolated extension test; no installed profile/settings are touched. On the audited host the newer build fails Windows SideBySide activation (missing versioned assembly). An older available full Chromium launches and passes native `chrome.tabs.setZoom/getZoom` at 2.0, doubled DPR and halved layout viewport. CSS zoom and simulated DPR are not substitutes. See [repair evidence](final-repair-audit.md) for actual results. Repair/reinstall the affected Playwright browser environment before requiring that newer build.
+`TAKETWO_ZOOM_EXECUTABLE` optionally selects a compatible full Chromium executable for the isolated extension test; no installed profile/settings are touched. The older installation failed Windows SideBySide activation; an alternate Chromium first verified native zoom. On 2026-10-13 a fresh isolated Chromium 156.0.8078.4 download passed the entire suite, including native `chrome.tabs.setZoom/getZoom` at 2.0, doubled DPR and halved layout viewport. Existing browser profiles/installations were not deleted. CSS zoom and simulated DPR are not substitutes. See [repair evidence](final-repair-audit.md) for actual results. Repair/reinstall the affected Playwright browser environment before requiring that newer build.
 
 A person must still use Narrator/NVDA to hear labels, skip/heading focus, import errors, processing stages, numeric boundary editing, selection playback, annotation descriptions, submission feedback and table/chart alternatives. Record actual spoken behavior, browser/version and failures. Automated axe/zoom does not close this gate.
+
+## Complete-application Python tests
+
+Run `npm --prefix frontend ci` and `npm --prefix frontend run build` before the full pytest suite on a fresh checkout. Launcher and Windows recovery tests start the real service and require `frontend/dist/index.html`. The intentionally missing-build test still supplies a missing path. Recovery startup diagnostics retain at most 8 KiB of sanitized command/status/output, drain subprocess pipes continuously, fail early on exit and retain the 30 s startup budget. Normal hard-crash tests still verify application/kernel cleanup. See [current CI evidence](ci-submission-validation.md).
+
+To test a fresh browser installation without replacing existing caches, set `PLAYWRIGHT_BROWSERS_PATH` to a new ignored directory under `local-data` before both `npm --prefix frontend exec -- playwright install chromium` and `npm --prefix frontend run e2e`. Use `TAKETWO_BROWSER_PORT=8877` when preserving the normal private service at 8765.

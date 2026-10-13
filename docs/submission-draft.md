@@ -16,20 +16,20 @@ Technology: Python 3.11, FastAPI/Uvicorn/Pydantic, NumPy/SciPy/librosa/soundfile
 
 | Artifact / action | Current state | Completion evidence required |
 | --- | --- | --- |
-| README/setup/architecture/contracts | Prepared locally | Owner-reviewed exact public release commit; signed-out setup/download check |
+| README/setup/architecture/contracts | Published baseline 35a1486; local CI repairs pending authorization | Owner-reviewed exact public release commit; signed-out setup/download check |
 | Final compliance matrix | Prepared with open gates | Reconcile with actual submitted artifacts; retain incomplete rows |
 | Code license and notices | Owner selected MIT, copyright (c) 2026 Rhythm Sanghi | Root LICENSE added; private data and third-party resources retain separate rights |
 | Custom contrastive dataset | Blocked | Permitted audio, exact text, reviewed labels, spectrum, frozen groups, validation and public checksum audit |
 | Independent scientific evaluation | Blocked | Real counts, replayable reports, independent labels, failures/abstentions and held-out prerequisites |
 | Manual accessibility | Partial: automated native tab zoom verified | Actual heard screen-reader and independent keyboard acceptance log |
 | Clean second-environment reproduction | Incomplete | Actual setup/replay hashes and decision comparison |
-| Technical report, maximum six pages | Draft prepared; see Phase 5 validation for rendering | Final evidence reconciliation, page-count/content/visual audit |
+| Technical report, maximum six pages | Current source reconciled; new local owner-review PDF, historical PDF retained | Final evidence reconciliation, page-count/content/visual audit |
 | YouTube, 3–10 minutes | Script prepared; video absent | Actual recording, owner-approved upload, signed-out playback/duration |
-| GitHub code/documentation link | Existing project remote; this work stays local | Public release commit verified after authorization |
+| GitHub code/documentation link | Three audited commits public on master; baseline CI red, new repairs local | Public release commit verified after authorization |
 | Public dataset link in README | Absent | Actual permitted public GitHub/Google Drive download and checksums |
 | Devpost fields/attachments | Draft only | Owner verifies portal/rules/deadline/timezone and uploads actual artifacts |
 | Submission receipt | Absent | Actual owner submission confirmation |
 
-No placeholder URL, generated metric or software test result completes an external/scientific gate. Final owner review must compare the public README, PDF and video against the same actual release/data/config versions. This phase stops at local package preparation; it does not push, deploy, publish, create remote branches or submit.
+No placeholder URL, generated metric or software test result completes an external/scientific gate. Final owner review must compare the public README, PDF and video against the same actual release/data/config versions. Three prior repair commits were published with owner authorization. This new pass commits locally; a new push, any dataset/report/video publication and submission require their respective owner authorization.
 
 Devpost Built With: Python, FastAPI, NumPy, SciPy, librosa, soundfile, Montreal Forced Aligner, Kaldi, SQLite, React, TypeScript, Vite, uPlot, OpenAI Codex, ChatGPT. Verification tools: pytest, Vitest, Playwright, axe, Ruff, ESLint, Prettier. These tool names do not imply independent human review.

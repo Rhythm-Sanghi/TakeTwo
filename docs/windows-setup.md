@@ -45,9 +45,12 @@ The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/sta
 
 The [recording guide](recording-import-guide.md) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
 
-Optional private pilot acceptance: set `$env:TAKETWO_PILOT_SMOKE='1'`, run `npm --prefix frontend run e2e`, then remove that process environment variable. It requires all five actual `speech-01/*.wav` originals and uses the user-supplied practice transcript. It performs no public release or human approval. Native zoom verification uses an isolated test profile; a known full-Chromium launch failure is skipped/unverified, never a passing 200% test. Spoken screen-reader testing remains separate.
+Optional private pilot acceptance uses the explicit private fixture kit and `TAKETWO_TEST_ALIGNMENT_CONFIG` described in [browser testing](browser-testing.md); set `TAKETWO_PILOT_SMOKE=1` only after preparing those authorized inputs. It performs no public release or human approval. Native zoom uses an isolated profile; a host launch failure is unverified. Spoken screen-reader testing remains separate.
 
 ```powershell
+uv sync --locked
+npm --prefix frontend ci
+npm --prefix frontend run build
 uv run pytest -q
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
@@ -60,18 +63,16 @@ npm --prefix frontend run lint
 npm --prefix frontend run test
 npm --prefix frontend run build
 uv run python scripts/make_browser_fixtures.py
-npm --prefix frontend exec playwright install chromium
+npm --prefix frontend exec -- playwright install chromium
 npm --prefix frontend run e2e
 uv run python scripts/check_repository.py
 git diff --check
 ```
 
-Generated oscillator fixtures are software tests only. E2E creates a fresh ignored workspace and performs actual HTTP imports and CPU extraction; no scientific route is mocked. The optional `TAKETWO_REAL_SMOKE=1` test requires the previously acquired, rights-documented `local-data/acquisition/inaugural-salutation.wav` and `final-alignment-config.json`; these private/local assets are intentionally not shipped. See [pilot collection](pilot-collection.md) for provenance. `scripts/measure_browser_smoke.py` runs that available genuine-reference workflow and samples its full process tree, writing exclusive ignored evidence files.
+Generated oscillator fixtures are software tests only. E2E creates a fresh ignored workspace and performs actual HTTP imports and CPU extraction; no scientific route is mocked. Optional genuine source and 45-second suites require the external fixture kit and actual native MFA configuration documented in [browser testing](browser-testing.md). No hardcoded private path is required in a fresh checkout. Missing inputs mean not configured; models/audio are not shipped. Historical capacity evidence remains in [duration validation](duration-validation.md).
 
 Graceful stop: Ctrl+C in the service terminal. Phase 4B Windows kernel leases release even after hard termination, and kill-on-close Job Objects terminate CPU/MFA descendants. Restart marks unfinished history failed/interrupted and cleans only managed job temporary directories after stopping surviving named trees. It never requeues interrupted work or deletes originals/complete artifacts. Use **Retry this analysis** for a new job; active identical requests still deduplicate. Worker aggregate commit is limited to 4 GiB, with one serial worker and one-thread numerical pools.
 
 Migration from older versions: unknown pre-Phase-4B or CLI lock files are deliberately not deleted automatically. If startup reports a legacy lease, verify all old service/worker/MFA and CLI processes for that exact workspace are stopped. Preserve the workspace, then inspect/remove only its stale `.service.lock` / `.dataset.lock`; never remove a live lock. New crash recovery does not change the scientific CLI lock convention. Windows hard-process interruption is tested; OS power-loss/filesystem recovery and a packaged installer remain unverified. See [Phase 4B evidence](phase4b-validation.md).
 
 The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).
-
-Optional 45-second capacity/browser acceptance requires the rights-documented archival workspace and completed supervised measurement described in [duration validation](duration-validation.md). Set `$env:TAKETWO_DURATION_SMOKE='1'`, run `npm --prefix frontend run e2e`, then remove the variable. It copies immutable source inputs to a fresh ignored workspace and runs actual uncached 45-second alignment/extraction/comparison while navigating, seeking and exporting. Its synthetic member is a declared recipe control; no human review is inferred. Its source fixture is the ignored `local-data/duration45-matched` workspace; execution uses `local-data/browser-duration-*` and never a user's practice workspace.

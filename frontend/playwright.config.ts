@@ -3,6 +3,10 @@ import path from "node:path";
 import { cpSync, existsSync, mkdirSync } from "node:fs";
 
 const repository = path.resolve(import.meta.dirname, "..");
+const port = Number(process.env.TAKETWO_BROWSER_PORT ?? 8765);
+if (!Number.isInteger(port) || port < 1 || port > 65535)
+  throw new Error("TAKETWO_BROWSER_PORT must be an integer from 1 to 65535.");
+const baseURL = `http://127.0.0.1:${port}`;
 const duration = process.env.TAKETWO_DURATION_SMOKE === "1";
 const genuine = process.env.TAKETWO_REAL_SMOKE === "1" || duration;
 const pilot = process.env.TAKETWO_PILOT_SMOKE === "1";
@@ -90,15 +94,15 @@ export default defineConfig({
   fullyParallel: false,
   use: {
     actionTimeout: 15000,
-    baseURL: "http://127.0.0.1:8765",
+    baseURL,
     headless: true,
     viewport: { width: 1600, height: 1000 },
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --workspace "${workspace}"${realMode ? ` --alignment-config "${alignmentConfig}"` : ""}`,
+    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --port ${port} --workspace "${workspace}"${realMode ? ` --alignment-config "${alignmentConfig}"` : ""}`,
     cwd: repository,
-    url: "http://127.0.0.1:8765/api/v1/health",
+    url: `${baseURL}/api/v1/health`,
     reuseExistingServer: false,
     timeout: 30000,
   },

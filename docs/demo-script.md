@@ -1,28 +1,37 @@
-# Five-minute demonstration script and shot list
+# Five-minute demonstration script and filming checklist
 
-TakeTwo — Speech analysis workspace. Target 5:00, official permitted duration 3–10 minutes. This is a recording plan, not a produced/uploaded YouTube video. Use the actual local service and backend; no scripted API responses, patched review flags or fabricated highlights.
+TakeTwo - Speech analysis workspace. Target 5:00; official range 3-10 minutes.
+This is a filming plan, not a recorded/uploaded video. Never expose private
+recordings or reviewer identities without explicit permission covering the video.
+An abstention demonstration is honest but does not complete the required genuine
+caught-deviation/spectrum demonstration.
 
-| Time | Shot / real action | Narration and required evidence |
+## Exact filming sequence
+
+| Time | Screen and action | Narration/evidence |
 | --- | --- | --- |
-| 0:00–0:25 | Show TakeTwo header and five workspace areas | “TakeTwo compares the same spoken words using native-time acoustic evidence. Scores describe agreement with one reference, not persuasion or speaking ability.” Identify local CPU execution |
-| 0:25–1:05 | Show provenance inventory and approved redacted source ledger; play short permitted source/take | Explain source, exact script, intended severity and independent annotation. State current truth: two JFK masters, one draft excerpt, five genuine private same-person takes with unverified intended text; no independent reviews or public-release consent. If collection is still missing, say this requirement is incomplete; do not show fixture tones as speeches |
-| 1:05–1:40 | Recording Library: upload actual WAV/FLAC plus exact text/provenance, submit analysis | Show real import validation and named processing stage. Capture full processing separately; if edited for time, label cut and actual measured elapsed duration. No fake progress percentage |
-| 1:40–2:15 | Analysis Workspace: actual automatic word markers, energy/MFCC/spectrum artifact evidence and F0 state | Explain independent native MFA, 16 kHz derivative, FFT/MFCC and pYIN clocks. Existing source: 19 words/115 phones; accepted F0 fraction 0. Automatic alignment is unreviewed and does not verify text |
-| 2:15–2:55 | Play/seek/zoom actual waveform; select measured interval; show per-track axes | With an eligible genuine pair, show reviewed-word overlay and separate native times. Otherwise show reference measurements and why pair correspondence is unavailable. Numeric controls remain keyboard accessible |
-| 2:55–3:35 | Rubric and Evidence: select genuine flagged region/anchor if available, inspect values and export | Explain signed delta, tolerance, excess and penalty. If no eligible pair exists, show explicit null scores and reasons instead; zero regions means unavailable, not perfect. Do not substitute hand examples or fixtures for a caught real flaw |
-| 3:35–4:15 | Dataset and Evaluation: show actual persisted run and separate software test evidence | Explain held-out group separation, blinded labels, severity spectrum and stress probes. Current human counts/metrics are unavailable. Generated invariance/crash tests verify software only. If genuine results later exist, show counts, origin, FP/FN and limitations |
-| 4:15–4:40 | Show concise architecture/report page; return to timeline | Python/FastAPI, isolated CPU MFA/NumPy/SciPy/librosa, SQLite history and immutable local artifacts, React/TypeScript/Vite. One bounded worker, fixed locks/config and reproducible exports |
-| 4:40–5:00 | Show actual limitations and links that have been verified public | Summarize actual evidence gaps, AI assistance and release status. State plainly if dataset, real caught-deviation evidence or video publication remains incomplete. Never imply a public URL exists before verification |
+| 0:00-0:20 | Header and five workspace areas | Purpose: same-text delivery agreement with native acoustic evidence, not persuasion or a human cause; local CPU execution |
+| 0:20-1:00 | Provenance inventory, permitted source playback and paired takes | Show actual public-source family, rights and exact text. State reviewed versus draft status. Five private technology takes are one unreviewed practice family, not the public-speaker baseline |
+| 1:00-1:25 | Recording Library import and Run analysis | Real WAV/FLAC/text import, pair selection, validation and named stages. Record the full uncached process separately; never animate invented progress |
+| 1:25-2:00 | Previously computed genuine alignment/features | On-screen label: Previously computed genuine output - not generated live. Show the actual job ID/elapsed time from its artifact, 16 kHz native timeline, words/phones, RMS/FFT/MFCC and pitch withholding reason. Current measured private pair: 287.469 s; 71 words/274 phones per member, subject to video permission |
+| 2:00-2:30 | Waveform and native transport | Play/seek/zoom using actual audio and numeric selection. Show each member's native clock and correspondence only if reviewed timing permits it |
+| 2:30-3:20 | Human Review Workspace | Operator hands off a permitted recording; reviewer plays audio, edits a draft transcript/boundary and creates an interval/anchor label. Save/reopen. Explain two independent real reviewers and immutable submissions. A filmed operator demonstration remains an unresolved draft; never submit it as independent approval |
+| 3:20-4:00 | Rubric and Evidence | If an actual eligible report exists, seek a computed region and explain both measurements, delta, tolerance, excess and penalty. Otherwise show null scores and missing reasons; zero regions during abstention is not perfect delivery |
+| 4:00-4:25 | Dataset and Evaluation | Show actual counts and separate real/synthetic origins; pilot-only versus held-out requirements, FP/FN and errors only if real labels support them. Otherwise state zero reviewed families and unavailable metrics |
+| 4:25-5:00 | Report, reproduction commands, published repository | Show six-page owner-reviewed draft, locks/model hashes, CPU bounds and actual CI state. Disclose pitch/calibration/review limits, Codex/ChatGPT assistance and missing dataset/video/submission gates |
 
-## Recording checklist
+## Capture preparation
 
-- Start from the reviewed release commit and locked environment; record commit/config/model/data hashes and a healthy local service.
-- Use only permitted source/participant excerpts. Hide private consent, local identity mappings, personal paths, notifications and unrelated browser tabs. Do not display signed forms.
-- Test microphone narration, playback capture and readable desktop text. Keep Workshop + Gridline + Studio Utility UI unchanged.
-- Record real import/alignment/extraction, job timings, audio transport, timestamp selection and genuine JSON/CSV export. Keep uncropped raw capture and logs privately.
-- For a genuine region demonstration, require exact reviewed text, an actual human pair, two timing/phrase reviews per member, reliable frames and a computed eligible report. Require blinded labels for evaluation claims.
-- Retain failures and abstention states. Mark processing-time cuts and software fixtures clearly; do not synchronize narration to invented events.
-- Check duration 3–10 minutes, readable units/timestamps, narration accuracy, source/model attribution and honest Codex and ChatGPT/tool disclosure. Have a human compare every claimed measurement with its artifact.
-- After owner-approved upload, verify signed-out YouTube playback, duration, audio and description links. Save URL/access date and update README/checklist. No upload is authorized by this preparation run.
+1. Use the exact reviewed code/data/config versions. Verify localhost health, active workspace, selected pair and actual report hash. Keep an isolated permitted demonstration workspace; do not modify the original private drafts.
+2. Confirm source and participant permissions for storage, derivatives, public dataset and video separately. Redact consent signatures, identity mappings, operator keys/capabilities, personal paths and unrelated browser tabs. The MIT code license grants no audio/video rights.
+3. Obtain two real independent transcript, word/phrase timing and blinded flaw reviews before demonstrating scientific eligibility. Retain disagreement/revisions and regenerate artifacts after reviewed transcript versioning. If unavailable, rehearse explicit abstention and acknowledge the unmet official requirement.
+4. Capture genuine import/alignment/extraction in full; save raw footage privately. Record a separate precomputed-result navigation take. Label every processing-time cut and cached/precomputed segment; use actual wall time, not the edited shot duration.
+5. Test narration, desktop text and permitted playback capture. Use real waveform, native playback, keyboard/numeric boundary controls, JSON export and evidence values. No prerecorded UI responses, fake highlights or generated signals presented as speeches.
+6. Record limitations, origin, review counts, exclusions and withheld dimensions. Have another person compare claims to the actual artifacts. Do not claim a new held-out result from one family or show software-fixture F1 as detection accuracy.
+7. Review final 3-10 minute duration, source/model notices, accurate Codex/ChatGPT disclosure, audio intelligibility, privacy and public links. Owner approves the exact video/report before upload.
+8. After authorized YouTube upload, verify signed-out playback/duration, description links and source notices. Save the real URL/access date. Add only verified dataset/video links to README and submit manually before the organizer deadline.
 
-Required genuine evidence still missing: substantive verified excerpts, consented faithful/flawed mirrors across severities, independent timing/flaw reviews, eligible regions/overlays, human evaluation and public dataset. An honest abstention demonstration is possible now but **does not satisfy the full official caught-deviation/stress-spectrum video requirement**.
+Current source baseline 35a1486 is public on master; its Actions run is red. New CI
+repairs and current report remain local until authorized. See [current evidence](ci-submission-validation.md).
+No genuine independent approval, public paired dataset, caught-deviation video,
+YouTube URL or submission receipt has been manufactured.

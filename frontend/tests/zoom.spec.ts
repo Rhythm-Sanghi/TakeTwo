@@ -50,7 +50,10 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       context.serviceWorkers()[0] ??
       (await context.waitForEvent("serviceworker"));
     const page = await context.newPage();
-    await page.goto("http://127.0.0.1:8765/");
+    const baseURL = testInfo.project.use.baseURL;
+    if (!baseURL)
+      throw new Error("Native zoom requires the configured browser baseURL.");
+    await page.goto(baseURL + "/");
     await expect(
       page.getByRole("heading", { name: "Recording Library", exact: true }),
     ).toBeVisible();
@@ -59,7 +62,7 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       dpr: devicePixelRatio,
     }));
     const factor = await worker.evaluate(`(async () => {
-      const tabs = await chrome.tabs.query({url:'http://127.0.0.1:8765/*'});
+      const tabs = await chrome.tabs.query({url:${JSON.stringify(baseURL + "/*")}});
       if(tabs.length !== 1) throw new Error('Expected one isolated local tab');
       await chrome.tabs.setZoom(tabs[0].id, 2);
       return chrome.tabs.getZoom(tabs[0].id);

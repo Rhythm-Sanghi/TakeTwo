@@ -56,6 +56,9 @@ Python 3.11/FastAPI/Uvicorn/Pydantic; NumPy/SciPy/librosa/soundfile; isolated CP
 ## Verification
 
 ```powershell
+uv sync --locked
+npm --prefix frontend ci
+npm --prefix frontend run build
 uv run pytest -q
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
@@ -64,7 +67,7 @@ npm --prefix frontend run lint
 npm --prefix frontend run test
 npm --prefix frontend run build
 uv run python scripts/make_browser_fixtures.py
-npm --prefix frontend exec playwright install chromium
+npm --prefix frontend exec -- playwright install chromium
 npm --prefix frontend run e2e
 uv run python scripts/check_repository.py
 uv run python scripts/audit_release.py
@@ -76,9 +79,9 @@ The browser suite uses actual local HTTP/audio processing; generated tones are e
 
 Acoustic agreement is not persuasion, emotion or speaking ability. `delivery-v0` remains experimental and uncalibrated. Scores/regions/confidence stay unavailable when rights, text, timing, quality, pitch or coverage gates fail; no weights are redistributed. Automatic alignment can fit wrong words. Cross-speaker generalization and clean second-environment reproduction are unmeasured. Windows is required for current web supervision. Automated accessibility checks do not establish spoken screen-reader compatibility or production readiness.
 
-The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf) and its [editable source](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
+The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf), its [archived source](docs/technical-report-2026-10-12.md), and the [current editable report](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
 
-Public paired dataset/video, public release verification and actual submission remain owner actions. Nothing is pushed or published by local stabilization. Private audio, model files, consent records, databases and runtime evidence are ignored.
+Public paired dataset/video, public release verification and actual submission remain owner actions. The three audited repair commits are published on `master` at `35a1486`. Its first Windows Actions run failed three tests because the frontend had not yet been built. Current CI repairs and the regenerated report remain local pending fresh owner authorization; no dataset or video has been published. Private audio, model files, consent records, databases and runtime evidence are ignored.
 
 ## AI assistance
 
@@ -90,6 +93,6 @@ The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1â€
 
 Original TakeTwo code and project documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Private recordings, datasets, consent/reviewer records, external model files and third-party materials retain separate rights. See [attributions](docs/attributions.md); this license grants no private-data publication permission.
 
-Current repair evidence, native zoom results, scientific limitations and local-only release status are in the [final repair audit](docs/final-repair-audit.md). Windows CI is configured in `.github/workflows/ci.yml`; configuration is not a claim of a completed GitHub Actions run.
+Current repair evidence, native zoom results, scientific limitations and local-only release status are in the [final repair audit](docs/final-repair-audit.md). Windows CI is configured in `.github/workflows/ci.yml`; the published baseline run is red. See [CI repair and submission verification](docs/ci-submission-validation.md) for reproduced failures, current local evidence and remote status.
 
 Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.

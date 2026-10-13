@@ -4,6 +4,7 @@ Install reportlab only in a separate document-tool environment, not the app runt
 Run from any directory; the source remains docs/technical-report.md.
 """
 
+import argparse
 import re
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -20,6 +21,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", type=Path, default=ROOT / "docs/technical-report.md")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "output/pdf/taketwo-technical-report-current.pdf"
+    )
+    parser.add_argument("--date", default="13 OCT 2026")
+    args = parser.parse_args()
+    output = args.output
+    if output.resolve() == (ROOT / "output/pdf/taketwo-technical-report.pdf").resolve():
+        parser.error("Historical report is protected; choose a new owner-review output path.")
     font_dir = Path("C:/Windows/Fonts")
     pdfmetrics.registerFont(TTFont("ReportSans", str(font_dir / "segoeui.ttf")))
     pdfmetrics.registerFont(TTFont("ReportBold", str(font_dir / "segoeuib.ttf")))
@@ -49,9 +60,8 @@ def main():
         leading=32,
         spaceAfter=6,
     )
-    output = ROOT / "output/pdf/taketwo-technical-report.pdf"
     output.parent.mkdir(parents=True, exist_ok=True)
-    source = (ROOT / "docs/technical-report.md").read_text(encoding="utf-8")
+    source = args.source.read_text(encoding="utf-8")
     story = []
     for block in re.split(r"\n\s*\n", source.strip()):
         if block == "<!-- pagebreak -->":
@@ -65,6 +75,8 @@ def main():
     story.append(Spacer(1, 2))
 
     def frame(canvas, doc):
+        if doc.page > 6:
+            raise ValueError("Report exceeds the official six-page limit; shorten the source.")
         width, height = A4
         canvas.saveState()
         canvas.setStrokeColor(colors.HexColor("#D1D5CF"))
@@ -73,7 +85,7 @@ def main():
         canvas.setFont("ReportSans", 8)
         canvas.setFillColor(colors.HexColor("#4D5B54"))
         canvas.drawString(42, height - 27, "TAKETWO / SPEECH ANALYSIS WORKSPACE")
-        canvas.drawString(42, 22, "TRACK C  |  TECHNICAL REPORT DRAFT  |  12 OCT 2026")
+        canvas.drawString(42, 22, "TRACK C  |  TECHNICAL REPORT DRAFT  |  " + args.date)
         canvas.drawRightString(width - 42, 22, str(doc.page))
         canvas.restoreState()
 
@@ -88,7 +100,7 @@ def main():
         author="TakeTwo project",
     )
     document.build(story, onFirstPage=frame, onLaterPages=frame)
-    print(output.relative_to(ROOT).as_posix())
+    print(output.resolve().as_posix())
 
 
 if __name__ == "__main__":

@@ -27,3 +27,6 @@ models/
 *.sqlite-shm
 tmp/
 *.tsbuildinfo
+
+# Current submission PDF is an owner-review draft; publish only after approval.
+/output/pdf/taketwo-technical-report-current.pdf
