@@ -74,11 +74,23 @@ export function Scores({ report }: { report: Report }) {
                   (gate.reasons ?? []).map((r) => [r.code + r.message, r]),
                 ).values(),
               ).map((r, i) => (
-                <li key={i}>
-                  <code>{r.code}</code>: {r.message}
-                </li>
+                <li key={i}>{r.message}</li>
               ))}
             </ul>
+            {Boolean(gate.reasons?.length) && (
+              <details>
+                <summary>Diagnostic reason codes</summary>
+                <ul>
+                  {Array.from(new Set(gate.reasons?.map((r) => r.code))).map(
+                    (code) => (
+                      <li key={code}>
+                        <code>{code}</code>
+                      </li>
+                    ),
+                  )}
+                </ul>
+              </details>
+            )}
             {report.dimensions
               .find((d) => d.dimension === name)
               ?.reasons.map((r) => (

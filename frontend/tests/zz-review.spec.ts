@@ -12,11 +12,45 @@ test("review handoff, actual playback, immutable export and adjudication", async
     path.join(process.env.TAKETWO_BROWSER_WORKSPACE!, ".review-operator-key"),
     "utf8",
   );
-  const recordings = await (await request.get("/api/v1/recordings")).json();
-  const recording = recordings.find(
-    (r: { role: string }) => r.role === "reference",
-  );
+  const fixtureReference = (r: { role: string; original_filename: string }) =>
+    r.role === "reference" && r.original_filename === "generated-reference.wav";
+  let recordings = await (await request.get("/api/v1/recordings")).json();
+  // Genuine suites may contain only archival speech. Never attach software
+  // approvals or intentionally wrong text to that clip; import the named tone.
+  if (!recordings.some(fixtureReference)) {
+    await page.goto("/");
+    await page.getByLabel("Recording type").selectOption("public_reference");
+    await page
+      .getByLabel("Audio file", { exact: true })
+      .setInputFiles(
+        path.resolve(
+          import.meta.dirname,
+          "../../local-data/browser-fixtures/generated-reference.wav",
+        ),
+      );
+    await page
+      .getByLabel("Spoken transcript")
+      .fill("Generated signal fixture only.");
+    await page
+      .getByLabel(
+        "I have permission to store and process this recording locally",
+      )
+      .check();
+    await page
+      .getByRole("button", { name: "Import recording", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", {
+        name: "generated-reference.wav",
+        exact: true,
+      }),
+    ).toBeVisible();
+    recordings = await (await request.get("/api/v1/recordings")).json();
+  }
+  const recording = recordings.find(fixtureReference);
   expect(recording).toBeTruthy();
+  expect(recording.normalized_info.duration_s).toBe(2);
+  expect(recording.transcript.text).toBe("Generated signal fixture only.");
   async function start(reviewer: string) {
     await page.goto("/");
     await page

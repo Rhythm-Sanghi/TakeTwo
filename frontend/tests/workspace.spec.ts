@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
 
 const repository = path.resolve(import.meta.dirname, "../..");
 const genuine = process.env.TAKETWO_REAL_SMOKE === "1";
+// Native MFA/extraction has a 600 s service deadline; genuine acceptance must
+// observe its terminal state rather than timing out at the tone-fixture budget.
+const processingTimeout = genuine ? 630000 : 210000;
 
 test("actual import → CPU processing → native playback → evidence → export", async ({
   page,
@@ -243,11 +246,11 @@ test("actual import → CPU processing → native playback → evidence → expo
           throw new Error(JSON.stringify(list[0].error));
         return list[0]?.state;
       },
-      { timeout: 210000 },
+      { timeout: processingTimeout },
     )
     .toBe("completed");
   await expect(page.getByText("Analysis completed: completed.")).toBeVisible({
-    timeout: 210000,
+    timeout: processingTimeout,
   });
   // Completion publishes artifacts; report delivery still validates bound evidence.
   await expect(page.getByText("Overall: Unavailable")).toBeVisible({
@@ -589,5 +592,54 @@ test("actual import → CPU processing → native playback → evidence → expo
       6,
     );
     expect(errors).toEqual([]);
+  }
+});
+
+test("all five workspaces retain controls at desktop, laptop, tablet and narrow widths", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/");
+  for (const [width, height] of [
+    [1920, 1080],
+    [1366, 768],
+    [800, 1000],
+    [390, 844],
+    [320, 740],
+  ]) {
+    await page.setViewportSize({ width, height });
+    for (const area of [
+      "Recording Library",
+      "Analysis Workspace",
+      "Rubric and Evidence",
+      "Review Workspace",
+      "Dataset and Evaluation",
+    ]) {
+      await page.getByRole("button", { name: area, exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: area, exact: true }),
+      ).toBeFocused();
+      await page.screenshot({
+        path: testInfo.outputPath(`${width}-${area.replaceAll(" ", "-")}.png`),
+        fullPage: true,
+      });
+      const overflow = await page.locator("main *").evaluateAll((elements) =>
+        elements
+          .filter(
+            (element) => element.getBoundingClientRect().right > innerWidth + 1,
+          )
+          .map((element) => ({
+            tag: element.tagName,
+            className: element.className,
+            right: element.getBoundingClientRect().right,
+            text: element.textContent?.slice(0, 100),
+          })),
+      );
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        `${width}px ${area}: ${JSON.stringify(overflow)}`,
+      ).toBe(true);
+    }
   }
 });

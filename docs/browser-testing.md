@@ -2,6 +2,14 @@
 
 Standard software tests require no private data, MFA installation or external account:
 
+The stabilization suite adds five-area screenshots at 1920×1080, 1366×768,
+800, 390 and 320 pixels, including populated long-filename selectors. Review
+software assertions select the named two-second generated tone; genuine audio
+must never receive those intentionally incorrect software transcripts. Optional
+genuine processing observes the unchanged 600-second service deadline (630-second
+poll budget), failing immediately for an actual failed job. This accommodates
+native MFA/extraction rather than treating a shorter fixture wait as production failure.
+
 ```powershell
 uv sync --locked
 npm --prefix frontend ci

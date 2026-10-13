@@ -153,6 +153,29 @@ const report: Report = {
   limitations: ["Fixture only; no statistical confidence."],
 };
 
+it("leads withheld scores with recovery language and keeps codes in diagnostics", () => {
+  const message =
+    "This comparison needs two completed timing reviews before pacing can be evaluated.";
+  render(
+    <Scores
+      report={{
+        ...report,
+        feature_eligibility: {
+          ...report.feature_eligibility,
+          pacing: {
+            state: "REVIEW_REQUIRED",
+            reasons: [{ code: "timing_review_required", message }],
+          },
+        },
+      }}
+    />,
+  );
+  expect(screen.getByText(message)).toBeVisible();
+  expect(screen.getByText("timing_review_required")).not.toBeVisible();
+  fireEvent.click(screen.getAllByText("Diagnostic reason codes")[0]);
+  expect(screen.getByText("timing_review_required")).toBeVisible();
+});
+
 describe("native timeline coordinates", () => {
   it("maps viewport positions to native seconds and samples", () => {
     expect(timeAtPosition(250, 1000, 2, 6)).toBe(3);

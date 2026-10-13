@@ -340,6 +340,8 @@ legend {
 }
 .toolbar label {
   margin-bottom: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 .toolbar input[type="number"] {
   max-width: 140px;
