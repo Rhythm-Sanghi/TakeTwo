@@ -1,5 +1,7 @@
 """Content-addressed evidence artifacts; Phase 1/2 schemas and code stay unchanged."""
 
+import os
+import uuid
 from pathlib import Path
 
 from taketwo.analysis.contracts import AlignmentResult, FeatureResult
@@ -32,7 +34,20 @@ def publish(root: Path, result: Report | Review | Evaluation):
         if path.read_bytes() != content:
             raise ValueError("Existing evidence artifact differs; no overwrite performed.")
     else:
-        write_new(path, content)
+        # Publish a fully fsynced inode atomically, with no replacement. A hard
+        # interruption can leave a staging file, never a partial evidence target.
+        temporary = managed_path(root, f"derived/comparison-v1/.publish-{uuid.uuid4().hex}.tmp")
+        try:
+            write_new(temporary, content)
+            try:
+                os.link(temporary, path)
+            except FileExistsError:
+                if path.read_bytes() != content:
+                    raise ValueError(
+                        "Existing evidence artifact differs; no overwrite performed."
+                    ) from None
+        finally:
+            temporary.unlink(missing_ok=True)
     return path
 
 

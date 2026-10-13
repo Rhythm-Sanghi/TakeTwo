@@ -1,11 +1,14 @@
 """Explicit human assertions, retained separately from automatic alignment and labels."""
 
+from itertools import combinations
+
 import numpy as np
 
 from taketwo.analysis.contracts import AlignmentResult, Interval
 from taketwo.dataset.schema import Recording, content_hash, tokenize
 
 from .contracts import Review
+from .matching import assign
 
 
 def validate_review(review: Review, recording: Recording, alignment: AlignmentResult | None):
@@ -52,17 +55,64 @@ def validate_review(review: Review, recording: Recording, alignment: AlignmentRe
     ordered = sorted(review.reviewed_spans, key=lambda s: s.start_s)
     if any(a.end_s > b.start_s for a, b in zip(ordered, ordered[1:], strict=False)):
         raise ValueError("Inspected spans must not overlap.")
+    coverage = coverage_union(review.reviewed_spans)
     for label in review.labels:
         if label.interval:
             if label.interval.end_s > duration or not any(
                 s.start_s <= label.interval.start_s < label.interval.end_s <= s.end_s
-                for s in review.reviewed_spans
+                for s in coverage
             ):
                 raise ValueError("Flaw label must lie inside an explicitly inspected span.")
         elif label.anchor_s > duration or not any(
-            s.start_s <= label.anchor_s <= s.end_s for s in review.reviewed_spans
+            s.start_s <= label.anchor_s <= s.end_s for s in coverage
         ):
             raise ValueError("Flaw anchor must lie inside an explicitly inspected span.")
+
+
+def coverage_union(spans):
+    """Merge touching inspected intervals without filling unreviewed gaps."""
+    result = []
+    for span in sorted(spans, key=lambda s: (s.start_s, s.end_s)):
+        if result and span.start_s <= result[-1].end_s:
+            result[-1] = result[-1].model_copy(update={"end_s": max(result[-1].end_s, span.end_s)})
+        else:
+            result.append(span)
+    return result
+
+
+def flaw_agreement(left, right):
+    """semantic-v2: exact category/severity/uncertainty, <=200 ms and IoU >=0.5.
+
+    Unstructured explanations remain original evidence for human adjudication.
+    Their wording and random identifiers are not numerical agreement criteria.
+    """
+    if coverage_union(left.reviewed_spans) != coverage_union(right.reviewed_spans):
+        return False
+    if len(left.labels) != len(right.labels):
+        return False
+    edges = {}
+    for a in left.labels:
+        for b in right.labels:
+            if (a.category, a.severity, a.uncertainty_s) != (
+                b.category,
+                b.severity,
+                b.uncertainty_s,
+            ):
+                continue
+            if a.interval is not None and b.interval is not None:
+                x, y = a.interval, b.interval
+                error = max(abs(x.start_s - y.start_s), abs(x.end_s - y.end_s))
+                overlap = max(0.0, min(x.end_s, y.end_s) - max(x.start_s, y.start_s))
+                quality = overlap / (max(x.end_s, y.end_s) - min(x.start_s, y.start_s))
+                if error <= 0.2 + 1e-12 and quality >= 0.5:
+                    edges[a.id, b.id] = quality
+            elif a.interval is None and b.interval is None:
+                error = abs(a.anchor_s - b.anchor_s)
+                if error <= 0.2 + 1e-12:
+                    edges[a.id, b.id] = max(0.0, 1 - error / 0.2)
+    return len(assign([a.id for a in left.labels], [b.id for b in right.labels], edges)) == len(
+        left.labels
+    )
 
 
 def active_reviews(reviews: list[Review]) -> list[Review]:
@@ -98,7 +148,15 @@ def consensus(reviews: list[Review], scope: str) -> tuple[list[Review], str | No
         return [], "Two distinct reviewer records are required."
     if any(not r.independent or r.decision != "approved" for r in selected):
         return [], "Review is nonindependent, rejected or unresolved."
+    if any(
+        (r.provenance, r.pair_id, r.alignment_sha256)
+        != (selected[0].provenance, selected[0].pair_id, selected[0].alignment_sha256)
+        for r in selected
+    ):
+        return [], "Reviewer recording, pair or alignment identity differs."
     if scope == "timing":
+        if len({len(r.words) for r in selected}) != 1:
+            return [], "Manual word boundary inventories differ."
         if any(r.phrase_spans != selected[0].phrase_spans for r in selected):
             return [], "Reviewers disagree on phrase partition; resolve with superseding reviews."
         boundaries = np.array([[(w.start_s, w.end_s) for w in r.words] for r in selected])
@@ -113,13 +171,8 @@ def consensus(reviews: list[Review], scope: str) -> tuple[list[Review], str | No
     else:
         if any(not r.blinded_to_predictions for r in selected):
             return [], "Evaluation reviewers must attest blindness to predictions and recipes."
-        # Conservative: identical adjudicated inventories; preserve differing originals.
-        inventory = lambda r: {  # noqa: E731
-            "labels": [label.model_dump(mode="json") for label in r.labels],
-            "spans": [span.model_dump(mode="json") for span in r.reviewed_spans],
-        }
-        if any(inventory(r) != inventory(selected[0]) for r in selected):
-            return [], "Flaw inventories disagree; reconcile explicitly, never choose one silently."
+        if any(not flaw_agreement(a, b) for a, b in combinations(selected, 2)):
+            return [], "Flaw inventories or coverage disagree; revise or adjudicate explicitly."
     return selected, None
 
 

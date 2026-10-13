@@ -950,3 +950,249 @@ def test_threshold_equality_does_not_flag_roundoff(pair_evidence):
     report = run_pair((r, p, pair))
     assert dimension(report, "pacing").score == 100.0
     assert not any(region.category == "pacing" for region in report.regions)
+
+
+def test_semantic_flaws_distinct_ids_and_coverage_segments(pair_evidence):
+    dataset, _, reviews = eval_inputs(pair_evidence)
+    recording = next(r for r in dataset.recordings if r.id == reviews[0].provenance.recording_id)
+    duration = recording.normalized_info.duration_s
+    reviews[0].labels = [
+        Label(
+            id="independent-a",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=0.1, end_s=0.9),
+            rationale="Listener A: pacing deviation",
+        )
+    ]
+    reviews[1].labels = [
+        reviews[0]
+        .labels[0]
+        .model_copy(
+            update={
+                "id": "independent-b",
+                "rationale": "Listener B: independently heard pacing",
+                "interval": Span(start_s=0.15, end_s=0.95),
+            }
+        )
+    ]
+    reviews[1].reviewed_spans = [Span(start_s=0.0, end_s=1.0), Span(start_s=1.0, end_s=duration)]
+    for review in reviews:
+        validate_review(review, recording, None)
+    accepted, reason = consensus(reviews, "flaws")
+    assert reason is None and len(accepted) == 2
+    assert reviews[0].labels[0].id == "independent-a"
+    assert reviews[1].labels[0].id == "independent-b"
+    assert consensus(list(reversed(reviews)), "flaws") == (accepted, None)
+
+
+def test_maximum_cardinality_beats_highest_overlap(pair_evidence):
+    base = predicted_region(pair_evidence)
+    predictions = [
+        base.model_copy(
+            update={
+                "id": "p1",
+                "category": "pacing",
+                "participant_interval": Span(start_s=0.0, end_s=3.0),
+            }
+        ),
+        base.model_copy(
+            update={
+                "id": "p2",
+                "category": "pacing",
+                "participant_interval": Span(start_s=0.0, end_s=1.5),
+            }
+        ),
+    ]
+    labels = [
+        Label(
+            id="a",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=0.0, end_s=2.5),
+            rationale="software fixture",
+        ),
+        Label(
+            id="b",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=1.0, end_s=3.0),
+            rationale="software fixture",
+        ),
+    ]
+    matches, fp, fn = match_regions(predictions, labels, EvaluationConfig())
+    assert {(m.prediction_id, m.label_id) for m in matches} == {("p1", "b"), ("p2", "a")}
+    assert not fp and not fn
+    assert metrics(predictions, labels, matches).f1 == 1
+
+
+@pytest.mark.parametrize(
+    "difference",
+    [
+        "time",
+        "category",
+        "severity",
+        "omitted",
+        "short",
+        "gap",
+        "uncertainty",
+        "identity",
+        "reviewer",
+    ],
+)
+def test_semantic_consensus_rejects_substantive_disagreement(pair_evidence, difference):
+    dataset, _, reviews = eval_inputs(pair_evidence)
+    reviews[0].labels = [
+        Label(
+            id="a",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=0.1, end_s=0.9),
+            rationale="Fixture listener A",
+        )
+    ]
+    reviews[1].labels = [reviews[0].labels[0].model_copy(update={"id": "b"})]
+    label = reviews[1].labels[0]
+    if difference == "time":
+        label.interval = Span(start_s=0.4, end_s=1.2)
+    elif difference == "category":
+        label.category = "energy_variation"
+    elif difference == "severity":
+        label.severity = 2
+    elif difference == "omitted":
+        reviews[1].labels = []
+    elif difference == "short":
+        reviews[0].labels[0].interval = Span(start_s=0.1, end_s=0.2)
+        label.interval = Span(start_s=0.19, end_s=0.29)
+    elif difference == "gap":
+        reviews[1].reviewed_spans = [Span(start_s=0.1, end_s=reviews[1].reviewed_spans[-1].end_s)]
+    elif difference == "uncertainty":
+        label.uncertainty_s = 0.1
+    elif difference == "identity":
+        reviews[1].pair_id = "another-pair"
+    else:
+        reviews[1].reviewer_id = reviews[0].reviewer_id
+    accepted, reason = consensus(reviews, "flaws")
+    assert not accepted and reason
+
+
+def test_semantic_consensus_multiple_reviewers_and_supersession(pair_evidence):
+    _, _, reviews = eval_inputs(pair_evidence)
+    reviews[0].labels = [
+        Label(
+            id="a",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=0.1, end_s=0.9),
+            rationale="Fixture only",
+        )
+    ]
+    reviews[1].labels = [reviews[0].labels[0].model_copy(update={"id": "b"})]
+    third = reviews[1].model_copy(deep=True, update={"id": "third", "reviewer_id": "third"})
+    third.labels[0].id = "c"
+    assert consensus([third, *reversed(reviews)], "flaws") == consensus([*reviews, third], "flaws")
+    old = reviews[1].model_copy(deep=True, update={"id": "old"})
+    old.labels[0].severity = 3
+    reviews[1].supersedes = old.id
+    assert consensus([old, third, *reviews], "flaws")[1] is None
+    third.labels[0].severity = 2
+    assert consensus([old, third, *reviews], "flaws")[1]
+
+
+def test_label_can_cross_adjacent_inspected_segments(pair_evidence):
+    dataset, _, reviews = eval_inputs(pair_evidence)
+    r = next(r for r in dataset.recordings if r.id == reviews[0].provenance.recording_id)
+    reviews[0].reviewed_spans = [
+        Span(start_s=0.0, end_s=0.5),
+        Span(start_s=0.5, end_s=r.normalized_info.duration_s),
+    ]
+    reviews[0].labels = [
+        Label(
+            id="crossing",
+            category="pacing",
+            severity=1,
+            interval=Span(start_s=0.2, end_s=0.9),
+            rationale="Fixture across adjacent listening events",
+        )
+    ]
+    validate_review(reviews[0], r, None)
+    reviews[0].reviewed_spans[1].start_s = 0.6
+    with pytest.raises(ValueError, match="inspected"):
+        validate_review(reviews[0], r, None)
+
+
+def test_assignment_matches_exhaustive_objective_and_permutations():
+    from itertools import permutations
+
+    from taketwo.comparison.matching import assign
+
+    rng = np.random.default_rng(13)
+    left, right = ["a", "b", "c"], ["x", "y", "z"]
+    for _ in range(30):
+        edges = {
+            (a, b): float(rng.integers(0, 5)) / 4 for a in left for b in right if rng.random() < 0.6
+        }
+        candidates = [[]]
+        for size in range(1, 4):
+            for ls in permutations(left, size):
+                for rs in permutations(right, size):
+                    pairs = list(zip(ls, rs, strict=True))
+                    if all(p in edges for p in pairs):
+                        candidates.append(pairs)
+
+        def objective(pairs, weights=edges):
+            return len(pairs), sum(weights[p] for p in pairs)
+
+        actual = assign(left, right, edges)
+        assert objective(actual) == max(map(objective, candidates))
+        assert actual == assign(
+            list(reversed(left)), list(reversed(right)), dict(reversed(list(edges.items())))
+        )
+    with pytest.raises(ValueError, match="unique"):
+        assign(["a", "a"], right, {})
+
+
+def test_matching_threshold_types_and_duplicate_identifiers(pair_evidence):
+    p = predicted_region(pair_evidence).model_copy(
+        update={"category": "pacing", "participant_interval": Span(start_s=0.0, end_s=2.0)}
+    )
+    label = Label(
+        id="equality",
+        category="pacing",
+        severity=1,
+        interval=Span(start_s=0.0, end_s=1.0),
+        rationale="Fixture threshold equality",
+    )
+    matches, fp, fn = match_regions([p], [label], EvaluationConfig())
+    assert len(matches) == 1 and matches[0].iou == 0.5 and not fp and not fn
+    assert metrics([p], [label], matches).median_boundary_error_s == 0.5
+    with pytest.raises(ValueError, match="unique"):
+        match_regions([p, p], [label], EvaluationConfig())
+    with pytest.raises(ValueError, match="unique"):
+        match_regions([p], [label, label], EvaluationConfig())
+    label.category = "energy_variation"
+    assert not match_regions([p], [label], EvaluationConfig())[0]
+    p.category = "pause_behavior"
+    label.category = "pause_behavior"
+    label.interval = None
+    label.anchor_s = 1.0
+    assert not match_regions([p], [label], EvaluationConfig())[0]
+    p.participant_interval = None
+    p.participant_anchor_s = 1.0
+    assert len(match_regions([p], [label], EvaluationConfig())[0]) == 1
+
+
+def test_three_reviewers_cannot_form_transitive_timing_chain(pair_evidence):
+    _, _, reviews = eval_inputs(pair_evidence)
+    reviews.append(reviews[0].model_copy(deep=True, update={"id": "third", "reviewer_id": "third"}))
+    for index, review in enumerate(reviews):
+        review.labels = [
+            Label(
+                id=str(index),
+                category="pacing",
+                severity=1,
+                interval=Span(start_s=index * 0.15, end_s=1 + index * 0.15),
+                rationale="Fixture only",
+            )
+        ]
+    assert consensus(reviews, "flaws")[1]

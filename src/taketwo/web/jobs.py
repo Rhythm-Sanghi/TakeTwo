@@ -1,5 +1,6 @@
 """Bounded local queue, SQLite history, supervised CPU process and tree cancellation."""
 
+import logging
 import os
 import shutil
 import sqlite3
@@ -227,6 +228,9 @@ class Jobs:
                             )
                     self.save(job)
         except Exception:
+            # Keep filesystem/process details in the local operator log, never
+            # in the public API diagnostic. Preserve the original exception.
+            logging.getLogger(__name__).exception("CPU supervision failed for job %s", job.id)
             if tree and tree.handle:
                 tree.stop()
             if process:

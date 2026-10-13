@@ -57,19 +57,24 @@ class ReviewWorkspace:
             write_new(self.key_path, secrets.token_urlsafe(32).encode("ascii"))
         self.operator_hash = digest(self.key_path.read_text(encoding="ascii"))
         with self.db() as db:
-            if db.execute("PRAGMA user_version").fetchone()[0] not in {0, 1}:
+            if db.execute("PRAGMA user_version").fetchone()[0] not in {0, 1, 2}:
                 raise ValueError(
                     "Unsupported review lifecycle database version; restore compatible software."
                 )
             db.executescript(
-                "PRAGMA journal_mode=WAL; PRAGMA user_version=1;"
+                "PRAGMA journal_mode=WAL; PRAGMA user_version=2;"
                 "CREATE TABLE IF NOT EXISTS sessions ("
                 "id TEXT PRIMARY KEY, token_hash TEXT NOT NULL, payload TEXT NOT NULL, "
                 "sha TEXT NOT NULL, heartbeat REAL NOT NULL);"
                 "CREATE TABLE IF NOT EXISTS handoff (id INTEGER PRIMARY KEY CHECK(id=1), "
                 "session_id TEXT); INSERT OR IGNORE INTO handoff VALUES(1,NULL);"
                 "CREATE TABLE IF NOT EXISTS decisions (id TEXT PRIMARY KEY, payload TEXT NOT NULL);"
+                "CREATE TABLE IF NOT EXISTS publications (id TEXT PRIMARY KEY, "
+                "payload TEXT NOT NULL, sha TEXT NOT NULL, base_sha TEXT NOT NULL, "
+                "completed INTEGER NOT NULL DEFAULT 0);"
             )
+
+        self.recover_publications()
 
     @contextmanager
     def db(self, *, write=False):
@@ -281,6 +286,14 @@ class ReviewWorkspace:
             return session
 
     def editable(self, session):
+        with self.db() as db:
+            pending = db.execute(
+                "SELECT completed FROM publications WHERE id=?", (session.id,)
+            ).fetchone()
+        if pending and not pending[0]:
+            raise HTTPException(
+                409, "Submission is pending recovery; restart the local service before editing."
+            )
         if session.state != "draft":
             raise HTTPException(
                 409, "Submitted evidence is immutable; request a superseding session."
@@ -402,20 +415,114 @@ class ReviewWorkspace:
         )
 
     def submit(self, sid, revision):
+        # Durable intent precedes filesystem publication. The journal preserves
+        # the exact identity/date/draft even when the process dies before commit.
         with self.db(write=True) as db:
             session = self.get(sid, db)
-            self.editable(session)
             if session.edit_revision != revision:
                 raise HTTPException(409, "Save and reload the current draft before submission.")
-            validation = self.validation(session)
-            if not validation.can_submit:
-                raise ValueError(" ".join(validation.issues))
-            session.submitted_at = now()
-            session.review = self.make_review(session)
-            publish(self.root, session.review)
-            session.state = "submitted"
-            self.store(session, db)
-            return session
+            if session.state == "submitted":
+                self.verify_publication(session)
+                return session  # Same logical request, not a second submission.
+            pending = db.execute("SELECT id FROM publications WHERE id=?", (sid,)).fetchone()
+            if not pending:
+                self.editable(session)
+                validation = self.validation(session)
+                if not validation.can_submit:
+                    raise ValueError(" ".join(validation.issues))
+                session.submitted_at = now()
+                session.review = self.make_review(session)
+                payload = session.model_dump_json()
+                base = db.execute("SELECT sha FROM sessions WHERE id=?", (sid,)).fetchone()[0]
+                db.execute(
+                    "INSERT INTO publications VALUES(?,?,?,?,0)",
+                    (sid, payload, digest(payload), base),
+                )
+        self.recover_publications(sid)
+        return self.get(sid)
+
+    def verify_publication(self, session):
+        if session.review is None:
+            raise ValueError("Submitted review is missing; restore evidence from backup.")
+        path = managed_path(
+            self.root,
+            f"derived/comparison-v1/review-{content_hash(session.review.model_dump(mode='json'))}.json",
+        )
+        if not path.is_file() or read_review(path) != session.review:
+            raise ValueError("Submitted artifact missing or corrupt; restore evidence from backup.")
+
+    def recover_publications(self, sid=None):
+        # SQLite serializes publishers/recovery. No draft can change after intent.
+        # A completed journal is also checked on startup: corruption is not repair.
+        with self.db(write=True) as db:
+            known = {}
+            for review in self.reviews():
+                if review.id in known:
+                    raise ValueError(
+                        "Conflicting review ID artifacts; retain evidence and restore backup."
+                    )
+                known[review.id] = review
+            if sid is None:
+                rows = db.execute(
+                    "SELECT id,payload,sha,base_sha,completed FROM publications"
+                ).fetchall()
+            else:
+                rows = db.execute(
+                    "SELECT id,payload,sha,base_sha,completed FROM publications WHERE id=?", (sid,)
+                ).fetchall()
+            for identity, payload, claimed, base_sha, completed in rows:
+                if digest(payload) != claimed:
+                    raise ValueError(
+                        "Publication journal hash differs; restore from backup "
+                        "without deleting evidence."
+                    )
+                prepared = ReviewSession.model_validate_json(payload)
+                current = self.get(identity, db)
+                if identity in known and known[identity] != prepared.review:
+                    raise ValueError(
+                        "Published review contradicts submission intent; restore backup."
+                    )
+                if prepared.id != identity or prepared.review != self.make_review(prepared):
+                    raise ValueError(
+                        "Contradictory publication identity; retain evidence and restore backup."
+                    )
+                if completed:
+                    if (
+                        current.state != "submitted"
+                        or current.review != prepared.review
+                        or current.submitted_at != prepared.submitted_at
+                    ):
+                        raise ValueError(
+                            "Contradictory submitted lifecycle; retain evidence and restore backup."
+                        )
+                    self.verify_publication(current)
+                    continue
+                actual = db.execute("SELECT sha FROM sessions WHERE id=?", (identity,)).fetchone()[
+                    0
+                ]
+                if current.state != "draft" or actual != base_sha:
+                    raise ValueError(
+                        "Draft changed after submission intent; retain evidence and restore backup."
+                    )
+                path = publish(self.root, prepared.review)
+                if read_review(path) != prepared.review:
+                    raise ValueError("Published artifact hash/identity differs; restore backup.")
+                prepared.state = "submitted"
+                self.store(prepared, db)
+                db.execute("UPDATE publications SET completed=1 WHERE id=?", (identity,))
+            # Old schema-1 interruption had no intent. Do not guess its date or
+            # overwrite conflicting draft edits; surface an operator recovery gate.
+            if sid is None:
+                published = {r.id: r for r in self.reviews()}
+                for (identity,) in db.execute("SELECT id FROM sessions").fetchall():
+                    current = self.get(identity, db)
+                    if current.state == "draft" and identity in published:
+                        raise ValueError(
+                            "Legacy orphan review detected; preserve artifact/draft "
+                            "and reconcile from backup before startup."
+                        )
+                    if current.state == "submitted":
+                        self.verify_publication(current)
 
     def reviews(self):
         return [

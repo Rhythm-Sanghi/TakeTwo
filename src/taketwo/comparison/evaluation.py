@@ -8,6 +8,7 @@ from taketwo.dataset.splits import connected_groups, make_split
 
 from .contracts import Evaluation, EvaluationConfig, Label, Match, Metrics, Region, Report, Review
 from .eligibility import DIMENSIONS, decision, reason
+from .matching import assign
 from .reviews import consensus, validate_review
 
 
@@ -18,12 +19,12 @@ def iou(left, right):
 
 
 def match_regions(predictions: list[Region], labels: list[Label], config: EvaluationConfig):
-    """Descending IoU, stable-ID ties; boundary events never count as intervals."""
+    """matching-v2: cardinality, total quality, ID-sorted solver ties; like types only."""
     if len({p.id for p in predictions}) != len(predictions) or len(
         {label.id for label in labels}
     ) != len(labels):
         raise ValueError("Matching IDs must be unique.")
-    candidates = []
+    candidates = {}
     for p in predictions:
         for label in labels:
             if p.category != label.category:
@@ -31,18 +32,17 @@ def match_regions(predictions: list[Region], labels: list[Label], config: Evalua
             if p.participant_interval and label.interval:
                 overlap = iou(p.participant_interval, label.interval)
                 if overlap >= config.iou_threshold:
-                    candidates.append((-overlap, p.id, label.id, overlap))
+                    candidates[p.id, label.id] = overlap
             elif p.participant_interval is None and label.interval is None:
                 error = abs(p.participant_anchor_s - label.anchor_s)
                 if error <= config.boundary_tolerance_s:
-                    # Event candidates are independent of intervals; closest anchors win.
-                    candidates.append((error, p.id, label.id, None))
+                    # Event quality decreases with error; interval/event edges remain separate.
+                    candidates[p.id, label.id] = 1 - error / config.boundary_tolerance_s
     by_pred, by_label = {p.id: p for p in predictions}, {label.id: label for label in labels}
     used_pred, used_label, matches = set(), set(), []
-    for _, pid, lid, overlap in sorted(candidates):
-        if pid in used_pred or lid in used_label:
-            continue
+    for pid, lid in assign(by_pred, by_label, candidates):
         p, label = by_pred[pid], by_label[lid]
+        overlap = candidates[pid, lid] if p.participant_interval is not None else None
         start = (
             abs(p.participant_interval.start_s - label.interval.start_s)
             if overlap is not None
@@ -140,6 +140,9 @@ def evaluate(
         severity_matched_count=0,
         uncertainty={},
         limitations=[
+            "matching-v2: maximum cardinality, then total IoU/event quality; "
+            "ID-sorted SciPy assignment ties. Flaw consensus uses semantic-v2; "
+            "the lowest review ID supplies representative labels; all review hashes are retained.",
             "Temporal/category agreement does not establish rhetorical quality "
             "or causal human explanations.",
             "Small-family bootstrap intervals are descriptive, not population guarantees.",
