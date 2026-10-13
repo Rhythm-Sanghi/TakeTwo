@@ -1,0 +1,3 @@
+# Consistent source formatting on Windows and other clean checkouts.
+* text=auto eol=lf
+*.pdf binary
