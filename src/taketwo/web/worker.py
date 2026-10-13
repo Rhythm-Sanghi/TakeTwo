@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import traceback
 from pathlib import Path
 
 # No engine import or descendant process may precede kernel job assignment.
@@ -179,7 +180,7 @@ def run(root: Path, temporary: Path, request: AnalysisRequest, alignment_config:
     )
 
 
-if __name__ == "__main__":
+def main():
     root, temporary = Path(sys.argv[1]), Path(sys.argv[2])
     try:
         request = AnalysisRequest.model_validate_json((temporary / "request.json").read_text())
@@ -195,4 +196,23 @@ if __name__ == "__main__":
                 "completed artifacts are retained.",
             },
         )
-        sys.exit(1)
+        # Retain bounded private evidence after the supervisor removes the owned
+        # runtime directory. Never send exception paths/text in HTTP diagnostics.
+        try:
+            directory = managed_path(root, ".diagnostics")
+            directory.mkdir(exist_ok=True)
+            identifier = os.environ.get("TAKETWO_JOB_ID", temporary.name)
+            header = f"Worker failure: {type(exc).__name__[:256]}\n".encode()
+            tail = "".join(traceback.format_exception(exc)).encode("utf-8")
+            detail = header + tail[-(32768 - len(header)) :]
+            write_new(managed_path(root, f".diagnostics/{identifier}.log"), detail)
+        except Exception:
+            # Log retention must not replace the original processing failure,
+            # including when storage is the reason the worker failed.
+            pass
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

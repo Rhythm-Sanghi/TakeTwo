@@ -278,6 +278,39 @@ def test_hard_worker_crash_preserves_service_and_allows_retry(imported):
         service.wait(timeout=15)
 
 
+@pytest.mark.parametrize("padding,blocked", [(0, False), (40000, False), (0, True)])
+def test_worker_failure_retains_private_trace_without_exposing_it(
+    imported, tmp_path, monkeypatch, padding, blocked
+):
+    from taketwo.web import worker as cpu_worker
+
+    root, recording = imported
+    temporary = tmp_path / "software-worker"
+    temporary.mkdir()
+    (temporary / "request.json").write_text(
+        json.dumps({"reference_id": recording.id, "align": False}), encoding="utf-8"
+    )
+
+    def failure(*_):
+        raise PermissionError("x" * padding + "private-test-path; fixture-sensitive-detail")
+
+    monkeypatch.setattr(cpu_worker, "run", failure)
+    monkeypatch.setattr(sys, "argv", ["worker", str(root), str(temporary)])
+    monkeypatch.setenv("TAKETWO_JOB_ID", "software-fixture-job")
+    if blocked:
+        (root / ".diagnostics").write_text("fixture storage unavailable")
+    assert cpu_worker.main() == 1
+    public = (temporary / "error.json").read_text(encoding="utf-8")
+    assert "PermissionError" in public and "fixture-sensitive-detail" not in public
+    private = root / ".diagnostics" / "software-fixture-job.log"
+    if blocked:
+        assert (root / ".diagnostics").read_text() == "fixture storage unavailable"
+        return
+    assert "fixture-sensitive-detail" in private.read_text(encoding="utf-8")
+    assert "PermissionError" in private.read_text(encoding="utf-8")
+    assert private.stat().st_size <= 32768
+
+
 def test_real_descendant_dies_when_supervisor_handle_is_lost(tmp_path):
     script = tmp_path / "supervisor.py"
     child_code = """import os,time,subprocess,sys

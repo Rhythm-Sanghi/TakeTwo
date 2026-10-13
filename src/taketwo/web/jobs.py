@@ -172,6 +172,7 @@ class Jobs:
                     OMP_NUM_THREADS="1",
                     OPENBLAS_NUM_THREADS="1",
                     MKL_NUM_THREADS="1",
+                    TAKETWO_JOB_ID=job.id,
                 )
                 command = [sys.executable, "-m", "taketwo.web.worker", str(self.root), directory]
                 if self.config:

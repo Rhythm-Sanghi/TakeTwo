@@ -19,6 +19,7 @@ SECRET_PATTERNS = (
     rb"sk-(?:proj-)?[A-Za-z0-9_-]{40,}",
 )
 PRIVATE_PARTS = {
+    ".diagnostics",
     "local-data",
     "node_modules",
     ".venv",

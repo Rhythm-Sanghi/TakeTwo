@@ -23,6 +23,7 @@ models/
 *.sqlite3-wal
 *.sqlite3-shm
 .review-operator-key
+.diagnostics/
 *.sqlite-wal
 *.sqlite-shm
 tmp/
