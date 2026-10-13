@@ -1,5 +1,23 @@
 # Local backend API v1
 
+## Dataset presentation additions
+
+`GET /api/v1/dataset` retains existing fields and adds default-empty `inventory_counts`
+and `review_readiness`. The generated [contract](api-v1.json) and TypeScript adapter
+include these additive fields; scientific schemas are unchanged. The CLI summary
+supplies recording counts too; refresh after upgrade to load review readiness.
+
+Inventory separates takes from declared speaker IDs. Connected families reuse
+`connected_groups`, including shared speaker/source/work/text/pair/derivative links.
+Stored independent/timing/flaw assertion counts include preserved revisions; neither
+those assertions nor distinct IDs authenticate people or certify scientific readiness.
+
+Recording workflow hints use manifest rights/consent/text, existing review consensus
+and binding validation, and valid successful alignment/features. Other member,
+original alignment, pair, coverage, acoustic and split gates remain authoritative
+at comparison/evaluation. Active-handoff middleware still denies this endpoint;
+navigation preselects operator preparation only and grants no session or capability.
+
 ## Human review lifecycle additions
 
 The [review workflow](review-workspace.md) defines sequential operator/reviewer handoff and its local security limits. Prefix below is `/api/v1/review-workspace`. All lifecycle payloads are in the generated [OpenAPI contract](api-v1.json); final scientific evidence remains unchanged `Review` v1. Requests are capped at 1 MiB. Operator routes require `X-Review-Operator`, except unlock which takes an explicit key body. Reviewer routes use the active capability in a scoped HttpOnly/SameSite cookie; a session ID alone grants no access.

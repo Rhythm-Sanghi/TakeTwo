@@ -1,5 +1,26 @@
 # Workspace design and interaction
 
+Dataset and Evaluation now separates takes, declared speaker IDs and connected
+families using backend counts. A recording selector exposes its next rights/review/
+version/processing/evaluation step. **Open Review Workspace** preselects recording,
+available job and scope without creating a session or granting access. Rights and
+reviewed-version changes still require real evidence and the CLI procedure in the
+[human pilot kit](human-pilot-kit.md).
+
+Shared comparison blockers appear once above a dimension table. Native disclosures
+retain specific restrictions, counts, coverage, minimums, recovery and reason codes.
+Pitch baselines are diagnostic medians of accepted F0 frames; percent coverage,
+stored confidence mask, backend eligibility and score availability remain separate.
+The policy's 50% requirement applies per scored phrase, not to a new React score.
+
+**Print analysis summary** uses standard browser printing. A4 styles retain native
+windows, recording/job/version identity, summaries, blockers and unavailable scores;
+controls, raw chart tables and unavailable correspondence help are omitted. Live
+tables and exports remain available. Synchronous print hooks snapshot the existing
+uPlot at readable paper width without a second acoustic renderer or PDF service.
+This private summary is separate from the hackathon report. See [executed repair
+evidence](presentation-repair-audit.md).
+
 Current addition: **Review Workspace** is the fifth navigation area. It prepares recording-scoped sequential handoffs and operator adjudication. Handoff reloads into an isolated editor with actual playback/waveform, separate original/MFA/corrected text, millisecond word-boundary dragging and numeric alternatives, phrase partitions, unclear speech, flaw intervals/pause anchors, draft persistence/completion checks and immutable submission/export. The analysis application is not mounted during handoff. Read [review workflow](review-workspace.md) for instructions and identity/blinding limits, and [verification](review-workspace-validation.md) for actual browser/accessibility evidence. Existing four-area workflows remain available outside handoff.
 
 TakeTwo — Speech analysis workspace. React/strict TypeScript/Vite implement the [Workshop + Gridline + Studio Utility tokens](design-system.md). System fonts, 4 px spacing, restrained teal/reference and brown/dashed participant signals, 1 px rules and compact native controls remain consistent. The small feature modules are `App`, `ImportForm`, `Timeline`, `TokenOverlay` and `Evidence`; there is no UI framework, icon pack, animation dependency or dashboard generator.

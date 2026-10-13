@@ -1,5 +1,14 @@
 # Browser verification
 
+The generated suite includes `zy-presentation.spec.ts`: actual generated 15/29/30/40/45
+second WAV imports and CPU extraction, complete native domains/end samples at all
+five widths, same-speaker take counts, operator preselection without access grants,
+axe on expanded dimension diagnostics and real Chromium printing with all accessible
+chart disclosures open. These are software signals, not speech or human evidence.
+The serial case can take several minutes; production limits are unchanged. Native
+zoom also loads completed charts when present. Print verification additionally
+requires rendering and visually inspecting every PDF page.
+
 Standard software tests require no private data, MFA installation or external account:
 
 The stabilization suite adds five-area screenshots at 1920×1080, 1366×768,

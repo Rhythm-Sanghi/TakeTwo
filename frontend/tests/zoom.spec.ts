@@ -120,9 +120,13 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
           await page
             .locator(".feature-chart")
             .first()
-            .screenshot({
-              path: testInfo.outputPath("200-percent-populated-chart.png"),
-            });
+            .evaluate((node) => node.scrollIntoView({ block: "start" }));
+          // Native tab zoom changes viewport clip coordinates; capture the full
+          // document without using an element clip.
+          await page.screenshot({
+            path: testInfo.outputPath("200-percent-populated-chart.png"),
+            fullPage: true,
+          });
         }
       }
       expect(
