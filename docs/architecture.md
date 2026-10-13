@@ -23,6 +23,8 @@ Phase 1 locks the Python dataset runtime in `pyproject.toml`/`uv.lock`; its purp
 
 ## Boundaries and data model
 
+The [Human Review Workspace](review-workspace.md) adds a dedicated SQLite lifecycle database for scoped reviewer drafts, sequential handoff and separate adjudication. Existing dataset/analysis/comparison artifacts remain scientific authority. Final exports are unchanged Phase 3 Review v1 records. A fail-closed handoff middleware isolates recording-scoped media/edit APIs from all analysis/peer APIs; the frontend mounts only the reviewer application during handoff. Capabilities and an OS-held operator key provide proportionate supervised local access control, not person authentication. No worker, acoustic algorithm, scoring rule or runtime dependency changes are introduced.
+
 Implement cohesive modules only when their phase starts: ingestion, normalization, alignment, features, comparison, region detection, scoring, evaluation, persistence, API and UI. Engine functions accept explicit arrays/artifacts/configuration and do not depend on HTTP or UI state. Evaluation invokes the same engine through a CLI, without a browser.
 
 Phase 1 implements `src/taketwo/dataset/`: schema, errors, safe storage, audio ingestion/normalization, controlled transformations, connected-group splitting, validation, workspace operations and CLI. Tests are in `tests/`. It uses one atomically replaced versioned JSONL manifest and managed local audio directories; SQLite is deferred until application sessions need it. The executable contracts and commands are in [dataset engineering](dataset-engineering.md).

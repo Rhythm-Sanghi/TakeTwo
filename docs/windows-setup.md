@@ -1,5 +1,7 @@
 # Windows local workspace
 
+Human reviews use the [Review Workspace](review-workspace.md). With the service workspace path in `$workspace`, read its private operator capability using `Get-Content (Join-Path $workspace '.review-operator-key')`. Assign supervised reviewers in fresh private browser windows; stop analysis first. Handoff stays locked across service restarts. End it with the private operator key, close the reviewer window, then inspect peer/adjudication evidence. Keep the key and SQLite files private and backed up; typed reviewer IDs are not authenticated identities. No additional installation or dependency is required.
+
 Requires Windows 11, Python 3.11 with uv, and Node.js 24 LTS / npm (the executed environment used Node 24.15.0). CPU processing requires no CUDA. The backend and frontend use committed locks. Existing MFA/environment/model setup remains in [analysis engine](analysis-engine.md); it is installed separately and never downloaded by an analysis request.
 
 From the repository root in PowerShell:

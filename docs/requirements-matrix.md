@@ -56,6 +56,8 @@ These engineering documents are working specifications, not the six-page submiss
 
 ## Phase 4 integration evidence
 
+The [Human Review Workspace](review-workspace.md) adds real browser authoring of the existing hash-bound transcript, timing/phrase and blinded-flaw evidence contracts, with separate adjudication history and existing consensus/eligibility. This supports R1 labeling, R2 timing validation, R3 temporal evidence, R4 interaction and reproducibility; it does not itself complete any human dataset/accuracy gate. Acceptance evidence and remaining human/manual accessibility actions are in [review validation](review-workspace-validation.md). Official judging weights and all original acceptance criteria remain unchanged.
+
 Current submission readiness is reconciled requirement by requirement in the [Phase 5 final compliance audit](submission-compliance.md). It supersedes historical readiness labels below without changing official criteria or weights. The six-page report draft and manual/public release gates are tracked there; no complete dataset or submission is claimed.
 
 [Phase 4 validation](phase4-validation.md) records the real local service/workspace, actual browser audio import/alignment/extraction/playback/export, typed contracts, software tests and remaining acceptance gates. Local success does not complete public dataset/report/video deliverables or establish independent detection accuracy.

@@ -30,11 +30,13 @@ For native CPU alignment, install the locked MFA environment and checksummed Eng
 4. Open **Analysis Workspace** and run analysis. Inspect real waveforms, native audio transport, word markers, features, evidence and any score-withholding reasons.
 5. Export the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
 
+Use **Review Workspace** for browser transcript checks, assisted word/phrase timing, blinded flaw annotation, saved drafts and immutable review exports. A local operator key controls sequential reviewer handoff and separate adjudication; general analysis/peer APIs close during handoff. Read [review workflow and privacy limits](docs/review-workspace.md) before assigning independent reviewers. Typed identities and playback events do not authenticate people or establish scientific eligibility. [Review implementation evidence](docs/review-workspace-validation.md) lists actual checks and outstanding human acceptance.
+
 WAV/FLAC storage supports 100 MiB/600 s; analysis supports up to 45 s per member by default. Longer originals remain playable. Explicit selection-to-excerpt saving preserves originals and requires the exact excerpt text; each take has its own cut times. Read the concise [recording guide and five-WAV pilot steps](docs/recording-import-guide.md).
 
 ## Implemented scope and current status
 
-Dataset ingestion/provenance, canonical audio/text, contrastive pairing, controlled transformations/time maps, connected-group splits, CPU MFA, FFT/MFCC/RMS/energy/pYIN extraction, reviewed correspondence, explainable detection/scoring, independent-label evaluation, SQLite history and the four-area web workspace are implemented. Supervised serial workers provide cancellation, timeout, Windows crash containment/recovery, exact-request retry, bounded memory and integrity-checked caches.
+Dataset ingestion/provenance, canonical audio/text, contrastive pairing, controlled transformations/time maps, connected-group splits, CPU MFA, FFT/MFCC/RMS/energy/pYIN extraction, reviewed correspondence, explainable detection/scoring, independent-label evaluation, SQLite history and the five-area web workspace are implemented. Supervised serial workers provide cancellation, timeout, Windows crash containment/recovery, exact-request retry, bounded memory and integrity-checked caches.
 
 Product stabilization repairs recording-type selection, controlled references, progressive import, pair selection/correction, explicit metadata migration, reviewer-file handoff, excerpt recovery, history timestamps and bound-report persistence. [Issue inventory](docs/product-audit.md) and [executed verification](docs/product-validation.md) distinguish repaired software from remaining acceptance gates.
 
@@ -48,7 +50,7 @@ Python 3.11/FastAPI/Uvicorn/Pydantic; NumPy/SciPy/librosa/soundfile; isolated CP
 - [Dataset tools](docs/dataset-engineering.md), [dataset plan](docs/dataset-plan.md), [current schema v2](docs/dataset-schema-v2.json), [preserved legacy schema v1](docs/dataset-schema-v1.json)
 - [Analysis engine](docs/analysis-engine.md), [comparison/review/evaluation CLI](docs/comparison-engine.md), [scoring formulas](docs/scoring-policy.md)
 - [Design system](docs/design-system.md), [requirements and official weights](docs/requirements-matrix.md), [roadmap](docs/implementation-roadmap.md), [risks](docs/risk-register.md)
-- [Source acquisition](docs/pilot-collection.md), [human review kit](docs/human-pilot-kit.md), [annotation worksheet](docs/annotation-worksheet.md)
+- [Source acquisition](docs/pilot-collection.md), [human review kit](docs/human-pilot-kit.md), [annotation worksheet](docs/annotation-worksheet.md), [Review Workspace](docs/review-workspace.md)
 - [Dependency purpose/licenses](docs/dependencies.md), [reproduction commands](docs/reproducibility.md)
 
 ## Verification

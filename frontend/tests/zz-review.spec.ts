@@ -1,0 +1,162 @@
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+// Isolated generated-audio software fixtures ONLY. These submissions are not human evidence.
+test("review handoff, actual playback, immutable export and adjudication", async ({
+  page,
+  request,
+}, info) => {
+  const key = readFileSync(
+    path.join(process.env.TAKETWO_BROWSER_WORKSPACE!, ".review-operator-key"),
+    "utf8",
+  );
+  const recordings = await (await request.get("/api/v1/recordings")).json();
+  const recording = recordings.find(
+    (r: { role: string }) => r.role === "reference",
+  );
+  expect(recording).toBeTruthy();
+  async function start(reviewer: string) {
+    await page.goto("/");
+    await page
+      .getByRole("button", { name: "Review Workspace", exact: true })
+      .click();
+    await page.getByLabel("Operator key", { exact: true }).fill(key);
+    await page
+      .getByLabel("Recording", { exact: true })
+      .selectOption(recording.id);
+    await page
+      .getByLabel("Reviewer identifier", { exact: true })
+      .fill(reviewer);
+    await page.getByRole("button", { name: "Start reviewer handoff" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Recording and native timeline" }),
+    ).toBeVisible();
+    expect((await request.get("/api/v1/reviews")).status()).toBe(403);
+    expect((await request.get("/api/v1/analyses")).status()).toBe(403);
+  }
+  async function finish() {
+    await page
+      .getByLabel("Evidence reference", { exact: true })
+      .fill("Playwright software fixture, not a human worksheet");
+    await page
+      .getByLabel("Listening notes and uncertainty")
+      .fill(
+        "Automated playback test only; no real person performed this review.",
+      );
+    await page.getByLabel("Review decision").selectOption("approved");
+    await page.getByLabel(/I performed my own review/).check();
+    await page.getByRole("button", { name: "Listen from beginning" }).click();
+    await expect
+      .poll(
+        () => page.locator("audio").evaluate((a: HTMLAudioElement) => a.ended),
+        { timeout: 15000 },
+      )
+      .toBe(true);
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page.getByText("Draft saved locally.", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Submit review", exact: true }),
+    ).toBeEnabled();
+    await page
+      .getByRole("button", { name: "Submit review", exact: true })
+      .click();
+    await expect(
+      page.getByRole("link", { name: "Export scientific Review JSON" }),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Reviewer-corrected transcript"),
+    ).toBeDisabled();
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("link", { name: "Export scientific Review JSON" }).click(),
+    ]);
+    await download.saveAs(
+      info.outputPath(`${Date.now()}-software-review.json`),
+    );
+  }
+  async function unlock() {
+    await page.getByText("Operator: end handoff", { exact: true }).click();
+    await page.getByLabel("Local operator key", { exact: true }).fill(key);
+    await page
+      .getByRole("button", { name: "End handoff and return to operator" })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Recording Library", exact: true }),
+    ).toBeVisible();
+  }
+  await start("software-reviewer-a");
+  await page
+    .getByLabel("Reviewer-corrected transcript")
+    .fill("Generated signal fixture only.");
+  await page.getByRole("button", { name: "Save draft", exact: true }).click();
+  await expect(
+    page.getByText("Draft saved locally.", { exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel("Reviewer-corrected transcript")).toHaveValue(
+    "Generated signal fixture only.",
+  );
+  await expect(
+    page.getByRole("button", { name: "Submit review", exact: true }),
+  ).toBeDisabled();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByLabel("Selection start (ms)").focus();
+  await page.keyboard.press("ArrowUp");
+  await expect(page.getByLabel("Selection start (ms)")).toHaveValue("1");
+  for (const width of [800, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  }
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await finish();
+  await page.screenshot({
+    path: info.outputPath("submitted-review.png"),
+    fullPage: true,
+  });
+  await unlock();
+  await start("software-reviewer-b");
+  await page
+    .getByLabel("Reviewer-corrected transcript")
+    .fill("Different generated fixture words.");
+  await finish();
+  await unlock();
+  await page
+    .getByRole("button", { name: "Review Workspace", exact: true })
+    .click();
+  await page.getByLabel("Operator key", { exact: true }).fill(key);
+  await page
+    .getByRole("button", { name: "Load sessions and adjudication" })
+    .click();
+  await expect(
+    page.getByText("Reviewers disagree on the checked canonical transcript.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.getByLabel("Adjudicator identifier").fill("software-adjudicator");
+  await page
+    .getByLabel("Disagreement explanation")
+    .fill("Software test: differing text.");
+  await page
+    .getByLabel("Resolution and required reviewer revisions")
+    .fill("Retain both originals; actual reviewers must revisit audio.");
+  await page
+    .getByRole("button", { name: "Record adjudication for transcript" })
+    .click();
+  await expect(page.getByText(/awaiting_reviewer_revisions/)).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  const reviews = await (await request.get("/api/v1/reviews")).json();
+  expect(
+    reviews.filter((r: { reviewer_id: string }) =>
+      r.reviewer_id.startsWith("software-reviewer"),
+    ),
+  ).toHaveLength(2);
+});

@@ -16,16 +16,19 @@ import { Inspector, Location, Scores } from "./Evidence";
 import { Timeline } from "./Timeline";
 import { TokenOverlay } from "./TokenOverlay";
 import { PairCorrection, ReviewImport } from "./RecordingTools";
+import { ReviewWorkspace } from "./ReviewWorkspace";
 
 type Page =
   | "Recording Library"
   | "Analysis Workspace"
   | "Rubric and Evidence"
+  | "Review Workspace"
   | "Dataset and Evaluation";
 const pages: Page[] = [
   "Recording Library",
   "Analysis Workspace",
   "Rubric and Evidence",
+  "Review Workspace",
   "Dataset and Evaluation",
 ];
 
@@ -528,6 +531,13 @@ export function App() {
           <h1 tabIndex={-1} ref={heading}>
             {page}
           </h1>
+          {page === "Review Workspace" && (
+            <ReviewWorkspace
+              recordings={recordings}
+              jobs={jobs}
+              pairs={pairs}
+            />
+          )}
           {error && (
             <div role="alert" className="error">
               <p>{error}</p>

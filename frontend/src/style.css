@@ -12,6 +12,60 @@
   --teal: #235a50;
   --control: #76857c;
 }
+.review-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  min-width: 0;
+}
+.review-tools label,
+.review-shell label {
+  display: block;
+  margin: 8px 0;
+}
+.review-tools input,
+.review-tools textarea,
+.review-tools select,
+.review-shell input:not([type="checkbox"]),
+.review-shell textarea,
+.review-shell select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.review-tools button,
+.review-shell button,
+.review-shell a {
+  margin: 4px;
+}
+.review-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+}
+.review-word-list {
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  margin: 12px 0;
+}
+.review-waveform {
+  width: 100%;
+  height: 150px;
+  touch-action: none;
+}
+.review-comparison pre,
+.review-shell .meta,
+.review-tools li {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.review-shell audio {
+  width: 100%;
+}
 * {
   box-sizing: border-box;
 }

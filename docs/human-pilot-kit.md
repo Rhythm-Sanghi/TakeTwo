@@ -27,6 +27,8 @@ Variables refer to actual collected files; none are supplied or fabricated by th
 
 ## Review and comparison session
 
+Reviewers can now perform checks in the [browser Review Workspace](review-workspace.md) and export existing-compatible Review JSON, rather than authoring files manually. An operator assigns one recording/activity at a time, keeps the private key, closes analysis/peer tabs, and supervises a fresh private browser handoff. The backend blocks peer/score/recipe APIs while locked. Recruit actual independent people; identifiers and interaction telemetry cannot prove identity or comprehension. Save drafts freely; approve/submit only real completed work. Use the checklist in that guide for all five private takes; automated draft browser checks do not supply human acceptance. Retain original blind inventories before adjudication/revisions.
+
 Use a separate copy of the [annotation worksheet](annotation-worksheet.md) per reviewer/member. Preserve raw notes and disagreement history. A reviewer must not approve their own performance as independent ground truth. Both flaw reviewers listen without engine predictions or synthetic recipe windows. Timing reviewers may inspect original machine alignment, but manually check every boundary; this is assisted timing, not independent MFA accuracy evidence.
 
 ```powershell

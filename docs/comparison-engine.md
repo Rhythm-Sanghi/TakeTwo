@@ -38,6 +38,8 @@ Policy `delivery-v0` fixes the initial tolerances, widths, masks and equal weigh
 
 ## Independent review workflow
 
+The [browser Review Workspace](review-workspace.md) now authors these same `Review` v1 records without hand-written JSON. Versioned lifecycle drafts, listening/inspection evidence and uncertainty supplement rather than replace this scientific schema; their public schemas are in [OpenAPI](api-v1.json). Final submitted exports/imports use the unchanged [comparison schema](comparison-schema-v1.json). Operator adjudication is separate history and cannot bypass the existing agreement rules; explicit same-author superseding reviews remain the reconciliation mechanism. [Actual verification](review-workspace-validation.md) leaves genuine human review acceptance open.
+
 Review JSON uses the schema's `Review` contract: ID, scope (`transcript`, `timing`, `flaws`), exact Phase 2 provenance, reviewer ID/date, evidence reference, explicit independence/blinding declarations, decision (`approved`, `rejected`, `unresolved`), notes and scope-specific evidence. No checkbox defaults a human record to approved. Keep private consent and personal reviewer information outside Git.
 
 Transcript reviews preserve the checked/corrected text separately. Two matching independent checks can be inspected with the review functions. If canonical words changed, import the corrected source and mirrors into a new dataset version with actual two-reviewer transcript metadata; regenerate alignment/features against that version. Even punctuation/original-text or verification metadata changes alter provenance. Never patch a feature artifact's verification flag.

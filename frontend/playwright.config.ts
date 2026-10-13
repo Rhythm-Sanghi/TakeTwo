@@ -6,14 +6,20 @@ const repository = path.resolve(import.meta.dirname, "..");
 const duration = process.env.TAKETWO_DURATION_SMOKE === "1";
 const genuine = process.env.TAKETWO_REAL_SMOKE === "1" || duration;
 const pilot = process.env.TAKETWO_PILOT_SMOKE === "1";
-const workspace = duration
-  ? path.join(repository, "local-data", `browser-duration-${Date.now()}`)
-  : path.join(
-      repository,
-      "local-data",
-      `${pilot ? "browser-pilot" : genuine ? "browser-real" : "browser-software"}-${Date.now()}`,
-    );
-if (duration) {
+const reviewPilot = process.env.TAKETWO_REVIEW_PILOT === "1";
+const inheritedWorkspace = process.env.TAKETWO_BROWSER_WORKSPACE;
+const workspace =
+  inheritedWorkspace ??
+  (reviewPilot
+    ? path.join(repository, "local-data", `browser-review-pilot-${Date.now()}`)
+    : duration
+      ? path.join(repository, "local-data", `browser-duration-${Date.now()}`)
+      : path.join(
+          repository,
+          "local-data",
+          `${pilot ? "browser-pilot" : genuine ? "browser-real" : "browser-software"}-${Date.now()}`,
+        ));
+if (duration && !inheritedWorkspace) {
   // Copy immutable inputs, never cached stages, history, locks or reviews.
   mkdirSync(workspace);
   for (const entry of ["manifest.jsonl", "originals", "normalized"]) {
@@ -24,24 +30,38 @@ if (duration) {
     );
   }
 }
+if (reviewPilot && !inheritedWorkspace) {
+  mkdirSync(workspace);
+  for (const entry of ["manifest.jsonl", "originals", "normalized"]) {
+    cpSync(
+      path.join(repository, "local-data/browser-pilot-1791813271436", entry),
+      path.join(workspace, entry),
+      { recursive: true, errorOnExist: true, force: false },
+    );
+  }
+}
+process.env.TAKETWO_BROWSER_WORKSPACE = workspace;
 export default defineConfig({
   testDir: "./tests",
-  testMatch: duration
-    ? ["duration.spec.ts"]
-    : pilot
-      ? ["pilot.spec.ts", "zoom.spec.ts"]
-      : ["workspace.spec.ts", "zoom.spec.ts"],
-  timeout: genuine ? 360000 : 240000,
+  testMatch: reviewPilot
+    ? ["review-pilot.spec.ts"]
+    : duration
+      ? ["duration.spec.ts"]
+      : pilot
+        ? ["pilot.spec.ts", "zoom.spec.ts"]
+        : ["workspace.spec.ts", "zoom.spec.ts", "zz-review.spec.ts"],
+  timeout: genuine || reviewPilot ? 360000 : 240000,
   workers: 1,
   fullyParallel: false,
   use: {
+    actionTimeout: 15000,
     baseURL: "http://127.0.0.1:8765",
     headless: true,
     viewport: { width: 1600, height: 1000 },
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --workspace "${workspace}"${genuine ? ` --alignment-config "${path.join(repository, "local-data/acquisition/final-alignment-config.json")}"` : ""}`,
+    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --workspace "${workspace}"${genuine || reviewPilot ? ` --alignment-config "${path.join(repository, "local-data/acquisition/final-alignment-config.json")}"` : ""}`,
     cwd: repository,
     url: "http://127.0.0.1:8765/api/v1/health",
     reuseExistingServer: false,

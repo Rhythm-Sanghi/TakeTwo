@@ -46,6 +46,8 @@ No-positive labels require actual full listening coverage. Null uncertainty mean
 
 ## Handoff checklist
 
+The [Review Workspace](review-workspace.md) provides these fields, native playback, explicit word inspection, draft saves and submitted JSON export. Use this sheet as the private evidence reference or take notes directly. Phrase end numbers are one-based word counts in the UI; exported phrase spans remain zero-based half-open token intervals. Machine suggestions are never human ground truth merely because they were loaded. Record unclear/uncertain spans honestly, preserve independent originals and retain the separate adjudicator's explanation. The operator must end handoff and close the reviewer window before showing peer evidence.
+
 - Exact provenance copied from actual current analysis; transcript verification agrees with the reviewed dataset version.
 - Actual identities/date/evidence references and independence declarations completed; consent stored privately.
 - Every word and complete phrase partition checked; no guessed timestamps.

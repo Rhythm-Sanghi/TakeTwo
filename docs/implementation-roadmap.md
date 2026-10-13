@@ -25,6 +25,8 @@ Before held-out scoring evaluation, freeze eligibility, masks, tolerances and ru
 
 ## Next authorized boundary
 
+Current completed-work boundary is the [Human Review Workspace](review-workspace.md): isolated sequential handoff, durable drafts, transcript/word/phrase/flaw editing, immutable existing-contract submission/export, operator adjudication and unchanged evidence gates. [Executed verification](review-workspace-validation.md) records software versus human acceptance. Next human steps are two genuine independent reviewers per required member/activity, explicit reconciliation, reviewed dataset revision/regenerated artifacts, and unchanged evaluation. No automated review, new phase of acoustic work, push or publication is authorized by this implementation.
+
 The current Phase 5 instruction authorizes submission preparation, superseding the older phase numbering for corpus completion/release. The [submission audit](submission-compliance.md), [manual action list](ACTION-REQUIRED.md) and [Phase 5 validation](phase5-validation.md) track that work. The historical phase table retains its scientific gates: corpus completion and held-out validation remain blocked, even though the local report/demo/release materials are prepared. No public push, dataset/video publication or Devpost submission is authorized by this phase. Stop after the local package and focused commits.
 
 Historical Phase 0 and Phase 1 checks remain in Git history and [Phase 1 validation](phase1-validation.md). Current commands, failures, actual measurements and unresolved gates are recorded in [Phase 2 validation](phase2-validation.md) and [Phase 3 validation](phase3-validation.md). No public dataset, dashboard, report or video is certified complete by local engine tests.

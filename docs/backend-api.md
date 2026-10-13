@@ -1,5 +1,33 @@
 # Local backend API v1
 
+## Human review lifecycle additions
+
+The [review workflow](review-workspace.md) defines sequential operator/reviewer handoff and its local security limits. Prefix below is `/api/v1/review-workspace`. All lifecycle payloads are in the generated [OpenAPI contract](api-v1.json); final scientific evidence remains unchanged `Review` v1. Requests are capped at 1 MiB. Operator routes require `X-Review-Operator`, except unlock which takes an explicit key body. Reviewer routes use the active capability in a scoped HttpOnly/SameSite cookie; a session ID alone grants no access.
+
+| Method / suffix | Behavior |
+| --- | --- |
+| `GET /mode` | Active handoff ID only; no capability, recording or peer evidence |
+| `POST /sessions` | Operator `ReviewAssignment`; one-time `ReviewGrant`, atomic active handoff, blank unresolved draft; timing needs current successful MFA job, flaws need assigned participant pair |
+| `POST /{sid}/activate` | `ActivateReview`; validate active capability, set scoped cookie, return only own `ReviewSession` |
+| `GET /{sid}` | Own current session, original/machine text, suggestions when permitted, draft, provenance, integrity, listening/inspection state |
+| `POST /{sid}/draft` | `DraftSave {revision,draft}`; revision is the session's **edit_revision**, independently of playback-event revision; transactional optimistic save, validate bounds/scope/current identities, invalidate changed-word inspection |
+| `POST /{sid}/listen` | `ListeningEvent {start_s,end_s}`; positive <=2.5 s native playback increment bounded against server wall time; no seek-jump coverage or gap filling |
+| `POST /{sid}/inspect` | `WordInspection {token_index}`; explicit saved boundary inspection after observed listening |
+| `GET /{sid}/validation` | `ReviewValidation`; missing actions, exact full listening, notes/declarations, every timing word/phrase, current binding, changed-text regeneration warning; no scientific approval |
+| `POST /{sid}/submit` | Saved `DraftSave`; immutable publication through existing Phase 3 validation/storage, auditable submitted lifecycle state. Never defaults decision to approved |
+| `GET /{sid}/export` | Submitted `Review` JSON compatible with current importer; drafts return 409 |
+| `GET /{sid}/summary` | Own lifecycle/provenance/annotations plus validation; explicitly not a scientific Review import |
+| `GET /{sid}/audio` / `/waveform` | Assigned validated native media/ranges and bounded real envelope; no general inventory, predictions or recipes |
+| `GET /{sid}/reference-audio` | Blinded-flaw activity only: paired reference audio context, no reference metadata/scores/reviews |
+| `GET /inventory` | Operator only, unavailable during handoff: sessions, original review inventories, existing consensus differences and decision history |
+| `POST /{sid}/resume` | Operator rotates capability, reopens saved own evidence without modifying submitted records; no active competing handoff allowed |
+| `POST /unlock` | `OperatorKey`; explicit operator-controlled handoff end and cookie removal; close reviewer window before peer work |
+| `POST /adjudications` | Operator `Adjudication`; distinct original reviews, all active evidence of subject/scope, binding validation, timestamped explained decision stored separately. Disagreements require explicit author revisions; no eligibility override |
+
+During handoff, middleware denies **every general API** plus OpenAPI/docs, including peer reviews, recording metadata/audio, reports, scores, features, recipes and operator inventory. Scoped routes still require the correct active capability. Static assets and mode do not contain evidence. An operator key cannot read peer inventory while locked. This is supervised localhost access control, not proof of reviewer identity or protection from the OS/filesystem owner. All already-downloaded evidence and old tabs remain the operator's responsibility.
+
+Additive `review-workspace.sqlite3` schema 1 uses WAL/transactions and internal/envelope digests; job database version 1, dataset schemas and immutable scientific contracts remain unchanged. See [storage/recovery limits](review-workspace.md). Final evidence becomes an ordinary existing content-addressed Review artifact consumed by unchanged worker/evaluation logic. Transcript correction/approval never mutates source text or provenance; reviewed new versions and regenerated artifacts remain required.
+
 TakeTwo — Speech analysis workspace. The executable HTTP contract is [api-v1.json](api-v1.json), generated from FastAPI/Pydantic by `scripts/export_api.py`. Scientific report, alignment, feature and dataset contracts remain unchanged; [comparison contracts](comparison-schema-v1.json) remain authoritative for calculations. HTTP lifecycle completion is separate from scientific eligibility.
 
 | Endpoint | Contract and behavior |
