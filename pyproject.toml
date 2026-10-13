@@ -45,3 +45,15 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.hatch.build.targets.sdist]
+# Explicit source inputs also protect builds outside a Git-aware environment.
+include = [
+  "/src", "/tests", "/scripts", "/docs", "/environments", "/.github",
+  "/frontend/src", "/frontend/tests", "/frontend/*.ts", "/frontend/*.js",
+  "/frontend/*.json", "/frontend/index.html",
+  "/AGENTS.md", "/README.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
+  "/.gitattributes", "/.gitignore", "/requirments/Track C.pdf",
+  "/output/pdf/taketwo-technical-report.pdf",
+]
+exclude = ["**/__pycache__", "**/*.py[cod]", "**/*.tsbuildinfo"]

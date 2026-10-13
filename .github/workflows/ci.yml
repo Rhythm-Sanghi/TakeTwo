@@ -33,7 +33,7 @@ jobs:
       - run: npx --prefix frontend prettier --check frontend/src frontend/tests frontend/*.ts frontend/package*.json
       - run: npm --prefix frontend test
       - run: uv run python scripts/check_repository.py
-      - run: uv run python scripts/audit_release.py
+      - run: uv run python scripts/audit_release.py --packages
       - run: uv export --frozen --no-hashes --no-emit-project --output-file local-security-requirements.txt
       - run: uvx pip-audit -r local-security-requirements.txt --disable-pip --no-deps
       - run: Remove-Item -LiteralPath local-security-requirements.txt
