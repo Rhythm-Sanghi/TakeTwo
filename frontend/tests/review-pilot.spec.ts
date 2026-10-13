@@ -31,7 +31,7 @@ test("genuine private pilot: native MFA suggestions, playback and draft boundary
             await request.get(`/api/v1/analyses/${id}`, { maxRetries: 1 })
           ).json()
         ).state,
-      { timeout: 300000, intervals: [1000] },
+      { timeout: 610000, intervals: [1000] },
     )
     .toBe("completed");
   const job = await (

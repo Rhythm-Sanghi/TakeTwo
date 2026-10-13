@@ -26,7 +26,9 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
   );
   const context = await chromium
     .launchPersistentContext(testInfo.outputPath("zoom-profile"), {
-      channel: "chromium",
+      ...(process.env.TAKETWO_ZOOM_EXECUTABLE
+        ? { executablePath: process.env.TAKETWO_ZOOM_EXECUTABLE }
+        : { channel: "chromium" }),
       headless: true,
       viewport: { width: 1600, height: 1000 },
       args: [
@@ -56,12 +58,12 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       width: innerWidth,
       dpr: devicePixelRatio,
     }));
-    const factor = await worker.evaluate(`async () => {
+    const factor = await worker.evaluate(`(async () => {
       const tabs = await chrome.tabs.query({url:'http://127.0.0.1:8765/*'});
       if(tabs.length !== 1) throw new Error('Expected one isolated local tab');
       await chrome.tabs.setZoom(tabs[0].id, 2);
       return chrome.tabs.getZoom(tabs[0].id);
-    }`);
+    })()`);
     expect(factor).toBe(2);
     await expect
       .poll(() => page.evaluate(() => devicePixelRatio))
@@ -75,6 +77,7 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       "Recording Library",
       "Analysis Workspace",
       "Rubric and Evidence",
+      "Review Workspace",
       "Dataset and Evaluation",
     ]) {
       await page.getByRole("button", { name: area, exact: true }).click();
@@ -86,21 +89,38 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
+      const geometry = await page
+        .locator("main, .panel, nav")
+        .evaluateAll((elements) =>
+          elements.map((element) => ({
+            tag: element.tagName,
+            right: element.getBoundingClientRect().right,
+            width: element.getBoundingClientRect().width,
+            viewport: innerWidth,
+          })),
+        );
+      expect(geometry.every((box) => box.right <= box.viewport + 1)).toBe(true);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await page
+        .getByRole("heading", { name: area, exact: true })
+        .evaluate((heading) => heading.scrollIntoView({ block: "start" }));
       await page.screenshot({
         path: testInfo.outputPath(
           "200-percent-" + area.replaceAll(" ", "-") + ".png",
         ),
-        fullPage: true,
+        fullPage: false,
       });
     }
+    const evidence = {
+      factor,
+      before,
+      after,
+      browser: context.browser()?.version(),
+    };
+    const evidencePath = testInfo.outputPath("native-tab-zoom.json");
+    await fs.writeFile(evidencePath, JSON.stringify(evidence, null, 2));
     await testInfo.attach("native-tab-zoom", {
-      body: JSON.stringify({
-        factor,
-        before,
-        after,
-        browser: context.browser()?.version(),
-      }),
+      path: evidencePath,
       contentType: "application/json",
     });
   } finally {

@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 import path from "node:path";
-import { cpSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync } from "node:fs";
 
 const repository = path.resolve(import.meta.dirname, "..");
 const duration = process.env.TAKETWO_DURATION_SMOKE === "1";
@@ -19,26 +19,61 @@ const workspace =
           "local-data",
           `${pilot ? "browser-pilot" : genuine ? "browser-real" : "browser-software"}-${Date.now()}`,
         ));
-if (duration && !inheritedWorkspace) {
-  // Copy immutable inputs, never cached stages, history, locks or reviews.
-  mkdirSync(workspace);
-  for (const entry of ["manifest.jsonl", "originals", "normalized"]) {
-    cpSync(
-      path.join(repository, "local-data/duration45-matched", entry),
-      path.join(workspace, entry),
-      { recursive: true, errorOnExist: true, force: false },
+const fixtureRoot = process.env.TAKETWO_GENUINE_FIXTURES;
+const alignmentConfig = process.env.TAKETWO_TEST_ALIGNMENT_CONFIG;
+const realMode = genuine || pilot || reviewPilot;
+if (realMode) {
+  if (!fixtureRoot || !alignmentConfig) {
+    throw new Error(
+      "Genuine browser tests are not configured. Run scripts/prepare_genuine_fixtures.py, then set TAKETWO_GENUINE_FIXTURES and TAKETWO_TEST_ALIGNMENT_CONFIG. Private fixtures are never supplied by CI.",
     );
   }
-}
-if (reviewPilot && !inheritedWorkspace) {
-  mkdirSync(workspace);
-  for (const entry of ["manifest.jsonl", "originals", "normalized"]) {
-    cpSync(
-      path.join(repository, "local-data/browser-pilot-1791813271436", entry),
-      path.join(workspace, entry),
-      { recursive: true, errorOnExist: true, force: false },
+  const required = [alignmentConfig];
+  if (pilot)
+    required.push(
+      ...["reference", "natural", "slow", "uneven", "near-perfect"].map(
+        (name) => path.join(fixtureRoot, "pilot", name + ".wav"),
+      ),
     );
+  if (genuine && !duration)
+    required.push(
+      path.join(fixtureRoot, "archive.wav"),
+      path.join(fixtureRoot, "transcript.txt"),
+    );
+  if (duration || reviewPilot) {
+    const source = path.join(
+      fixtureRoot,
+      duration ? "duration-workspace" : "review-workspace",
+    );
+    required.push(
+      ...["manifest.jsonl", "originals", "normalized"].map((entry) =>
+        path.join(source, entry),
+      ),
+    );
+    for (const entry of required)
+      if (!existsSync(entry))
+        throw new Error(
+          "Missing genuine fixture: " +
+            entry +
+            ". Re-run the documented fixture preparation step.",
+        );
+    if (!inheritedWorkspace) {
+      mkdirSync(workspace);
+      for (const entry of ["manifest.jsonl", "originals", "normalized"])
+        cpSync(path.join(source, entry), path.join(workspace, entry), {
+          recursive: true,
+          errorOnExist: true,
+          force: false,
+        });
+    }
   }
+  for (const entry of required)
+    if (!existsSync(entry))
+      throw new Error(
+        "Missing genuine fixture: " +
+          entry +
+          ". Re-run the documented fixture preparation step.",
+      );
 }
 process.env.TAKETWO_BROWSER_WORKSPACE = workspace;
 export default defineConfig({
@@ -50,7 +85,7 @@ export default defineConfig({
       : pilot
         ? ["pilot.spec.ts", "zoom.spec.ts"]
         : ["workspace.spec.ts", "zoom.spec.ts", "zz-review.spec.ts"],
-  timeout: genuine || reviewPilot ? 360000 : 240000,
+  timeout: genuine || reviewPilot ? 900000 : 240000,
   workers: 1,
   fullyParallel: false,
   use: {
@@ -61,7 +96,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --workspace "${workspace}"${genuine || reviewPilot ? ` --alignment-config "${path.join(repository, "local-data/acquisition/final-alignment-config.json")}"` : ""}`,
+    command: `"${path.join(repository, ".venv/Scripts/python.exe")}" -m taketwo.web.cli --workspace "${workspace}"${realMode ? ` --alignment-config "${alignmentConfig}"` : ""}`,
     cwd: repository,
     url: "http://127.0.0.1:8765/api/v1/health",
     reuseExistingServer: false,

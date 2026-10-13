@@ -78,10 +78,18 @@ Acoustic agreement is not persuasion, emotion or speaking ability. `delivery-v0`
 
 The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf) and its [editable source](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
 
-Source-code license selection, public paired dataset/video, public release verification and actual submission remain owner actions. Nothing is pushed or published by local stabilization. Private audio, model files, consent records, databases and runtime evidence are ignored.
+Public paired dataset/video, public release verification and actual submission remain owner actions. Nothing is pushed or published by local stabilization. Private audio, model files, consent records, databases and runtime evidence are ignored.
 
 ## AI assistance
 
-Codex assisted planning, implementation, documentation, source research and actual test/browser/CPU/recovery verification under human direction. Generated signals verify software only. Human consent, transcript/timing/flaw review, scientific judgments and final publication remain separate. Detailed third-party notices and honest tool disclosure are in [attributions](docs/attributions.md).
+OpenAI Codex was extensively used for implementation, testing, integration and documentation under human direction. ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Human participants supplied the genuine private recordings. Generated signals verify software only. Human consent, transcript/timing/flaw review, scientific judgments and final publication remain separate. Detailed third-party notices and honest tool disclosure are in [attributions](docs/attributions.md).
 
 The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](docs/duration-validation.md).
+
+## License and data rights
+
+Original TakeTwo code and project documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Private recordings, datasets, consent/reviewer records, external model files and third-party materials retain separate rights. See [attributions](docs/attributions.md); this license grants no private-data publication permission.
+
+Current repair evidence, native zoom results, scientific limitations and local-only release status are in the [final repair audit](docs/final-repair-audit.md). Windows CI is configured in `.github/workflows/ci.yml`; configuration is not a claim of a completed GitHub Actions run.
+
+Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.

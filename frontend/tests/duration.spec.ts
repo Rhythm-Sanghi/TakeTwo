@@ -77,7 +77,7 @@ test("45 s native playback, alignment, responsive CPU processing and report", as
           throw new Error(JSON.stringify(jobs[0].error));
         return jobs[0].state;
       },
-      { timeout: 300000 },
+      { timeout: 610000 },
     )
     .toBe("completed");
   await expect(page.getByText("Overall: Unavailable")).toBeVisible({

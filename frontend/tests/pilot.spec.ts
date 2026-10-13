@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
 
 // Optional local acceptance: these originals are user-provided and never shipped.
-const repository = path.resolve(import.meta.dirname, "../..");
+const fixtures = process.env.TAKETWO_GENUINE_FIXTURES!;
 const transcript =
   "Technology has changed the way we work, learn, and communicate. Every day, we rely on tools that make difficult tasks easier. But technology is most useful when it helps people solve real problems. A good idea does not need to be complicated. It needs to be practical, reliable, and easy to understand. The future will not be shaped by technology alone, but by the people who choose how to use it.";
 
@@ -42,7 +42,7 @@ test("actual private five-take pilot imports without invented rights or reviews"
     }
     await page
       .getByLabel("Audio file", { exact: true })
-      .setInputFiles(path.join(repository, "speech-01", name + ".wav"));
+      .setInputFiles(path.join(fixtures, "pilot", name + ".wav"));
     await page.getByLabel("Spoken transcript").fill(transcript);
     await page
       .getByLabel(

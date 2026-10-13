@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
+import { readFileSync } from "node:fs";
 
 const repository = path.resolve(import.meta.dirname, "../..");
 const genuine = process.env.TAKETWO_REAL_SMOKE === "1";
@@ -45,18 +46,24 @@ test("actual import → CPU processing → native playback → evidence → expo
     await page
       .getByLabel("Audio file", { exact: true })
       .setInputFiles(
-        path.join(
-          repository,
-          genuine
-            ? "local-data/acquisition/inaugural-salutation.wav"
-            : `local-data/browser-fixtures/generated-${participant ? "participant" : "reference"}.wav`,
-        ),
+        genuine
+          ? path.join(process.env.TAKETWO_GENUINE_FIXTURES!, "archive.wav")
+          : path.join(
+              repository,
+              `local-data/browser-fixtures/generated-${participant ? "participant" : "reference"}.wav`,
+            ),
       );
     await page
       .getByLabel("Spoken transcript")
       .fill(
         genuine
-          ? "Vice President Johnson, Mr. Speaker, Mr. Chief Justice, President Eisenhower, Vice President Nixon, President Truman, Reverend Clergy, fellow citizens:"
+          ? readFileSync(
+              path.join(
+                process.env.TAKETWO_GENUINE_FIXTURES!,
+                "transcript.txt",
+              ),
+              "utf8",
+            ).trim()
           : "Generated signal fixture only.",
       );
     if (!(await page.getByLabel("Speaker label (optional)").isVisible()))
@@ -126,9 +133,21 @@ test("actual import → CPU processing → native playback → evidence → expo
           "I have evidence permitting adaptation and public redistribution",
         )
         .check();
+    const imported = page.waitForResponse(
+      (r) =>
+        r.url().endsWith("/api/v1/recordings") &&
+        r.request().method() === "POST",
+    );
     await page
       .getByRole("button", { name: "Import recording", exact: true })
       .click();
+    expect((await imported).status()).toBe(201);
+    await expect(
+      page.getByText(
+        participant ? "2 recordings · 1 pairs" : "1 recordings · 0 pairs",
+        { exact: true },
+      ),
+    ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Recording metadata", exact: true }),
     ).toBeVisible();

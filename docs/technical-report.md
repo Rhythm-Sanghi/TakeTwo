@@ -1,5 +1,7 @@
 # TakeTwo
 
+Current-status addendum (2026-10-13): five genuine private same-person practice recordings and intended text are available, with no independent transcript/timing/flaw ground truth or public-release consent. MIT is owner-selected, copyright (c) 2026 Rhythm Sanghi, for original code/documentation only. Current software corrections and evidence are in [final repair audit](final-repair-audit.md). The dated Phase 5 statements and existing six-page PDF below remain historical; the final submission PDF still needs owner reconciliation and regeneration. OpenAI Codex was extensively used for implementation/testing/integration/documentation; ChatGPT assisted architecture, interpretation, technical review and instructions.
+
 Historical evidence: limits and measurements below describe that recorded release. Current duration policy and measurements are in [duration validation](duration-validation.md).
 
 Speech analysis workspace

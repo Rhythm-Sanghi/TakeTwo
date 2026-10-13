@@ -1,5 +1,7 @@
 # Track C submission compliance
 
+Current-status addendum (2026-10-13): five genuine private same-person practice recordings and intended text are available, with no independent transcript/timing/flaw ground truth or public-release consent. MIT is owner-selected, copyright (c) 2026 Rhythm Sanghi, for original code/documentation only. The current application has five workspace areas, including Review Workspace. Current software corrections and evidence are in [final repair audit](final-repair-audit.md). The dated Phase 5 statements and existing six-page PDF below remain historical; the final submission PDF still needs owner reconciliation and regeneration. OpenAI Codex was extensively used for implementation/testing/integration/documentation; ChatGPT assisted architecture, interpretation, technical review and instructions.
+
 This is the historical Phase 5 readiness snapshot. Current product repairs and the later user-supplied private practice takes are recorded in [product validation](product-validation.md) and [the recording guide](recording-import-guide.md). No newly supplied take is automatically a verified/public competition example; official scientific/public deliverable gates remain open.
 
 TakeTwo — Speech analysis workspace. Audit date: 2026-10-12; baseline `9551d73`. Authority: all three pages of the unchanged [official statement](../requirments/Track%20C.pdf). The October 15 deadline comes from the project owner's instruction, not this PDF. This is a local preparation audit, not submission certification.
