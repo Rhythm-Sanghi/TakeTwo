@@ -1,0 +1,42 @@
+name: Verify TakeTwo
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  software:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --locked
+      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests scripts
+      - run: uv run pytest -q
+      - run: uv build
+      - run: npm --prefix frontend ci
+      - run: npm --prefix frontend run typecheck
+      - run: npm --prefix frontend run lint
+      - run: npx --prefix frontend prettier --check frontend/src frontend/tests frontend/*.ts frontend/package*.json
+      - run: npm --prefix frontend test
+      - run: npm --prefix frontend run build
+      - run: uv run python scripts/check_repository.py
+      - run: uv run python scripts/audit_release.py
+      - run: uv export --frozen --no-hashes --no-emit-project --output-file local-security-requirements.txt
+      - run: uvx pip-audit -r local-security-requirements.txt --disable-pip --no-deps
+      - run: Remove-Item -LiteralPath local-security-requirements.txt
+      - run: npm --prefix frontend audit
+      - run: uv run python scripts/make_browser_fixtures.py
+      - working-directory: frontend
+        run: npx playwright install chromium
+      - run: npm --prefix frontend run e2e

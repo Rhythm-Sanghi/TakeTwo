@@ -1,6 +1,6 @@
 # Attribution and tool disclosure
 
-TakeTwo — Speech analysis workspace. Preserve notices in their original distributions and the exact per-item permission records. No source-code license has been selected in this repository; the rights owner must choose one before a code release claim. Do not apply a proposed code license to recordings or third-party resources.
+TakeTwo — Speech analysis workspace. Preserve notices in their original distributions and the exact per-item permission records. Original TakeTwo source code and associated project documentation are licensed under the [MIT License](../LICENSE), copyright (c) 2026 Rhythm Sanghi, as selected by the owner. This grant does not cover private recordings, datasets, consent/reviewer records, externally licensed model or dictionary files, third-party software, or the official Track C specification. Those materials retain their own rights and attribution requirements. No permission to redistribute private data is implied.
 
 ## Acquired audio
 
@@ -20,8 +20,10 @@ Report PDF generation uses ReportLab and pypdf from the external document-tool r
 
 ## Human direction and AI assistance
 
-The user directed the project scope, identity, standards and phase decisions. OpenAI Codex assisted with repository changes, architecture/scoring documentation, source-rights research, dataset/analysis/comparison/service/frontend implementation, generated signal tests, CPU/browser/recovery checks and this submission draft. No AI-generated speech, fabricated participant, permission, independent review or evaluation result is presented as genuine evidence. Generated tones/analytic arrays are explicitly software fixtures. The initial rubric is an engineering proposal and lacks independent human calibration. Human source selection, collection, consent, annotation, licensing and final submission decisions remain external work.
+The user directed the project scope, identity, standards and phase decisions. OpenAI Codex was extensively used for implementation, testing, integration and documentation, including repository changes, architecture/scoring documentation, source-rights research, dataset/analysis/comparison/service/frontend implementation, generated signal tests, CPU/browser/recovery checks and this submission draft. No AI-generated speech, fabricated participant, permission, independent review or evaluation result is presented as genuine evidence. Generated tones/analytic arrays are explicitly software fixtures. The initial rubric is an engineering proposal and lacks independent human calibration. Human source selection, collection, consent, annotation, licensing and final submission decisions remain external work.
 
 No paid inference API, CUDA dependency, cloud storage account or external analytics service is required for local processing. Public dataset/video hosting and release remain owner actions. Identify any additional tools used during recording/editing in the final video/report disclosure.
 
 The product stabilization pass used Codex for the import/pairing audit, versioned draft contracts, report persistence, progressive forms, launcher and regression/browser verification. The user supplied five private genuine practice recordings, their intended transcript and same-speaker assertion. No independent review, public-release permission or calibrated accuracy was inferred.
+
+ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Human participants supplied the genuine recordings. Independent human annotations are still required; passing AI-assisted software tests is not scientific validation. The intended Devpost Built With list includes both OpenAI Codex and ChatGPT.

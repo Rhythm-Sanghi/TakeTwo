@@ -10,7 +10,7 @@
 | Pydantic | 2.11.7 | Strict manifest/metadata validation and JSON Schema | MIT |
 | librosa | 0.11.0 | CPU phase-vocoder tempo and local pitch edits | ISC |
 | threadpoolctl | 3.7.0 | Explicitly limit BLAS threads for reproducible MFCCs and bounded CPU use; already present transitively | BSD-3-Clause |
-| pytest (development) | 8.4.1 | Automated verification | MIT |
+| pytest (development) | 9.0.3 | Automated verification | MIT |
 | Ruff (development) | 0.12.5 | Lint and format checks | MIT |
 | Hatchling (build) | 1.27.0 | Build/install the Python package and CLI | MIT |
 
@@ -26,7 +26,7 @@ Phase 2 also uses existing NumPy/SciPy/librosa for spectra, MFCC and pYIN, and P
 | --- | --- | --- |
 | FastAPI | 0.143.0 | Typed HTTP integration/OpenAPI; MIT |
 | Uvicorn | 0.42.0 | Loopback ASGI server; BSD-3-Clause |
-| python-multipart | 0.0.22 | Audio/JSON multipart import parsing; Apache-2.0 |
+| python-multipart | 0.0.31 | Audio/JSON multipart import parsing; Apache-2.0 |
 | httpx (development) | 0.28.1 | pytest ASGI HTTP client; BSD-3-Clause. Current Starlette warns that its TestClient is moving to httpx2; actual tests still pass |
 | React / React DOM | 19.3.0 | Stateful local browser workspace; MIT |
 | uPlot | 1.6.32 | Small maintained canvas time-series renderer with explicit null gaps/native axes; MIT |
@@ -39,3 +39,5 @@ Phase 2 also uses existing NumPy/SciPy/librosa for spectra, MFCC and pYIN, and P
 `frontend/package-lock.json` pins the full npm resolution/integrities. Runtime UI dependencies are only React, React DOM and uPlot; native HTML audio and a small measured-envelope canvas renderer avoid a second audio decoding/waveform dependency. No font CDN, UI framework, animation/icon library or remote inference client is added. The executed production bundle is recorded in [Phase 4 validation](phase4-validation.md), rather than estimating library marketing sizes.
 
 Selection references: [FastAPI heavy-computation guidance](https://fastapi.tiangolo.com/tutorial/background-tasks/), [uPlot's upstream project](https://github.com/leeoniya/uPlot), [Vite's maintained tooling guide](https://vite.dev/guide/). Versions were resolved and exercised in the actual local environment. FastAPI's locked transitive Starlette is 1.7.0; Python's existing acoustic dependency pins are unchanged. Preserve transitive notices before any standalone redistribution; the current launcher runs a local installed environment, not a bundled binary installer.
+
+Security maintenance (2026-10-13): python-multipart 0.0.31 addresses the upstream multipart header/preamble and parse-form advisories; pytest 9.0.3 addresses the tmpdir advisory. Acoustic dependencies and scientific policy are unchanged. See [multipart advisories](https://github.com/Kludex/python-multipart/security/advisories) and [pytest advisory](https://github.com/advisories/GHSA-6w46-j5rx-g56g).
