@@ -20,16 +20,18 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: uv sync --locked
+      - run: uv lock --check
+      - run: npm --prefix frontend ci
+      # Launcher/recovery tests start the complete application, including its UI.
+      - run: npm --prefix frontend run build
       - run: uv run ruff check src tests scripts
       - run: uv run ruff format --check src tests scripts
       - run: uv run pytest -q
       - run: uv build
-      - run: npm --prefix frontend ci
       - run: npm --prefix frontend run typecheck
       - run: npm --prefix frontend run lint
       - run: npx --prefix frontend prettier --check frontend/src frontend/tests frontend/*.ts frontend/package*.json
       - run: npm --prefix frontend test
-      - run: npm --prefix frontend run build
       - run: uv run python scripts/check_repository.py
       - run: uv run python scripts/audit_release.py
       - run: uv export --frozen --no-hashes --no-emit-project --output-file local-security-requirements.txt

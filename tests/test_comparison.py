@@ -1196,3 +1196,18 @@ def test_three_reviewers_cannot_form_transitive_timing_chain(pair_evidence):
             )
         ]
     assert consensus(reviews, "flaws")[1]
+
+
+def test_equal_quality_assignment_ties_are_stable():
+    from itertools import permutations
+
+    from taketwo.comparison.matching import assign
+
+    left, right = ["a", "b", "c"], ["x", "y", "z"]
+    expected = list(zip(left, right, strict=True))
+    for quality in (0.0, 0.5, 1.0):
+        edges = {(a, b): quality for a in left for b in right}
+        for _ in range(5):
+            for ls in permutations(left):
+                for rs in permutations(right):
+                    assert assign(ls, rs, dict(reversed(list(edges.items())))) == expected

@@ -2,10 +2,14 @@
 
 import json
 import os
+import re
 import socket
 import subprocess
 import sys
 import time
+from collections import deque
+from pathlib import Path
+from threading import Thread
 
 import httpx
 import pytest
@@ -28,31 +32,127 @@ def eventually(probe, timeout=30):
     raise AssertionError("Real process test deadline exceeded.")
 
 
-def launch(root):
+def sanitized_startup(text, root):
+    """Bound diagnostics and redact paths/credentials; never dump the environment."""
+    for value, replacement in (
+        (str(root), "<workspace>"),
+        (sys.executable, "<python>"),
+        (str(Path(__file__).resolve().parents[1]), "<repository>"),
+    ):
+        text = text.replace(value, replacement)
+    text = re.sub(r"(?<!\w)(?:[A-Za-z]:[\\/]|/home/|/Users/)[^\s\"']+", "<path>", text)
+    text = re.sub(
+        r"(?im)^([^\n]*(?:token|password|secret|authorization|cookie|key)\s*[:=]).*$",
+        r"\1 <redacted>",
+        text,
+    )
+    text = re.sub(r"\b[A-Za-z0-9_-]{32,}\b", "<redacted>", text)
+    return text[:8192]
+
+
+def launch(root, *, frontend=None, startup_timeout=30):
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
+    command = [
+        sys.executable,
+        "-c",
+        "import os,sys; from pathlib import Path; "
+        "Path(sys.argv[1]).write_text(str(os.getpid())); "
+        "sys.argv=sys.argv[1:]; from taketwo.web.cli import main; main()",
+        str(root / "service.pid"),
+        "--workspace",
+        str(root),
+        "--port",
+        str(port),
+    ]
+    if frontend is not None:
+        command.extend(["--frontend", str(frontend)])
     process = subprocess.Popen(
-        [
-            sys.executable,
-            "-c",
-            "import os,sys; from pathlib import Path; "
-            "Path(sys.argv[1]).write_text(str(os.getpid())); "
-            "sys.argv=sys.argv[1:]; from taketwo.web.cli import main; main()",
-            str(root / "service.pid"),
-            "--workspace",
-            str(root),
-            "--port",
-            str(port),
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
+    # Continuously drain the pipe without retaining unbounded output or blocking
+    # the child on a full pipe. Only the last eight 1 KiB chunks are retained.
+    output = deque(maxlen=8)
+
+    def drain():
+        with process.stdout:
+            for chunk in iter(lambda: process.stdout.read1(1024), b""):
+                output.append(chunk)
+
+    reader = Thread(target=drain, daemon=True)
+    reader.start()
     client = httpx.Client(base_url=f"http://127.0.0.1:{port}/api/v1", timeout=3)
-    eventually(lambda: client.get("/health").status_code == 200)
-    process.service_pid = int((root / "service.pid").read_text())
-    return process, client
+    deadline = time.monotonic() + startup_timeout
+    health_error = "Health endpoint not yet reached"
+    try:
+        while time.monotonic() < deadline:
+            if process.poll() is not None:
+                break
+            try:
+                response = client.get("/health")
+                if response.status_code == 200:
+                    process.service_pid = int((root / "service.pid").read_text())
+                    return process, client
+                health_error = f"HTTP {response.status_code}"
+            except httpx.HTTPError as exc:
+                health_error = f"{type(exc).__name__}: {exc}"
+            time.sleep(0.05)
+        running = process.poll() is None
+        exit_code = process.poll()
+        if not running:
+            reader.join(timeout=1)
+        diagnostic = sanitized_startup(
+            f"command={subprocess.list2cmdline(command)}\n"
+            f"exit_code={exit_code}, running={running}, "
+            f"timeout_s={startup_timeout}\nhealth={client.base_url}health: {health_error}\n"
+            "startup stdout/stderr:\n" + b"".join(output)[-6144:].decode("utf-8", errors="replace"),
+            root,
+        )
+        raise AssertionError(diagnostic)
+    except BaseException:
+        client.close()
+        if process.poll() is None:
+            # Startup failure owns this exact test process tree; no worker job
+            # has been submitted. Normal crash tests still kill only service_pid
+            # to verify the application's own kernel containment.
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                capture_output=True,
+                timeout=15,
+                check=False,
+            )
+            process.wait(timeout=15)
+        reader.join(timeout=5)
+        raise
+
+
+def test_service_startup_failure_reports_sanitized_diagnostics(tmp_path):
+    with pytest.raises(AssertionError) as captured:
+        launch(tmp_path, frontend=tmp_path / "intentionally-missing-build")
+    message = str(captured.value)
+    assert "Built interface missing" in message
+    assert "exit_code=2, running=False" in message
+    assert "timeout_s=30" in message and "/api/v1/health" in message
+    assert "--frontend" in message and "<workspace>" in message
+    assert str(tmp_path) not in message
+    assert not (tmp_path / "application.sqlite3").exists()
+
+
+def test_startup_diagnostics_are_bounded_and_redact_credentials(tmp_path):
+    token = "x" * 43
+    raw = f"{tmp_path}\nAuthorization: Bearer {token}\nreview_key=private-fixture\n"
+    sanitized = sanitized_startup(raw, tmp_path)
+    assert len(sanitized) <= 8192
+    assert token not in sanitized and "private-fixture" not in sanitized
+    assert str(tmp_path) not in sanitized
+    assert len(sanitized_startup("status okay\n" * 2000 + raw, tmp_path)) == 8192
+    assert "http://127.0.0.1:8765/api/v1/health" in sanitized_startup(
+        "http://127.0.0.1:8765/api/v1/health", tmp_path
+    )
 
 
 def worker(root):
