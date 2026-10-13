@@ -31,7 +31,7 @@ caught-deviation/spectrum demonstration.
 7. Review final 3-10 minute duration, source/model notices, accurate Codex/ChatGPT disclosure, audio intelligibility, privacy and public links. Owner approves the exact video/report before upload.
 8. After authorized YouTube upload, verify signed-out playback/duration, description links and source notices. Save the real URL/access date. Add only verified dataset/video links to README and submit manually before the organizer deadline.
 
-Current source baseline 35a1486 is public on master; its Actions run is red. New CI
-repairs and current report remain local until authorized. See [current evidence](ci-submission-validation.md).
+Public source baseline cd2abe9 on master passed Actions run 38357432224. Subsequent
+stabilization and the current report remain local until authorized. See [current evidence](stabilization-audit.md).
 No genuine independent approval, public paired dataset, caught-deviation video,
 YouTube URL or submission receipt has been manufactured.

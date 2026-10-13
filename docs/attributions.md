@@ -27,3 +27,8 @@ No paid inference API, CUDA dependency, cloud storage account or external analyt
 The product stabilization pass used Codex for the import/pairing audit, versioned draft contracts, report persistence, progressive forms, launcher and regression/browser verification. The user supplied five private genuine practice recordings, their intended transcript and same-speaker assertion. No independent review, public-release permission or calibrated accuracy was inferred.
 
 ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Human participants supplied the genuine recordings. Independent human annotations are still required; passing AI-assisted software tests is not scientific validation. The intended Devpost Built With list includes both OpenAI Codex and ChatGPT.
+
+The 13 October stabilization pass used Codex for audit, exact-inventory ground-truth
+resolution, regression tests, responsive selector repair, documentation reconciliation
+and the local report draft. These AI-assisted changes do not supply human reviewer
+independence, acoustic accuracy, consent or publication approval.

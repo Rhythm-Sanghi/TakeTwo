@@ -27,3 +27,17 @@ uv run python scripts/inspect_pitch.py --workspace $privateWorkspace --output .\
 ```
 
 The script reports raw/accepted coverage, quantiles, NaNs, jumps, levels, clipping, warnings and diagnostic runtime. It never publishes analysis features or modifies inputs. Initial diagnostic runtimes were 13.3–18.7 s per take under concurrent verification load (not isolated capacity benchmarks); the -20 dB control took 23.4 s. Raw diagnostic JSON is retained privately. Independent F0 accuracy, frame-wise confidence calibration and causal microphone/noise attribution remain open.
+
+## Stabilization recheck — 13 October 2026
+
+Reran the unchanged diagnostic on the authorized isolated five-take fixture copies.
+Accepted fractions reproduce the table: reference 0.596619%, natural 0.294792%,
+slow 0.616827%, uneven 0.511771%, near-perfect 0.283912%. The reference -20 dB
+control remains 0.596619%. Known 80/120/200/400 Hz controls again accept
+0/0/100/100%; all have 294 frames. Private diagnostic output is retained in
+`local-data/stabilization-pitch.json`; no audio or review evidence is published.
+Per-take diagnostic times were 6.96–12.33 s under mixed verification load, not
+a comparable before/after benchmark. No performance improvement is claimed.
+The previous window/range probes remain historical evidence; this recheck did not
+repeat them or establish genuine F0 accuracy. Close the implementation-defect
+hypothesis with the existing limitation and abstention, not a changed threshold.

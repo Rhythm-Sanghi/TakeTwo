@@ -1063,6 +1063,15 @@ export function App() {
               />
               <section className="panel">
                 <h2>Persisted evaluation runs</h2>
+                {evaluations.length > 0 && (
+                  <p className="notice">
+                    Stored runs preserve their original policy and metrics.
+                    Evaluations created before exact-inventory-v1 may depend on
+                    reviewer ordering. Recompute those runs with resolved
+                    independent reviews before using their metrics as current
+                    evidence; keep the original artifacts.
+                  </p>
+                )}
                 {!evaluations.length ? (
                   <p>
                     No evaluation results exist. Detection accuracy is

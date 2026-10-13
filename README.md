@@ -81,7 +81,7 @@ Acoustic agreement is not persuasion, emotion or speaking ability. `delivery-v0`
 
 The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf), its [archived source](docs/technical-report-2026-10-12.md), and the [current editable report](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
 
-Public paired dataset/video, public release verification and actual submission remain owner actions. The three audited repair commits are published on `master` at `35a1486`. Its first Windows Actions run failed three tests because the frontend had not yet been built. Current CI repairs and the regenerated report remain local pending fresh owner authorization; no dataset or video has been published. Private audio, model files, consent records, databases and runtime evidence are ignored.
+Public code is verified on `master` at `cd2abe9`: [Windows Actions run 38357432224 passed](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). The earlier failed build-order run remains historical evidence. The subsequent [stabilization audit](docs/stabilization-audit.md) corrects ground-truth selection and narrow-screen controls locally; these changes have not been pushed. Public paired dataset, final report approval, video and submission remain owner actions. Private audio, models, consent records, databases and runtime evidence stay outside releases.
 
 ## AI assistance
 
@@ -93,6 +93,6 @@ The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1â€
 
 Original TakeTwo code and project documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Private recordings, datasets, consent/reviewer records, external model files and third-party materials retain separate rights. See [attributions](docs/attributions.md); this license grants no private-data publication permission.
 
-Current repair evidence, native zoom results, scientific limitations and local-only release status are in the [final repair audit](docs/final-repair-audit.md). Windows CI is configured in `.github/workflows/ci.yml`; the published baseline run is red. See [CI repair and submission verification](docs/ci-submission-validation.md) for reproduced failures, current local evidence and remote status.
+Current verification and owner actions are in the [stabilization audit](docs/stabilization-audit.md). The [earlier repair audit](docs/final-repair-audit.md) preserves historical evidence. Windows CI is configured in `.github/workflows/ci.yml`; [CI and submission verification](docs/ci-submission-validation.md) distinguishes the successful public baseline from subsequent local work.
 
 Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.

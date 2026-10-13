@@ -16,7 +16,7 @@ Technology: Python 3.11, FastAPI/Uvicorn/Pydantic, NumPy/SciPy/librosa/soundfile
 
 | Artifact / action | Current state | Completion evidence required |
 | --- | --- | --- |
-| README/setup/architecture/contracts | Published baseline 35a1486; local CI repairs pending authorization | Owner-reviewed exact public release commit; signed-out setup/download check |
+| README/setup/architecture/contracts | Public cd2abe9 baseline has successful CI; subsequent stabilization local | Owner-reviewed exact public release commit; signed-out setup/download check |
 | Final compliance matrix | Prepared with open gates | Reconcile with actual submitted artifacts; retain incomplete rows |
 | Code license and notices | Owner selected MIT, copyright (c) 2026 Rhythm Sanghi | Root LICENSE added; private data and third-party resources retain separate rights |
 | Custom contrastive dataset | Blocked | Permitted audio, exact text, reviewed labels, spectrum, frozen groups, validation and public checksum audit |
@@ -25,7 +25,7 @@ Technology: Python 3.11, FastAPI/Uvicorn/Pydantic, NumPy/SciPy/librosa/soundfile
 | Clean second-environment reproduction | Incomplete | Actual setup/replay hashes and decision comparison |
 | Technical report, maximum six pages | Current source reconciled; new local owner-review PDF, historical PDF retained | Final evidence reconciliation, page-count/content/visual audit |
 | YouTube, 3–10 minutes | Script prepared; video absent | Actual recording, owner-approved upload, signed-out playback/duration |
-| GitHub code/documentation link | Three audited commits public on master; baseline CI red, new repairs local | Public release commit verified after authorization |
+| GitHub code/documentation link | Public master cd2abe9; run 38357432224 passed; new stabilization local | Publish only after authorization, then verify that exact new commit |
 | Public dataset link in README | Absent | Actual permitted public GitHub/Google Drive download and checksums |
 | Devpost fields/attachments | Draft only | Owner verifies portal/rules/deadline/timezone and uploads actual artifacts |
 | Submission receipt | Absent | Actual owner submission confirmation |

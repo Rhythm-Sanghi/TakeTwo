@@ -1,12 +1,12 @@
 # Track C submission compliance
 
-Current status (2026-10-13): audited source commits are public on master at 35a1486; the first Actions run failed three build-prerequisite tests. Current CI repairs remain local pending fresh push authorization. Five private practice takes have no independent approvals/public consent. See [current verification and deliverable gates](ci-submission-validation.md). Dated phase evidence below remains historical.
+Current status (2026-10-13): public master cd2abe9 passed [Windows Actions run 38357432224](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). Subsequent ground-truth and responsive repairs remain local. Five private practice takes have no independent approvals/public consent. See [stabilization evidence](stabilization-audit.md) and [CI history](ci-submission-validation.md). Dated phase evidence below remains historical.
 
 ## Current official deliverables
 
 | Deliverable | Status | Exact evidence / remaining action |
 | --- | --- | --- |
-| Public GitHub code/documentation | Incomplete: technical verification | master at 35a1486 is public; run 38350507487 failed three tests. Local repairs await authorized push and full green Actions |
+| Public GitHub code/documentation | VERIFIED: public baseline; INCOMPLETE: later release | master cd2abe9 passed run 38357432224. Subsequent local repairs require authorized push and their own Actions verification |
 | Public paired dataset/text/alignment labels | Blocked by human action | Five private unreviewed practice takes and JFK candidates exist; no approved release corpus/download URL |
 | Interactive prototype | Incomplete: human acceptance | Five functional areas and genuine automatic processing verified; independent eligible pair/region demonstration and spoken accessibility remain open |
 | Technical document <=6 pages | Incomplete: owner approval | Current six-page PDF rendered and visually inspected locally; ignored by Git, source updated, historical source/PDF preserved |

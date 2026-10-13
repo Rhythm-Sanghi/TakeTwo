@@ -80,6 +80,13 @@ Save code/lock/model/config/data/review/report hashes, commands, exit codes, har
 
 ## Current technical-report draft
 
+Evaluation uses [exact-inventory-v1](comparison-engine.md): supply all original
+flaw reviews and same-author revisions, not only a preferred review. Reconstruct
+canonical labels from exact numerical agreement; unresolved temporal differences
+withhold metrics. Preserve historical first-review evaluations without relabeling
+them as current-policy results. The [stabilization audit](stabilization-audit.md)
+records public baseline CI separately from subsequent local verification.
+
 Use a separate ReportLab document-tool environment on Windows; do not add authoring packages to TakeTwo runtime dependencies. Run `python scripts/build_submission_report.py --date "13 OCT 2026"`. It renders current `docs/technical-report.md` to the Git-ignored owner-review file `output/pdf/taketwo-technical-report-current.pdf`, enforces six pages and rejects the historical PDF destination. Render/inspect every page before delivery. The archived source and historical PDF stay unchanged. A later public report release requires explicit owner approval; do not force-add this draft.
 
 Source archives use an explicit Hatch manifest; after building, `scripts/audit_release.py --packages` also rejects unsafe wheel/sdist members. The wheel is API/CLI only; frontend source is preserved in the sdist for `npm ci`/build. LF checkouts are enforced by Git attributes. Old artifacts with differing byte-based source hashes require explicit recomputation; preserve originals rather than rewriting provenance.

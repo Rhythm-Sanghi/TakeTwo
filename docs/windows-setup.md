@@ -43,6 +43,19 @@ The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/sta
 
 ## Verification
 
+Unexpected CPU-worker failures retain a bounded private traceback under
+`.diagnostics/<job-id>.log` in the selected workspace (maximum 32 KiB per failure).
+The API retains a redacted diagnostic; no HTTP route exposes the private trace.
+Traces can contain private paths/input details, so keep them out of public releases
+and issue attachments until reviewed. If storage prevents log retention, the
+original processing error remains unchanged. Existing logs are not overwritten.
+
+The stabilization native smoke passed in a fresh short temporary workspace with
+the original 180-second alignment config; earlier longer-workspace attempts timed
+out or raised a permission error. This is a reproducible test setup to try, not a
+proven path-length fix. Preserve original data/drafts and their hashes; do not
+migrate them silently. See [full execution evidence](stabilization-audit.md).
+
 The [recording guide](recording-import-guide.md) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
 
 Optional private pilot acceptance uses the explicit private fixture kit and `TAKETWO_TEST_ALIGNMENT_CONFIG` described in [browser testing](browser-testing.md); set `TAKETWO_PILOT_SMOKE=1` only after preparing those authorized inputs. It performs no public release or human approval. Native zoom uses an isolated profile; a host launch failure is unverified. Spoken screen-reader testing remains separate.

@@ -46,7 +46,7 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 
 | ID / source p2 | Deliverable | Component / phase | Acceptance criterion | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public master verified at 35a1486; repair CI pending authorized push | Published code; CI verification incomplete |
+| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public master cd2abe9 passed Actions run 38357432224; later stabilization remains local | VERIFIED public baseline; later release incomplete |
 | D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Planned |
 | D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
 | D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | PDF page count and visual/content review | Planned |
