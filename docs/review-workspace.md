@@ -58,3 +58,15 @@ The five private same-speaker takes remain genuine recordings, unverified ground
 6. Have an actual person verify keyboard use, spoken screen-reader announcements and native 200% browser zoom. Software interaction checks do not close those human gates.
 
 No rights clearance, independent review, real accuracy, calibration, held-out evaluation or public release is implied by having two session records.
+
+## Exact ground truth before evaluation
+
+Semantic listening agreement can tolerate 200 ms while changing detection matches.
+`exact-inventory-v1` therefore requires identical numerical flaw inventories before
+authoritative evaluation. The operator inventory and adjudication status show
+boundary differences as awaiting reviewer revisions. Each original reviewer must
+independently revisit the evidence and submit an explicit superseding review;
+retain the old submissions and decision history. Compare category, severity,
+uncertainty and exact interval/anchor values; IDs and independent wording may differ.
+An operator's preferred interval or explanation cannot manufacture agreement.
+See [evaluation policy and compatibility](comparison-engine.md).

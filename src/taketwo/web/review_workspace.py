@@ -17,7 +17,7 @@ from fastapi import HTTPException
 from taketwo.analysis.contracts import AlignmentResult
 from taketwo.analysis.storage import read_artifact, recording_input, validate_identity
 from taketwo.comparison.contracts import Review, Span
-from taketwo.comparison.reviews import active_reviews, consensus, validate_review
+from taketwo.comparison.reviews import active_reviews, consensus, resolved_flaws, validate_review
 from taketwo.comparison.storage import publish
 from taketwo.comparison.storage import read_artifact as read_review
 from taketwo.dataset.schema import canonical_json, content_hash, tokenize
@@ -564,6 +564,8 @@ class ReviewWorkspace:
         disagreements = []
         for (rid, scope), reviews in groups.items():
             _, reason = consensus(reviews, scope)
+            if scope == "flaws" and reason is None:
+                _, reason = resolved_flaws(reviews)
             for review in reviews:
                 try:
                     self.review_binding(review)
@@ -613,6 +615,8 @@ class ReviewWorkspace:
                 "Adjudication must name distinct submitted reviews of one subject/scope."
             )
         _, issue = consensus(selected, decision.scope)
+        if decision.scope == "flaws" and issue is None:
+            _, issue = resolved_flaws(selected)
         payload = {
             "id": "ad-" + secrets.token_hex(12),
             "created_at": now(),

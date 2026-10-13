@@ -2,6 +2,11 @@
 
 Status: `delivery-v0` is implemented in Phase 3 with initial, uncalibrated tolerances; it must be calibrated and frozen before held-out evaluation. All numerical tolerances below are initial engineering hypotheses, not validated perceptual limits. The official judging weights assess the project; they are unrelated to this delivery rubric.
 
+Evaluation ground truth is separate from delivery scoring. The
+[exact-inventory-v1 policy](comparison-engine.md) withholds metrics when independent
+flaw boundaries differ, even within semantic listening tolerance. It changes no
+delivery-v0 weight, threshold, acoustic feature or detector output.
+
 ## Interpretation and coordinate system
 
 Controlled local-reference support changes only permitted genuine input context: a self-recorded reference with explicit consent/rationale can be compared under the same rights, transcript, timing, quality and coverage gates. It is not an official effective-public-speaker baseline. `delivery-v0`, all dimensions, thresholds, formulas and uncertainty/abstention rules remain unchanged. Unlabeled acquisition intent is null and never contributes a human severity label or a perfect score.

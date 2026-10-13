@@ -93,4 +93,25 @@ Outputs include precision/recall/F1, matched median/p90 absolute boundary errors
 
 Family bootstrap uses 1,000 seeded resamples, percentile 95% intervals and explicit undefined-resample counts. It cannot establish generalization with a tiny corpus. `software_fixture` deliberately bypasses corpus split requirements for isolated integration checks, always disclaims independent real validation and cannot satisfy the human evaluation gate. No such bypass is used for the genuine recording.
 
-No result schema was changed. Evaluation limitations name matching-v2/semantic-v2 and the stable lowest-review-ID representative-label policy; every source review hash remains recorded. Comparison implementation hashes change with these corrections. Old artifacts stay immutable; recompute with cached Phase 2 inputs rather than treating historical metrics as current.
+Ground truth uses `exact-inventory-v1`. Semantic-v2 is a listening-agreement screen,
+not permission to choose one person's boundaries. Every active independent approved
+review must agree on the exact multiset of category, severity, uncertainty and
+interval/anchor values. IDs, prose and label/list ordering are excluded from this
+numerical comparison. Even tolerated boundary differences withhold all aggregate
+metrics with `ground_truth_unresolved`; they can change matching, boundary errors
+or clean-time denominators. This deliberately abstains more often than semantic-v2.
+No labels are averaged and no operator explanation creates agreement.
+
+Canonical evaluation labels use IDs derived from policy, pair, numerical content
+and sorted occurrence index (including duplicate identical labels). All independent
+review hashes, including superseded records, remain in the evaluation. Reconstruct
+the canonical inventory with `resolved_flaws` from those originals. Rationale stays
+in the source reviews; canonical rationale points to them. Explicit same-author
+superseding reviews resolve disagreements; adjudication history remains separate.
+Empty agreed inventories are valid; undefined metric denominators stay null.
+
+Review/Evaluation v1 shapes remain compatible. The policy version is explicit in
+evaluation limitations and the source implementation digest changes. Historical
+artifacts remain readable and immutable; historical first-review metrics are not
+current-policy results. Recompute comparisons using cached Phase 2 inputs, then
+evaluate retained reviews. Never patch old artifacts or their hashes.

@@ -351,6 +351,66 @@ def test_adjudication_preserves_disagreement_and_eligibility(workspace, monkeypa
     assert ws.inventory()["decisions"][0] == decision
 
 
+def test_flaw_adjudication_cannot_resolve_boundary_sensitive_truth(workspace):
+    from taketwo.comparison.contracts import Label, Span
+    from taketwo.comparison.storage import publish
+    from taketwo.web.review_contracts import Adjudication
+
+    ws, recording = workspace
+    _, _, provenance = recording_input(ws.root, recording.id)
+    reviews = [
+        Review(
+            id=f"fixture-review-{i}",
+            reviewer_id=f"fixture-reviewer-{i}",
+            scope="flaws",
+            provenance=provenance,
+            pair_id="fixture-pair",
+            reviewed_on="2026-10-13",
+            independent=True,
+            blinded_to_predictions=True,
+            decision="approved",
+            notes="Software fixture only",
+            evidence_reference="pytest generated signal",
+            reviewed_spans=[Span(start_s=0, end_s=2)],
+            labels=[
+                Label(
+                    id=f"fixture-label-{i}",
+                    category="pacing",
+                    severity=1,
+                    interval=Span(start_s=0.2 * i, end_s=1 + 0.2 * i),
+                    rationale="Fixture only",
+                )
+            ],
+        )
+        for i in range(2)
+    ]
+    for review in reviews:
+        publish(ws.root, review)
+    assert consensus(reviews, "flaws")[1] is None
+    assert "boundaries differ" in ws.inventory()["disagreements"][0]["issue"]
+    decision = ws.adjudicate(
+        Adjudication(
+            recording_id=recording.id,
+            scope="flaws",
+            review_ids=[r.id for r in reviews],
+            adjudicator_id="fixture-operator",
+            explanation="Fixture boundary discussion",
+            resolution="Operator prefers first interval; this cannot create independent agreement.",
+        )
+    )
+    assert decision["status"] == "awaiting_reviewer_revisions"
+    assert sorted(ws.reviews(), key=lambda r: r.id) == reviews
+    revised = reviews[1].model_copy(
+        deep=True, update={"id": "revision", "supersedes": reviews[1].id}
+    )
+    revised.labels = [reviews[0].labels[0].model_copy(update={"id": "fixture-revised-label"})]
+    publish(ws.root, revised)
+    restarted = ReviewWorkspace(ws.root, ws.jobs)
+    assert restarted.inventory()["disagreements"][0]["issue"] is None
+    assert restarted.inventory()["decisions"][0] == decision
+    assert len(restarted.reviews()) == 3
+
+
 def test_seek_jumps_and_integrity_rejected(workspace):
     ws, recording = workspace
     grant = ws.create(

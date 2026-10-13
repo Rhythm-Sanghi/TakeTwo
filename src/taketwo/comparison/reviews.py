@@ -1,13 +1,14 @@
 """Explicit human assertions, retained separately from automatic alignment and labels."""
 
+import json
 from itertools import combinations
 
 import numpy as np
 
 from taketwo.analysis.contracts import AlignmentResult, Interval
-from taketwo.dataset.schema import Recording, content_hash, tokenize
+from taketwo.dataset.schema import Recording, canonical_json, content_hash, tokenize
 
-from .contracts import Review
+from .contracts import Label, Review
 from .matching import assign
 
 
@@ -174,6 +175,53 @@ def consensus(reviews: list[Review], scope: str) -> tuple[list[Review], str | No
         if any(not flaw_agreement(a, b) for a, b in combinations(selected, 2)):
             return [], "Flaw inventories or coverage disagree; revise or adjudicate explicitly."
     return selected, None
+
+
+GROUND_TRUTH_POLICY = "exact-inventory-v1"
+
+
+def resolved_flaws(reviews: list[Review]) -> tuple[list[Label], str | None]:
+    """Resolve exact numerical agreement without choosing or averaging a reviewer.
+
+    Semantic-v2 remains a listening-agreement screen. Even sub-tolerance temporal
+    differences change boundary errors, clean time or threshold-sensitive matches.
+    Require explicit same-author revisions until numerical multisets agree. IDs
+    and prose remain in immutable source reviews, never matching tie breakers.
+    The derived labels are reproducible from the evaluation's retained reviews.
+    """
+    accepted, issue = consensus(reviews, "flaws")
+    if issue:
+        return [], issue
+
+    def inventory(review):
+        return sorted(
+            canonical_json(label.model_dump(mode="json", exclude={"id", "rationale"}))
+            for label in review.labels
+        )
+
+    agreed = inventory(accepted[0])
+    if any(inventory(review) != agreed for review in accepted[1:]):
+        return [], (
+            "Independent flaw reviews agree within listening tolerance but their exact "
+            "boundaries differ. Evaluation is withheld until reviewers submit explicit "
+            "superseding reviews with the same numerical labels. An adjudication note "
+            "alone cannot resolve ground truth."
+        )
+    # Occurrence disambiguates repeated identical labels without depending on source IDs.
+    labels = [
+        Label.model_validate_json(
+            canonical_json(
+                {
+                    **json.loads(value),
+                    "id": "gt-"
+                    + content_hash([GROUND_TRUTH_POLICY, accepted[0].pair_id, value, i]),
+                    "rationale": "Exact numerical agreement; see independent review hashes.",
+                }
+            )
+        )
+        for i, value in enumerate(agreed)
+    ]
+    return labels, None
 
 
 def reviewed_timing(

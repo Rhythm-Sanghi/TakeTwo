@@ -39,6 +39,14 @@ Store originals, normalized audio, per-recording alignment JSON, versioned featu
 
 Manual timing/phrase reviews are separate immutable assertions bound to original automatic alignments. Two independent agreeing reviews are required for grounded comparison; manual boundaries never overwrite the machine artifact. The existing verified-transcript gate remains intact. Full support coverage, local clipping and pitch masks operate per region/dimension. Missing mirrors/reviews yield a valid abstention artifact with null scores, not a simulated report. Numeric evidence can still be inspected independently.
 
+Authoritative flaw evaluation additionally uses `exact-inventory-v1`, described in
+[comparison tools](comparison-engine.md). Semantic listening tolerance is not a
+canonical boundary-selection rule. Exact numerical inventories must agree before
+content-derived evaluation labels can be used; otherwise metrics are withheld
+until explicit same-author revisions. Review inventory and separate adjudication
+display the same unresolved state. Original reviews and historical evaluations
+remain immutable; schema v1 and all acoustic/delivery rules are preserved.
+
 The [comparison schema](comparison-schema-v1.json) defines `Report`, `Review` and `Evaluation`; Phase 4 API/UI adapters must use these contracts. Keep proposed HTTP lifecycle errors separate from scientific abstention and display boundary events without invented intervals. API/database/frontend remained outside Phase 3; Phase 4 adapts these contracts without modifying the engines. Full details and commands are in [the technical guide](comparison-engine.md).
 
 ## Recording-to-report workflow

@@ -9,7 +9,7 @@ from taketwo.dataset.splits import connected_groups, make_split
 from .contracts import Evaluation, EvaluationConfig, Label, Match, Metrics, Region, Report, Review
 from .eligibility import DIMENSIONS, decision, reason
 from .matching import assign
-from .reviews import consensus, validate_review
+from .reviews import GROUND_TRUTH_POLICY, consensus, resolved_flaws, validate_review
 
 
 def iou(left, right):
@@ -142,7 +142,8 @@ def evaluate(
         limitations=[
             "matching-v2: maximum cardinality, then total IoU/event quality; "
             "ID-sorted SciPy assignment ties. Flaw consensus uses semantic-v2; "
-            "the lowest review ID supplies representative labels; all review hashes are retained.",
+            f"ground truth uses {GROUND_TRUTH_POLICY}: exact numerical inventories, "
+            "pair/content-derived label IDs, no temporal averaging; all review hashes retained.",
             "Temporal/category agreement does not establish rhetorical quality "
             "or causal human explanations.",
             "Small-family bootstrap intervals are descriptive, not population guarantees.",
@@ -239,7 +240,10 @@ def evaluate(
             )
             continue
         local_predictions = report.regions
-        local_labels = accepted[0].labels
+        local_labels, resolution_issue = resolved_flaws(selected)
+        if resolution_issue:
+            issues.append(reason("ground_truth_unresolved", f"{pair.id}: {resolution_issue}"))
+            continue
         if any(
             report.feature_eligibility[label.category].state != "ELIGIBLE" for label in local_labels
         ):

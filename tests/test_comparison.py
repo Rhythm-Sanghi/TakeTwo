@@ -36,7 +36,7 @@ from taketwo.comparison.contracts import (
 )
 from taketwo.comparison.engine import Evidence, compare, frame_values
 from taketwo.comparison.evaluation import evaluate, iou, match_regions, metrics
-from taketwo.comparison.reviews import active_reviews, consensus, validate_review
+from taketwo.comparison.reviews import active_reviews, consensus, resolved_flaws, validate_review
 from taketwo.comparison.storage import implementation_hash, publish, read_artifact, reproduce
 from taketwo.dataset.audio import sha256
 from taketwo.dataset.schema import (
@@ -1211,3 +1211,205 @@ def test_equal_quality_assignment_ties_are_stable():
             for ls in permutations(left):
                 for rs in permutations(right):
                     assert assign(ls, rs, dict(reversed(list(edges.items())))) == expected
+
+
+def test_boundary_sensitive_ground_truth_requires_reviewer_resolution(pair_evidence):
+    dataset, report, reviews = eval_inputs(pair_evidence)
+    prediction = predicted_region(pair_evidence).model_copy(
+        update={"category": "pacing", "participant_interval": Span(start_s=0, end_s=0.5)}
+    )
+    report.regions = [prediction]
+    for index, review in enumerate(reviews):
+        review.labels = [
+            Label(
+                id=f"fixture-label-{index}",
+                category="pacing",
+                severity=1,
+                interval=Span(start_s=0.2 * index, end_s=1 + 0.2 * index),
+                rationale="Software fixture; no human review claimed",
+            )
+        ]
+    assert consensus(reviews, "flaws")[1] is None
+    cfg = EvaluationConfig(mode="software_fixture")
+    assert len(match_regions([prediction], reviews[0].labels, cfg)[0]) == 1
+    assert not match_regions([prediction], reviews[1].labels, cfg)[0]
+    originals = copy.deepcopy(reviews)
+    for ordered in (reviews, list(reversed(reviews))):
+        result = evaluate(dataset, [report], ordered, cfg, HASH)
+        assert result.metrics is None
+        assert any(r.code == "ground_truth_unresolved" for r in result.eligibility.reasons)
+    reviews[0].id, reviews[1].id = reviews[1].id, reviews[0].id
+    assert evaluate(dataset, [report], reviews, cfg, HASH).metrics is None
+    assert [r.labels for r in reviews] == [r.labels for r in originals]
+
+
+@pytest.mark.parametrize("count", [0, 1, 3])
+def test_ground_truth_content_invariance_and_restart(pair_evidence, tmp_path, count):
+    from itertools import permutations
+
+    dataset, report, reviews = eval_inputs(pair_evidence)
+    reviews.append(reviews[0].model_copy(deep=True, update={"id": "third", "reviewer_id": "third"}))
+    for reviewer, review in enumerate(reviews):
+        review.labels = [
+            Label(
+                id=f"fixture-{reviewer}-{i}",
+                category="pacing",
+                severity=i % 3 + 1,
+                interval=Span(start_s=i, end_s=i + 0.75),
+                uncertainty_s=0.1,
+                rationale=f"Independent fixture wording {reviewer}; not human evidence",
+            )
+            for i in range(count)
+        ]
+    if count:
+        base = predicted_region(pair_evidence)
+        report.regions = [
+            base.model_copy(
+                update={
+                    "id": f"prediction-{i}",
+                    "category": "pacing",
+                    "observation_ids": [report.observations[0].id],
+                    "participant_interval": Span(start_s=i, end_s=i + 0.75),
+                }
+            )
+            for i in range(count)
+        ]
+        report.regions.append(report.regions[0].model_copy(update={"id": "overlapping-extra"}))
+    original_hashes = sorted(content_hash(r.model_dump(mode="json")) for r in reviews)
+    cfg = EvaluationConfig(mode="software_fixture")
+    expected = evaluate(dataset, [report], reviews, cfg, HASH)
+    expected_labels, issue = resolved_flaws(reviews)
+    assert issue is None
+    for ordered in permutations(reviews):
+        assert evaluate(dataset, [report], list(ordered), cfg, HASH) == expected
+    for i, review in enumerate(reviews):
+        review.id = f"renamed-{2 - i}"
+        review.reviewer_id = f"fixture-renamed-{i}"
+        review.labels.reverse()
+        for j, label in enumerate(review.labels):
+            label.id = f"renamed-label-{i}-{j}"
+    assert resolved_flaws(reviews) == (expected_labels, None)
+    result = evaluate(dataset, [report], reviews, cfg, HASH)
+    assert result.metrics == expected.metrics
+    assert result.matches == expected.matches
+    assert len(result.matches) == count
+    assert result.false_negative_ids == expected.false_negative_ids
+    assert result.clean_reviewed_duration_s == expected.clean_reviewed_duration_s
+    assert result.review_sha256 != original_hashes  # Identity changes remain in provenance.
+    paths = [publish(tmp_path, r) for r in reviews]
+    evaluation_path = publish(tmp_path, result)
+    # Fresh interpreter reproduces from persisted inputs, not process state or caches.
+    payload = tmp_path / "inputs.json"
+    payload.write_text(
+        canonical_json(
+            {
+                "dataset": dataset.model_dump(mode="json"),
+                "report": report.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+    code = """
+import json, sys
+from pathlib import Path
+from taketwo.dataset.schema import Dataset
+from taketwo.comparison.contracts import Report, EvaluationConfig
+from taketwo.comparison.evaluation import evaluate
+from taketwo.comparison.storage import read_artifact
+data = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+actual = evaluate(Dataset.model_validate_json(json.dumps(data['dataset'])),
+    [Report.model_validate_json(json.dumps(data['report']))],
+    [read_artifact(Path(p)) for p in sys.argv[3:]],
+    EvaluationConfig(mode='software_fixture'), '0'*64)
+assert actual == read_artifact(Path(sys.argv[2]))
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code, str(payload), str(evaluation_path), *map(str, paths)],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert completed.returncode == 0, completed.stderr
+    envelope = json.loads(paths[0].read_text(encoding="utf-8"))
+    envelope["result"]["notes"] += " tampered"
+    paths[0].write_text(canonical_json(envelope), encoding="utf-8")
+    with pytest.raises(ValueError, match="content hash"):
+        read_artifact(paths[0])
+
+
+@pytest.mark.parametrize(
+    "difference", ["interval", "anchor", "category", "severity", "uncertainty"]
+)
+def test_exact_ground_truth_abstention_and_explicit_revision(pair_evidence, difference):
+    dataset, report, reviews = eval_inputs(pair_evidence)
+    label = Label(
+        id="fixture-a",
+        category="pacing",
+        severity=1,
+        interval=Span(start_s=0, end_s=1),
+        rationale="Software fixture only",
+    )
+    if difference == "anchor":
+        label.category, label.interval, label.anchor_s = "pause_behavior", None, 1.0
+    for review in reviews:
+        review.labels = [label.model_copy(deep=True)]
+    other = reviews[1].labels[0]
+    if difference == "interval":
+        other.interval = Span(start_s=0.01, end_s=1.01)
+    elif difference == "anchor":
+        other.anchor_s = 1.01
+    elif difference == "category":
+        other.category = "energy_variation"
+    elif difference == "severity":
+        other.severity = 2
+    else:
+        other.uncertainty_s = 0.0  # Unknown and explicitly zero are different.
+    cfg = EvaluationConfig(mode="software_fixture")
+    assert evaluate(dataset, [report], reviews, cfg, HASH).metrics is None
+    originals = copy.deepcopy(reviews)
+    revised = reviews[1].model_copy(
+        deep=True, update={"id": "revision", "supersedes": reviews[1].id}
+    )
+    revised.labels = [label.model_copy(deep=True, update={"id": "fixture-revision"})]
+    result = evaluate(dataset, [report], [revised, *reviews], cfg, HASH)
+    assert result.metrics is not None
+    assert len(result.review_sha256) == 3
+    assert reviews == originals
+    duplicate_author = revised.model_copy(update={"id": "forked-revision"})
+    assert (
+        evaluate(dataset, [report], [*reviews, revised, duplicate_author], cfg, HASH).metrics
+        is None
+    )
+
+
+@pytest.mark.parametrize("threshold,expected_tp", [(0.5, 1), (np.nextafter(0.5, 1.0), 0)])
+def test_resolved_ground_truth_threshold_edge(pair_evidence, threshold, expected_tp):
+    dataset, report, reviews = eval_inputs(pair_evidence)
+    report.regions = [
+        predicted_region(pair_evidence).model_copy(
+            update={
+                "category": "pacing",
+                "participant_interval": Span(start_s=0, end_s=0.5),
+            }
+        )
+    ]
+    for review in reviews:
+        review.labels = [
+            Label(
+                id=review.id,
+                category="pacing",
+                severity=1,
+                interval=Span(start_s=0, end_s=1),
+                rationale="Software fixture only",
+            )
+        ]
+    result = evaluate(
+        dataset,
+        [report],
+        reviews,
+        EvaluationConfig(mode="software_fixture", iou_threshold=threshold),
+        HASH,
+    )
+    assert result.metrics.true_positive == expected_tp
+    assert result.metrics.false_positive == 1 - expected_tp
+    assert result.metrics.false_negative == 1 - expected_tp
