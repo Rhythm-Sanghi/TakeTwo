@@ -39,3 +39,5 @@ structure, scope-specific review navigation, bounded interval playback, interfac
 state fixtures, browser/print verification and documentation. Route-only eligible
 UI fixtures and automated tone reviews are software acceptance evidence, not human
 speech findings, genuine reviewer approvals or accuracy measurements.
+
+The 14 October mobile refinement used Codex for collection placement, native workspace navigation, persistent audio-track switching, compact review/rubric/readiness flows, regression tests and isolated browser/PDF checks. Private recordings and scientific policies were preserved; automated acceptance supplies no independent human review.

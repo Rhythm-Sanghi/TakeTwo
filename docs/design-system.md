@@ -24,7 +24,7 @@ Tokens are starting choices. Verify actual foreground/background combinations to
 
 ## Workspace structure
 
-Use a compact top bar with name, description, active pair and actual processing state. Main content has a 220-260 px recording library and a result area followed by paired native timelines. The inspector is a secondary disclosure below the evidence tools. Timelines stack below 1250 px; below 800 px the library uses compact horizontal lists. Maintain readable minimum content widths and local chart scrolling rather than shrinking text.
+Use a compact top bar with name, description, active pair and actual processing state. Keep the full collection/history only in Recording Library, with a 260 px collection column on desktop and a vertical list below 800 px. Other pages begin with their task and concise comparison context. The inspector is a secondary disclosure below the evidence tools. Timelines pair where space permits; at 800 px and below, explicit track buttons switch between mounted native timelines, pausing playback while retaining each cursor and selection. Below 600 px a labeled native workspace selector replaces the desktop navigation row. Maintain readable minimum content widths and local chart scrolling rather than shrinking text.
 
 Connected views: recording library/import, pair comparison, selected-region inspector, rubric, evaluation runs and export. Start the user with import/select-reference actions and supported formats. Empty lists contain no sample users, fabricated analyses or decorative metrics. Evaluation charts exist only after actual evaluation runs.
 

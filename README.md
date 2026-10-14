@@ -98,3 +98,5 @@ Original TakeTwo code and project documentation use the [MIT License](LICENSE), 
 Current verification and owner actions are in the [stabilization audit](docs/stabilization-audit.md). The [earlier repair audit](docs/final-repair-audit.md) preserves historical evidence. Windows CI is configured in `.github/workflows/ci.yml`; [CI and submission verification](docs/ci-submission-validation.md) distinguishes the successful public baseline from subsequent local work.
 
 Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.
+
+See the [mobile refinement audit](docs/mobile-refinement-audit.md) for compact navigation, task-first layouts, persistent track selection and executed responsive/print verification.
