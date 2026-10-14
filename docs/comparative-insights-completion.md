@@ -191,7 +191,7 @@ claimed; these remain operational limitations, not suppressed logs.
 Earlier attempts are not hidden: first genuine suite **2 passed / 1 failed / 0 skipped**;
 after timeout-harness correction and isolated execution **3 passed / 0 failed / 0 skipped**.
 One intermediate frontend run had 58 passed / 1 failed due to a misencoded test literal;
-the literal was corrected and the expanded current suite passes 60. A read-only export
+the literal was corrected and the expanded current suite passes 62. A read-only export
 verification script initially called HTTPX's text property as a function; corrected
 verification then checked the complete raw CSV and envelope. No product assertion
 was removed or skipped to pass.
