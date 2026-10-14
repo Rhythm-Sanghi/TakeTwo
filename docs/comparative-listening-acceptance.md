@@ -38,7 +38,44 @@ support. Check audible words and alignment/transcript correspondence. Activity
 can include noise; do not assume a pause, speech, incorrect pronunciation or a
 proven alignment error. Fresh runs must use their own actual reported intervals.
 
-## Review form
+## Guided session order
+
+Work through one test at a time with the facilitator. Before advancing, the listener
+reports audible content, usefulness and transport problems in their own words. Keep
+the actual wording; separate any facilitator interpretation from the observation.
+An unanswered test remains pending. Preparation or automatic playback is not a result.
+
+1. **Uneven alignment anomaly.** Replay the existing `technology` → `is` card in
+   reference / participant / reference order at unchanged comfortable volume. Describe
+   the words and sounds inside the participant interval before classifying it. Check
+   each native start/end and whether a bounding word is clipped. The 2.890 s machine
+   gap and zero low-energy support do not prescribe what the listener should hear.
+2. **Gap before `helps`.** Use that card's actual native intervals. Compare the
+   transition into the word; report an audible difference or uncertainty, and whether
+   assigned boundaries make the comparison understandable. Timing alone is not hesitation.
+3. **Gap before `a`.** Check both clips, including the very short participant interval.
+   Report if the bounded replay is technically correct but too short to interpret.
+   Inspect surrounding recording context separately; do not silently change the finding's bounds.
+4. **Energy observations.** Open an actual grouped observation and replay its native
+   interval. Describe any audible level change and whether the explanation is useful.
+   These are within-recording changes; they do not establish cross-take emphasis or cause.
+5. **Transport.** Switch tracks while one is playing, replay the same selection twice,
+   then return to the complete recording. Report overlapping audio, missing sound,
+   incorrect cursor/bounds, a lingering stop boundary or unexpected speed changes.
+6. **Other participant takes.** Repeat on `natural.wav`, `slow.wav` and `near-perfect.wav`
+   using each completed analysis's actual selected observations and native intervals.
+   Recording titles do not establish performance quality. Missing analysis or absent
+   categories must be recorded as such; never invent a corresponding finding.
+
+Classify **after** collecting observations: useful comparison, possible machine-alignment
+problem, technically correct but not useful, misleading explanation, playback problem,
+or inconclusive. Multiple categories may apply. A usability report of an alignment
+problem does not become independent reviewed timing or scientific ground truth.
+For a suspected defect, retain the exact card/job, control sequence, expected/observed
+behaviour and repeat outcome. Reproduce it before changing code; recheck the affected
+journey and relevant regressions afterward. Keep private listener notes outside Git.
+
+## Listener entries
 
 Repeat for each selected item in all four participant comparisons. Leave fields
 blank until an actual listener completes them; do not prefill a favourable result.
