@@ -133,6 +133,9 @@ export function App() {
   const [reviewTarget, setReviewTarget] = useState<Readiness | null>(null);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [inventoryState, setInventoryState] = useState<
+    "loading" | "ready" | "unavailable"
+  >("loading");
   const [health, setHealth] = useState<Health | null>(null);
   const [serviceState, setServiceState] = useState<
     "connecting" | "ready" | "unavailable"
@@ -276,6 +279,7 @@ export function App() {
   }, [datasetSummary]);
   const refresh = useCallback(async () => {
     const generation = ++refreshGeneration.current;
+    setInventoryState("loading");
     setServiceState("connecting");
     setEvaluationState("loading");
     refreshRequest.current?.abort();
@@ -302,6 +306,11 @@ export function App() {
         reloadDataset(),
       ]);
       if (generation !== refreshGeneration.current) return;
+      setInventoryState(
+        results.slice(0, 3).every((result) => result.status === "fulfilled")
+          ? "ready"
+          : "unavailable",
+      );
       setServiceState(
         results[3].status === "fulfilled" ? "ready" : "unavailable",
       );
@@ -709,11 +718,15 @@ export function App() {
                   <h2>Recordings</h2>
                 </div>
                 <p className="meta">
-                  {recordings.length} recordings · {pairs.length} pairs
+                  {inventoryState === "ready"
+                    ? `${recordings.length} recordings · ${pairs.length} pairs`
+                    : inventoryState === "loading"
+                      ? "Loading recording and history inventory…"
+                      : "Current recording and history inventory is unavailable. Retained entries may be from earlier requests."}
                 </p>
                 {loading ? (
                   <p role="status">Loading recordings…</p>
-                ) : recordings.length === 0 ? (
+                ) : recordings.length === 0 && inventoryState === "ready" ? (
                   <p>
                     Library is empty. Import a public or self-recorded reference
                     and the words spoken. Then add a participant.
@@ -800,7 +813,11 @@ export function App() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="meta">No analyses have run.</p>
+                  <p className="meta">
+                    {inventoryState === "ready"
+                      ? "No analyses have run."
+                      : "Analysis history is not established. Retry refresh."}
+                  </p>
                 )}
               </aside>
 

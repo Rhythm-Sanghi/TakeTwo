@@ -1,6 +1,65 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+test("initial service outage keeps operator views locked and offers a real reconnect action", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/**", (route) => route.abort("connectionfailed"));
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toContainText(
+    "Local workspace could not be opened",
+  );
+  await expect(page.locator(".library")).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: "Workspace areas" }),
+  ).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.unroute("**/api/v1/**");
+  await page
+    .getByRole("button", { name: "Retry opening local workspace", exact: true })
+    .click();
+  await expect(page.locator(".app-header [role=status]")).toHaveText(
+    "Local workspace ready",
+  );
+  await expect(page.locator(".library")).toContainText(
+    /\d+ recordings · \d+ pairs/,
+  );
+});
+
+test("unavailable API during initial load does not fabricate an empty library", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/**", (route) =>
+    route.request().url().endsWith("/review-workspace/mode")
+      ? route.continue()
+      : route.abort("connectionfailed"),
+  );
+  await page.goto("/");
+  await expect(page.locator(".app-header [role=status]")).toHaveText(
+    "Local service unavailable. Retry refresh.",
+  );
+  await expect(page.locator(".library")).toContainText(
+    "Current recording and history inventory is unavailable",
+  );
+  await expect(page.locator(".library")).not.toContainText("0 recordings");
+  await expect(page.locator(".library")).not.toContainText("Library is empty");
+  await expect(page.locator(".library")).not.toContainText(
+    "No analyses have run",
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.unroute("**/api/v1/**");
+  await page.getByRole("button", { name: "Reconnect / refresh" }).click();
+  await expect(page.locator(".app-header [role=status]")).toHaveText(
+    "Local workspace ready",
+  );
+  await expect(page.locator(".library")).not.toContainText(
+    "inventory is unavailable",
+  );
+  await expect(page.locator(".library")).toContainText(
+    /\d+ recordings · \d+ pairs/,
+  );
+});
+
 test("failed health refresh does not announce cached readiness and recovers", async ({
   page,
 }) => {
@@ -77,6 +136,16 @@ test("evaluation inventory failure is unavailable, then recovers to an authorita
     await page.evaluate(() => document.body.dataset.reportMode),
   ).toBeUndefined();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.emulateMedia({ media: "print" });
+  await expect(page.locator(".readiness-requirements > li")).toHaveCount(6);
+  await expect(
+    page.getByText("Import independent review evidence", { exact: true }),
+  ).not.toBeVisible();
+  await expect(
+    page.getByRole("combobox", { name: "Readiness recording", exact: true }),
+  ).not.toBeVisible();
+  await expect(page.locator(".readiness-identity")).toContainText("dataset");
+  await page.emulateMedia({ media: null });
 });
 import { navigateWorkspace } from "./navigation";
 

@@ -174,6 +174,11 @@ test("full native chart domains, recording counts, review navigation and paper l
     before.inventory_counts.verified_transcripts,
   );
   await navigateWorkspace(page, "Dataset and Evaluation");
+  const retryReadiness = page.getByRole("button", {
+    name: "Retry dataset readiness",
+    exact: true,
+  });
+  if (await retryReadiness.isVisible()) await retryReadiness.click();
   await page.getByLabel("Readiness recording").selectOption(records[4].id);
   await page
     .getByRole("button", { name: "Open Review Workspace", exact: true })

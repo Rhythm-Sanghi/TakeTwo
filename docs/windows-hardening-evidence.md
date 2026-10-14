@@ -96,10 +96,13 @@ afterward, 244,994,048 / 962,580,480 bytes. Peak working set at that point was
 335,384,576 bytes. Process CPU accumulated from 3.9375 to 21.90625 CPU-seconds during
 the 29.431 s selection (17.96875 CPU-seconds, distinct from wall time). These are
 API-process measurements, not worker-tree memory or whole-machine CPU. The final
-restarted process's peak working set was 375,246,848 bytes. Cold restoration remains
-close to the existing 30 s UI budget on this host; contention can still cause safe
-timeout/retry. No timeout or scientific safeguard was relaxed. Actual human
-perception and screen-reader speech are not established by these browser checks.
+restarted process's peak working set was 375,246,848 bytes.
+The measured 29.431 s spans sequential evidence requests; each retains its existing
+15 s budget. A subsequent fresh genuine-layout bootstrap timed out after the repair,
+so cold timeout remains reproducible on this host. Retry after validation completes
+can restore evidence; no universal cold-load success is claimed. No timeout or
+scientific safeguard was relaxed. Actual human perception and screen-reader speech
+are not established by these browser checks.
 
 ## Failure and recovery
 
@@ -119,6 +122,15 @@ timeouts. Final regression results will be recorded in the
 [completion record](final-hardening-completion.md).
 The unchanged crash/retry test subsequently passed alone (104.04 s); the focused
 reset/concurrent-cache regressions passed together (two tests, 9.13 s).
+
+Initial API failure was checked separately from failure after a successful mode check.
+The safe startup guard correctly withheld operator views but had no in-app recovery;
+it now times out at the existing 15 s request budget, announces an alert and rechecks
+mode through a retry button. A unit retry into an active reviewer handoff still never
+mounts operator views. Once the guard legitimately permits the operator shell, failed
+inventory requests show unavailable rather than false zero/empty history. Six focused
+browser failure/recovery/print cases passed in 50.9 s. This is software evidence,
+not actual spoken Narrator/NVDA acceptance.
 
 Private reproducibility records: `local-data/hardening-reliability.py`, six logs,
 `hardening-reliability-results.json`, the isolated workspace, test traces and

@@ -90,6 +90,49 @@ it("does not mount operator data views during active handoff", async () => {
   expect(screen.queryByText("Private peer data")).not.toBeInTheDocument();
 });
 
+it("keeps operator data locked after mode failure and retry into an active handoff", async () => {
+  const mounted = vi.fn();
+  let modeRequests = 0;
+  function Operator() {
+    mounted();
+    return <p>Private peer data</p>;
+  }
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) => {
+      if (url.endsWith("/mode") && ++modeRequests === 1)
+        throw new Error("Software connection failure");
+      return {
+        ok: true,
+        json: async () =>
+          url.endsWith("/mode")
+            ? { active_session: session.id }
+            : url.includes("waveform")
+              ? { bins: [], start_s: 0, end_s: 2 }
+              : session,
+      };
+    }),
+  );
+  render(
+    <ReviewEntry>
+      <Operator />
+    </ReviewEntry>,
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "could not be opened",
+  );
+  expect(mounted).not.toHaveBeenCalled();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Retry opening local workspace" }),
+  );
+  expect(
+    await screen.findByRole("heading", { name: "Review Workspace" }),
+  ).toBeInTheDocument();
+  expect(modeRequests).toBe(2);
+  expect(mounted).not.toHaveBeenCalled();
+  expect(screen.queryByText("Private peer data")).not.toBeInTheDocument();
+});
+
 it("retains failed draft edits and warns before leaving", async () => {
   const fetcher = vi.fn(async (url: string) =>
     url.endsWith("/draft")

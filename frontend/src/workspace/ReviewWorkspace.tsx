@@ -1536,11 +1536,33 @@ export function ReviewEntry({ children }: { children: React.ReactNode }) {
     null,
   );
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    void api<{ active_session: string | null }>(`${base}/mode`)
-      .then(setMode)
-      .catch((e) => setError(e.message));
-  }, []);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    let current = true;
+    setError("");
+    void api<{ active_session: string | null }>(`${base}/mode`, {
+      signal: controller.signal,
+    })
+      .then((value) => {
+        if (current) setMode(value);
+      })
+      .catch((e) => {
+        if (current)
+          setError(
+            controller.signal.aborted
+              ? "Opening the local workspace timed out."
+              : e.message,
+          );
+      })
+      .finally(() => clearTimeout(timer));
+    return () => {
+      current = false;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [attempt]);
   const sid =
     new URLSearchParams(window.location.search).get("review") ??
     mode?.active_session;
@@ -1548,7 +1570,20 @@ export function ReviewEntry({ children }: { children: React.ReactNode }) {
     return (
       <main>
         <h1>TakeTwo</h1>
-        <p role="status">{error || "Opening local workspace…"}</p>
+        <p>Speech analysis workspace</p>
+        {error ? (
+          <>
+            <p role="alert">
+              Local workspace could not be opened. Check that the local service
+              is running, then retry. {error}
+            </p>
+            <button onClick={() => setAttempt((value) => value + 1)}>
+              Retry opening local workspace
+            </button>
+          </>
+        ) : (
+          <p role="status">Opening local workspace…</p>
+        )}
       </main>
     );
   return sid ? <Reviewer sessionId={sid} /> : children;

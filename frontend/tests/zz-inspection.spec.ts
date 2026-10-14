@@ -119,8 +119,18 @@ test("reference inspection, historical identity and searchable print remain dist
     ),
   );
   await page.emulateMedia({ media: "print" });
-  await expect(page.locator(".reference-print-intro h2")).toBeVisible();
-  await expect(page.getByLabel("Printed reference measurements")).toBeVisible();
+  await expect(page.locator(".reference-print-intro h2")).not.toBeVisible();
+  await expect(page.locator(".workspace-assessment h2")).toHaveText(
+    "Reference verification status",
+  );
+  await expect(page.locator(".workspace-assessment")).toBeVisible();
+  await expect(page.locator(".workspace-assessment")).toContainText(
+    "Independent",
+  );
+  await expect(page.locator(".track.reference")).toContainText(
+    originalReference.inputs[0].provenance.recording_id,
+  );
+  await expect(page.locator(".print-chart").first()).toBeVisible();
   await expect(page.getByRole("region", { name: "Rubric scores" })).toHaveCount(
     0,
   );

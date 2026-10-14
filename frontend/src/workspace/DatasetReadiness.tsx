@@ -118,7 +118,7 @@ export function DatasetReadiness({
         </p>
       ) : recordings.length ? (
         <>
-          <label>
+          <label className="print-controls">
             Readiness recording
             <select
               value={selectedId}
@@ -137,12 +137,12 @@ export function DatasetReadiness({
               <button onClick={() => onReview(current)}>
                 Open Review Workspace
               </button>
-              <p className="meta">
+              <p className="meta print-controls">
                 Opens operator preparation only. An operator key is still
                 required; this does not create a session, approve evidence or
                 grant reviewer access.
               </p>
-              <details>
+              <details className="print-controls">
                 <summary>Existing review status for this recording</summary>
                 <dl>
                   {Object.entries(current.review_status ?? {}).map(

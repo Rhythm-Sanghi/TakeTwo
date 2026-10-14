@@ -17,10 +17,15 @@ TakeTwo — Speech analysis workspace.
    workspace view: selected observations, current native chart windows and an explicit
    verification state. It excludes technical inventories and interactive controls;
    those remain available through the dedicated full report and data exports.
-6. Reopen the saved file. Select/copy a recording name and numeric measurement, search
+6. In Dataset & Evaluation, use **Export Dataset Readiness / save PDF** for selected
+   recording/version identity, all six prerequisites, inventory and scientific caveats.
+   Interactive import shells are excluded; instructions remain available in the app
+   and [reviewed-evidence workflow](reviewed-evidence-workflow.md). Actual counts or
+   unavailable states are preserved. Export does not approve evidence or rights.
+7. Reopen the saved file. Select/copy a recording name and numeric measurement, search
    for a highlighted phrase, and check the correct comparison/reference footer and
    page counters. Inspect every page for clipping, blank sections and readable charts.
-7. Recheck text with an independent extractor. The optional QA tools require no
+8. Recheck text with an independent extractor. The optional QA tools require no
    application dependency changes:
 
    ```powershell
@@ -30,7 +35,7 @@ TakeTwo — Speech analysis workspace.
    Add repeated `--expect` arguments for actual recording names, headings, Unicode
    observations, numbers and limits. Use `scripts/check_analysis_pdf.py` with the
    matching JSON/CSV for complete comparative inventory, native intervals and hashes.
-8. Searchable/selectable text, embedded fonts and an available structure tree are
+9. Searchable/selectable text, embedded fonts and an available structure tree are
    checked separately. They do not certify PDF/UA, reliable reading order in every
    viewer, keyboard audio usability or actual Narrator/NVDA speech. Review tagged
    headings/tables and reading order with the intended viewer/assistive technology;

@@ -1,7 +1,7 @@
 # Spoken accessibility acceptance
 
 TakeTwo — Speech analysis workspace. **Narrator/NVDA spoken acceptance: pending.**
-No actual listener has performed this worksheet. Axe, keyboard-routing, native zoom
+No completed actual-listener record is available. Axe, keyboard-routing, native zoom
 and PDF tagging checks do not establish spoken comprehension. This coding environment
 does not provide a genuine audible screen-reader acceptance session.
 
