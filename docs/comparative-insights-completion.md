@@ -20,6 +20,10 @@ ResizeObserver redraw: document width 642 at viewport 390, and 1602 at viewport 
 Containing the chart's interim visual overflow preserves the redraw and controls.
 The new resize-event regression passes across breakpoints, including before observers
 finish; a settled-layout assertion alone did not catch this race.
+Returning from a panned long recording also exposed a conflicting view reset: the
+seek-to-window branch could override full duration with two seconds. The reset now
+keeps the complete native domain, verified with a ten-second component regression
+and genuine recording controls.
 
 The screenshot's original Not Found condition was not reproduced: five fresh genuine
 historical GETs returned 200, including two reference-only jobs; the inspected prior
@@ -64,7 +68,7 @@ Restored local examples:
 
 | Inspection | Reference native interval | Participant native interval | Actual measurement |
 | --- | --- | --- | --- |
-| Gap before `is` | 11.56–11.88 s | 10.50–13.47 s | Inter-word gap delta +2.890 s |
+| Alignment context `technology` → `is` | 10.93–11.88 s | 10.12–13.47 s | Inter-word gap delta +2.890 s |
 | Gap before `helps` | 13.23–13.64 s | 14.35–15.06 s | Gap delta +0.560 s |
 | Gap before `a` | 15.39–15.98 s | 16.25–16.32 s | Gap delta −0.510 s |
 
@@ -87,6 +91,10 @@ A/B replay uses each supported interval's own clock, pauses the other track and
 honors bounds. Inspect moves focus to its audio control. Return-to-complete clears
 selection/window; navigation and obsolete bounded-play requests pause audio and ignore
 late rejected promises. Exploration never satisfies independent reviewer listening.
+Alignment-anomaly A/B includes both surrounding provisional words on each native
+timeline, so the user hears the gap in its supplied-text context.
+The complete paired table also provides native reference/participant replay for every
+word or supported phrase, including measurements outside the initial highlights.
 
 Actual genuine screenshots at 320/390/800/1366/1920 px were inspected privately;
 all have zero document overflow and zero axe violations. Genuine native 200% zoom
@@ -134,6 +142,10 @@ directory. Their earlier relocation's cause remains unknown; no original was mov
 Final genuine restored comparative GET: cold 12.778 s, repeats 0.233/0.235 s under
 mixed verification load. Earlier first/repeat measurements were 9.864/0.322 s and
 11.970/0.290/0.312 s.
+The last simultaneous package/audit verification measured 54.264 s cold and
+1.058/1.270 s repeats. Cold restoration can exceed the browser's 15 s request
+budget under load; safe retry remains necessary. The cause of that slowdown has
+not been isolated, and predictable restoration latency remains an operational limit.
 These show bounded cache reuse, not a comparable before/after speed benchmark.
 The compact comparative response is about 256 KiB; no feature arrays are copied into it.
 
@@ -165,8 +177,8 @@ claimed; these remain operational limitations, not suppressed logs.
 | Final check | Passed | Failed | Skipped | Evidence |
 | --- | ---: | ---: | ---: | --- |
 | Full Python | 369 | 0 | 0 | Latest 492.09 s; one upstream Starlette deprecation warning |
-| Frontend | 60 | 0 | 0 | 5 files; latest 8.82 s |
-| Full generated browser | 12 | 0 | 0 | 5.2 min; resize-event containment, native zoom, five widths, axe, replay, recovery, review isolation |
+| Frontend | 62 | 0 | 0 | 5 files; latest 21.60 s under mixed load |
+| Full generated browser | 12 | 0 | 0 | Latest 4.3 min; resize-event containment, native zoom, five widths, axe, replay, recovery, review isolation |
 | Genuine browser pilot | 3 | 0 | 0 | 5.2 min; real five-file import, fresh MFA/extraction, pair, A/B, exports, native zoom |
 | Genuine native zoom after resize repair | 1 | 0 | 0 | 18.7 s; existing isolated genuine pair, actual tab zoom factor 2 |
 | TypeScript / ESLint / Prettier | pass | 0 | 0 | Executed against current frontend |
@@ -174,7 +186,7 @@ claimed; these remain operational limitations, not suppressed logs.
 | Vite / wheel / source builds | pass | 0 | 0 | Actual production and package builds |
 | Schema / local documentation / official Track C hash | pass | 0 | 0 | Runtime contracts and unchanged official PDF |
 | npm / Python dependency audit | pass | 0 | 0 | No known vulnerabilities in pinned dependencies |
-| Private-data / package preflight | pass | 0 | 0 | 203 staged candidate files, 569 reachable history blobs; zero blocking/history/package findings |
+| Private-data / package preflight | pass | 0 | 0 | 203 staged candidate files; zero blocking/history/package findings |
 
 Earlier attempts are not hidden: first genuine suite **2 passed / 1 failed / 0 skipped**;
 after timeout-harness correction and isolated execution **3 passed / 0 failed / 0 skipped**.
@@ -192,6 +204,8 @@ Starting HEAD `365ed29`. Focused local commits on `master`:
 - `96d7cc1` — versioned grouping/native-time comparative backend and contract tests.
 - `82159cf` — results hierarchy, native playback, print highlights and browser coverage.
 - `aa5dd00` — transient chart containment, specific artifact-corruption recovery and methods/evidence documentation.
+- `f59b9d5` — complete native-window restoration after panned inspection.
+- `5300ce9` — paired anomaly replay includes both surrounding provisional words.
 
 The final documentation/evidence commit accompanies this report; its hash and clean
 working tree are reported at handoff. Staged source/history/wheel/archive preflight

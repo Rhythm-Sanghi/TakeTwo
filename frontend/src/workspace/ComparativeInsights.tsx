@@ -421,6 +421,22 @@ export function ComparativeInsights({
                     <td>
                       {interval(s.reference.start_s, s.reference.end_s)} /{" "}
                       {interval(s.participant.start_s, s.participant.end_s)}
+                      {reference && participant && (
+                        <div className="toolbar print-controls">
+                          {listen(
+                            reference.recording_id,
+                            s.reference.start_s,
+                            s.reference.end_s,
+                            `reference ${s.kind}`,
+                          )}
+                          {listen(
+                            participant.recording_id,
+                            s.participant.start_s,
+                            s.participant.end_s,
+                            `participant ${s.kind}`,
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td>{number(s.duration_delta_s, 3)} s</td>
                     <td>

@@ -125,7 +125,8 @@ it("plays corresponding native gap intervals independently and returns to full r
 });
 
 it("retains actual deltas, selection reason, full evidence and versioned JSON export", () => {
-  render(<ComparativeInsights report={fixture} onSeek={vi.fn()} />);
+  const seek = vi.fn();
+  render(<ComparativeInsights report={fixture} onSeek={seek} />);
   expect(screen.getByText(/Participant minus reference gap/)).toHaveTextContent(
     "1.800 s",
   );
@@ -137,6 +138,14 @@ it("retains actual deltas, selection reason, full evidence and versioned JSON ex
     ),
   );
   expect(screen.getByText(/No reviewed phrase partition/)).toBeVisible();
+  fireEvent.click(
+    screen.getByRole("button", { name: "Listen to reference word" }),
+  );
+  expect(seek).toHaveBeenLastCalledWith("ref", 10, 10.5, true);
+  fireEvent.click(
+    screen.getByRole("button", { name: "Listen to participant word" }),
+  );
+  expect(seek).toHaveBeenLastCalledWith("part", 13, 13.8, true);
   expect(
     screen.getByRole("link", { name: "Export comparative JSON" }),
   ).toHaveAttribute("href", "/api/v1/analyses/job/insights/export");
