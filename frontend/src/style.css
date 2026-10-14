@@ -731,6 +731,7 @@ footer {
 /* Outcome, listening evidence, then technical detail. Shared workstation rhythm. */
 .analysis-outcome {
   border-top: 3px solid var(--teal);
+  max-width: 1120px;
 }
 .analysis-outcome h2 {
   font-size: 22px;
@@ -901,6 +902,58 @@ footer {
   margin: 12mm;
 }
 @media print {
+  .reference-analysis .inspector dl.reference-measurements {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6pt 12pt;
+    margin: 0;
+    font-size: 9pt;
+  }
+  .reference-measurements dt {
+    font-size: 8pt;
+  }
+  .reference-measurements dd {
+    overflow-wrap: anywhere;
+  }
+  .reference-print-intro p {
+    margin: 3pt 0;
+  }
+  .reference-print-intro h2 {
+    margin: 4pt 0;
+  }
+  .reference-analysis .score-panel,
+  .reference-analysis .inspector > h2,
+  .reference-analysis .inspector > h3,
+  .reference-analysis .inspector > p {
+    display: none !important;
+  }
+  .reference-analysis .evidence-details {
+    padding: 0;
+    border: 0;
+    margin: 0;
+  }
+  .reference-analysis th,
+  .reference-analysis td {
+    padding: 2pt 4pt;
+  }
+  .reference-analysis .track p {
+    margin: 3pt 0;
+  }
+  .reference-analysis .waveform {
+    height: 42pt;
+  }
+  .reference-analysis .print-chart {
+    max-height: 105pt;
+    object-fit: contain;
+  }
+  .reference-analysis .track,
+  .reference-analysis .inspector {
+    padding: 6pt;
+    margin-bottom: 6pt;
+  }
+  .reference-analysis .inspector h2,
+  .reference-analysis .inspector h3 {
+    margin: 4pt 0;
+  }
   :root {
     font-size: 10pt;
     background: white;

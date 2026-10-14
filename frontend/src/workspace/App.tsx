@@ -13,6 +13,10 @@ import type {
 } from "../api";
 import { ImportForm } from "./ImportForm";
 import { Inspector, Scores } from "./Evidence";
+import {
+  reportMatchesSelection,
+  referenceRequirements,
+} from "./analysisContext";
 import { AnalysisResult, Findings } from "./AnalysisResult";
 import { Rubric } from "./Rubric";
 import { RubricGuide } from "./RubricGuide";
@@ -132,8 +136,12 @@ export function App() {
   const [participantFor, setParticipantFor] = useState("");
   const [pairId, setPairId] = useState("");
   const [jobId, setJobId] = useState("");
-  const [report, setReport] = useState<Report | null>(null);
-  const [reportLoading, setReportLoading] = useState(false);
+  const [reportState, setReportState] = useState<{
+    jobId: string;
+    path: string;
+    report: Report | null;
+    loading: boolean;
+  } | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
   const [seek, setSeek] = useState<
     Record<
@@ -172,7 +180,30 @@ export function App() {
     job?.request.reference_id === reference?.id &&
     job?.request.pair_id === (pair?.id ?? null);
   const activeJob = jobMatches ? job : null;
-  const activeReport = jobMatches ? report : null;
+  const currentReportState =
+    activeJob &&
+    reportState?.jobId === activeJob.id &&
+    reportState.path === activeJob.report_path
+      ? reportState
+      : null;
+  const reportLoading = Boolean(
+    activeJob?.report_path &&
+    (!currentReportState || currentReportState.loading),
+  );
+  const activeReport =
+    currentReportState?.report &&
+    activeJob &&
+    reference &&
+    reportMatchesSelection(
+      currentReportState.report,
+      activeJob,
+      reference.id,
+      pair?.id ?? null,
+      participant?.id,
+    )
+      ? currentReportState.report
+      : null;
+  const comparisonReport = participant ? activeReport : null;
   const hasAvailableDimensions =
     activeReport &&
     (activeReport.eligibility.state === "ELIGIBLE" ||
@@ -223,20 +254,37 @@ export function App() {
   }, [jobs]);
   useEffect(() => {
     let active = true;
-    setReport(null);
     setRegion(null);
-    setReportLoading(Boolean(activeJob?.report_path));
-    if (activeJob?.report_path)
-      api<Report>(`/analyses/${activeJob.id}/report`)
-        .then((value) => {
-          if (active) setReport(value);
-        })
-        .catch((cause) => {
-          if (active) setError(cause.message);
-        })
-        .finally(() => {
-          if (active) setReportLoading(false);
-        });
+    if (!activeJob?.report_path) {
+      setReportState(null);
+      return;
+    }
+    const identity = { jobId: activeJob.id, path: activeJob.report_path };
+    setReportState({ ...identity, report: null, loading: true });
+    api<Report>(`/analyses/${activeJob.id}/report`)
+      .then((value) => {
+        if (!active) return;
+        if (
+          !reference ||
+          !reportMatchesSelection(
+            value,
+            activeJob,
+            reference.id,
+            pair?.id ?? null,
+            participant?.id,
+          )
+        )
+          throw new Error(
+            "Report identity does not match the selected analysis. Refresh to reload its original inputs.",
+          );
+        setReportState({ ...identity, report: value, loading: false });
+      })
+      .catch((cause) => {
+        if (active) {
+          setReportState({ ...identity, report: null, loading: false });
+          setError(cause.message);
+        }
+      });
     return () => {
       active = false;
     };
@@ -250,11 +298,13 @@ export function App() {
     });
   }
   function selectRecording(item: Recording) {
+    playback.current?.pause();
+    setSeek({});
     setParticipantFor("");
     setSelectedId(item.id);
     setPairId(pairs.find((p) => p.participant_id === item.id)?.id ?? "");
     setJobId("");
-    setReport(null);
+    setReportState(null);
     setRegion(null);
   }
   async function start(retry?: Job) {
@@ -300,6 +350,10 @@ export function App() {
     setSeek(requests);
   }
   function openHistory(item: Job) {
+    playback.current?.pause();
+    setReportState(null);
+    setRegion(null);
+    setSeek({});
     setSelectedId(item.request.reference_id);
     setPairId(item.request.pair_id ?? "");
     setJobId(item.id);
@@ -321,7 +375,7 @@ export function App() {
       current?.pairs.find((p) => p.participant_id === item.id)?.id ?? "",
     );
     setJobId("");
-    setReport(null);
+    setReportState(null);
     setRegion(null);
   }
 
@@ -624,8 +678,10 @@ export function App() {
                 job={activeJob}
                 report={activeReport}
                 loading={reportLoading}
+                availablePairCount={availablePairs.length}
                 reference={reference}
                 participant={participant}
+                referenceOnly={!participant}
                 evaluations={evaluations}
                 nextLabel={
                   !reference
@@ -637,11 +693,15 @@ export function App() {
                           !activeReport &&
                           !reportLoading
                         ? "Reload assessment evidence"
-                        : hasAvailableDimensions
-                          ? "Understand available dimensions"
-                          : activeReport
-                            ? "Check dataset and review requirements"
-                            : "Choose recordings and run analysis"
+                        : !participant && activeJob?.state === "completed"
+                          ? availablePairs.length
+                            ? "Select a participant"
+                            : "Add a participant"
+                          : hasAvailableDimensions
+                            ? "Understand available dimensions"
+                            : activeReport
+                              ? "Check dataset and review requirements"
+                              : "Choose recordings and run analysis"
                 }
                 onNext={() =>
                   !reference
@@ -650,11 +710,16 @@ export function App() {
                         !activeReport &&
                         !reportLoading
                       ? void refresh()
-                      : hasAvailableDimensions
-                        ? navigate("Rubric and Evidence")
-                        : activeReport
-                          ? navigate("Dataset and Evaluation")
-                          : document.getElementById("analysis-setup")?.focus()
+                      : !participant && activeJob?.state === "completed"
+                        ? availablePairs.length
+                          ? document.getElementById("participant-pair")?.focus()
+                          : (setParticipantFor(reference.id),
+                            navigate("Recording Library"))
+                        : hasAvailableDimensions
+                          ? navigate("Rubric and Evidence")
+                          : activeReport
+                            ? navigate("Dataset and Evaluation")
+                            : document.getElementById("analysis-setup")?.focus()
                 }
               />
               <section
@@ -690,8 +755,13 @@ export function App() {
                   <label>
                     Participant pair
                     <select
-                      value={pairId}
+                      id="participant-pair"
+                      aria-label="Participant pair"
+                      value={pair?.id ?? ""}
                       onChange={(event) => {
+                        playback.current?.pause();
+                        setSeek({});
+                        setReportState(null);
                         setPairId(event.target.value);
                         setJobId("");
                         setRegion(null);
@@ -803,9 +873,9 @@ export function App() {
                   </p>
                 </details>
               </section>
-              {activeReport && (
+              {comparisonReport && (
                 <Findings
-                  report={activeReport}
+                  report={comparisonReport}
                   onSelect={inspect}
                   onReplay={(item) => inspect(item, true)}
                 />
@@ -821,14 +891,35 @@ export function App() {
                 <button onClick={() => window.print()} disabled={!activeReport}>
                   Print analysis summary
                 </button>
+                {activeReport && (
+                  <p className="meta">
+                    For a searchable PDF, choose Save as PDF in the browser's
+                    print destination.
+                  </p>
+                )}
               </div>
               {activeReport && (
                 <p className="print-only">
-                  Analysis {activeJob?.id} · dataset{" "}
-                  {activeReport.dataset_version} · {activeReport.policy.version}
-                  . Machine processing does not verify transcripts, reviewed
-                  evidence or accuracy.
+                  {participant
+                    ? "Participant comparison"
+                    : "Reference inspection"}{" "}
+                  · Processing: {activeJob?.state}. Analysis {activeJob?.id} ·
+                  dataset {activeReport.dataset_version} ·{" "}
+                  {activeReport.policy.version}. Machine processing does not
+                  verify transcripts, reviewed evidence or accuracy.
                 </p>
+              )}
+              {activeReport && !participant && (
+                <section className="print-only reference-print-intro">
+                  <h2>Reference audio analysis complete</h2>
+                  <p>
+                    Reference measurements only. No participant comparison was
+                    run.
+                  </p>
+                  {referenceRequirements(activeReport).map((message) => (
+                    <p key={message}>{message}</p>
+                  ))}
+                </section>
               )}
               {reference && participant && (
                 <div
@@ -860,7 +951,9 @@ export function App() {
                   </p>
                 </div>
               )}
-              <div className="analysis-grid">
+              <div
+                className={`analysis-grid ${participant ? "comparison-analysis" : "reference-analysis"}`}
+              >
                 <div
                   className="timeline-stack"
                   data-audio-track={participant ? audioTrack : "reference"}
@@ -902,70 +995,73 @@ export function App() {
                       onExcerpt={imported}
                     />
                   )}
-                  <details className="panel correspondence-details">
-                    <summary>
-                      Reviewed correspondence and linked navigation
-                    </summary>
-                    <section className="panel native-correspondence">
-                      <h2>Native-time correspondence</h2>
-                      <p>
-                        Each track retains its own seconds and cursor. Selecting
-                        a grounded deviation seeks both tracks to their
-                        corresponding intervals or boundary anchors. Equal
-                        timestamps are never assumed.
-                      </p>
-                      <button
-                        disabled={!activeReport?.regions.length}
-                        onClick={() => {
-                          const items = activeReport?.regions ?? [];
-                          if (items.length)
-                            inspect(
-                              items[
-                                (items.findIndex((r) => r.id === region?.id) +
-                                  1) %
-                                  items.length
-                              ],
-                            );
-                        }}
-                      >
-                        Next detected deviation
-                      </button>
-                      {!activeReport?.regions.length && (
-                        <p className="meta">
-                          Synchronized deviation seeking is unavailable until
-                          reviewed correspondence produces grounded regions.
+                  {participant && (
+                    <details className="panel correspondence-details">
+                      <summary>
+                        Reviewed correspondence and linked navigation
+                      </summary>
+                      <section className="panel native-correspondence">
+                        <h2>Native-time correspondence</h2>
+                        <p>
+                          Each track retains its own seconds and cursor.
+                          Selecting a grounded deviation seeks both tracks to
+                          their corresponding intervals or boundary anchors.
+                          Equal timestamps are never assumed.
                         </p>
+                        <button
+                          disabled={!activeReport?.regions.length}
+                          onClick={() => {
+                            const items = activeReport?.regions ?? [];
+                            if (items.length)
+                              inspect(
+                                items[
+                                  (items.findIndex((r) => r.id === region?.id) +
+                                    1) %
+                                    items.length
+                                ],
+                              );
+                          }}
+                        >
+                          Next detected deviation
+                        </button>
+                        {!activeReport?.regions.length && (
+                          <p className="meta">
+                            Synchronized deviation seeking is unavailable until
+                            reviewed correspondence produces grounded regions.
+                          </p>
+                        )}
+                      </section>
+                      {activeReport && activeJob && (
+                        <TokenOverlay
+                          jobId={activeJob.id}
+                          onSeek={(referenceTime, participantTime) => {
+                            const nonce = Date.now();
+                            const requests: typeof seek = {};
+                            if (reference)
+                              requests[reference.id] = {
+                                time: referenceTime,
+                                nonce,
+                              };
+                            if (participant)
+                              requests[participant.id] = {
+                                time: participantTime,
+                                nonce,
+                              };
+                            setRegion(null);
+                            setSeek(requests);
+                          }}
+                        />
                       )}
-                    </section>
-                    {activeReport && activeJob && (
-                      <TokenOverlay
-                        jobId={activeJob.id}
-                        onSeek={(referenceTime, participantTime) => {
-                          const nonce = Date.now();
-                          const requests: typeof seek = {};
-                          if (reference)
-                            requests[reference.id] = {
-                              time: referenceTime,
-                              nonce,
-                            };
-                          if (participant)
-                            requests[participant.id] = {
-                              time: participantTime,
-                              nonce,
-                            };
-                          setRegion(null);
-                          setSeek(requests);
-                        }}
-                      />
-                    )}
-                  </details>
+                    </details>
+                  )}
                   {activeReport && (
                     <details className="panel score-panel technical-details">
                       <summary>
-                        Technical details · scores, coverage and scientific
-                        exports
+                        {participant
+                          ? "Technical details · scores, coverage and scientific exports"
+                          : "Technical details · reference report exports"}
                       </summary>
-                      <Scores report={activeReport} />
+                      {participant && <Scores report={activeReport!} />}
                       <div className="toolbar">
                         <a
                           className="button"
@@ -1001,7 +1097,11 @@ export function App() {
                     <summary>
                       Evidence inspector · measurements and provenance
                     </summary>
-                    <Inspector region={region} report={activeReport} />
+                    <Inspector
+                      region={region}
+                      report={activeReport}
+                      referenceOnly={!participant}
+                    />
                   </details>
                 )}
               </div>
@@ -1009,19 +1109,25 @@ export function App() {
           )}
           {page === "Rubric and Evidence" && (
             <>
-              <RubricGuide report={activeReport} />
+              {activeReport && !participant && (
+                <p className="notice">
+                  Reference inspection selected. Choose a participant in
+                  Analysis Workspace before interpreting comparison scores.
+                </p>
+              )}
+              <RubricGuide report={comparisonReport} />
               <details className="panel">
                 <summary>
                   Technical details · thresholds, normalization and weighting
                 </summary>
                 <Rubric policy={policy} />
               </details>
-              {activeReport && (
+              {comparisonReport && (
                 <details className="panel">
                   <summary>
                     Technical details · selected comparison scores
                   </summary>
-                  <Scores report={activeReport} />
+                  {participant && <Scores report={activeReport!} />}
                 </details>
               )}
               <p>
@@ -1034,7 +1140,7 @@ export function App() {
           {page === "Dataset and Evaluation" && (
             <>
               <DatasetReadiness
-                report={activeReport}
+                report={comparisonReport}
                 summary={datasetSummary}
                 loading={loading}
                 recordings={recordings}

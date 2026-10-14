@@ -1,6 +1,7 @@
 import { label, number } from "../api";
 import type { Evaluation, Job, Recording, Region, Report } from "../api";
 import { Location } from "./Evidence";
+import { referenceRequirements } from "./analysisContext";
 
 export function evidenceRequirement(reason: { code: string; message: string }) {
   const wording: Record<string, string> = {
@@ -21,7 +22,21 @@ export function assessmentTitle(
   job: Job | null,
   report: Report | null,
   loading: boolean,
+  referenceOnly = false,
 ) {
+  if (referenceOnly) {
+    if (!job)
+      return "Reference ready. Participant comparison pending selection.";
+    if (job.state === "queued" || job.state === "running")
+      return "Reference audio analysis in progress.";
+    if (job.state === "failed") return "Reference audio analysis failed.";
+    if (job.state === "cancelled") return "Reference audio analysis cancelled.";
+    if (loading)
+      return "Reference audio analysis complete. Loading measurements…";
+    if (!report)
+      return "Reference audio analysis complete. Measurements unavailable.";
+    return "Reference audio analysis complete";
+  }
   if (!job) return "Audio not processed.";
   if (job.state === "queued" || job.state === "running")
     return "Audio analysis in progress.";
@@ -74,6 +89,8 @@ export function AnalysisResult({
   evaluations,
   onNext,
   nextLabel,
+  referenceOnly = false,
+  availablePairCount = 0,
 }: {
   job: Job | null;
   report: Report | null;
@@ -83,6 +100,8 @@ export function AnalysisResult({
   evaluations: Evaluation[];
   onNext: () => void;
   nextLabel: string;
+  referenceOnly?: boolean;
+  availablePairCount?: number;
 }) {
   const reasons = [
     ...(report?.eligibility.reasons ?? []),
@@ -90,8 +109,11 @@ export function AnalysisResult({
       (g) => g.reasons ?? [],
     ),
   ];
-  const messages = [...new Set(reasons.map(evidenceRequirement))];
-  const pending = report && report.overall_score == null;
+  const messages =
+    referenceOnly && report
+      ? referenceRequirements(report)
+      : [...new Set(reasons.map(evidenceRequirement))];
+  const pending = !referenceOnly && report && report.overall_score == null;
   const availableEvidence =
     report &&
     (report.eligibility.state === "ELIGIBLE" ||
@@ -106,28 +128,45 @@ export function AnalysisResult({
             {reference?.original_filename ?? "Choose a recording"}
           </strong>
         </span>
-        <span>
-          Participant{" "}
-          <strong>{participant?.original_filename ?? "Not selected"}</strong>
-        </span>
+        {!referenceOnly && (
+          <span>
+            Participant{" "}
+            <strong>{participant?.original_filename ?? "Not selected"}</strong>
+          </span>
+        )}
       </div>
       <div role="status" aria-live="polite" aria-atomic="true">
         <p className="eyebrow">
-          Processing: {job ? label(job.state) : "Not started"} · Assessment:{" "}
-          {report
-            ? report.overall_score != null &&
-              report.eligibility.state === "ELIGIBLE"
-              ? "Available"
-              : report.dimensions.some((d) => d.score != null)
-                ? "Partially available"
-                : report.eligibility.state === "ELIGIBLE"
-                  ? "Evidence available; score unavailable"
-                  : report.eligibility.state === "INELIGIBLE"
-                    ? "Unavailable"
-                    : "Pending verification"
-            : "Unavailable"}
+          Mode:{" "}
+          {referenceOnly ? "Reference inspection" : "Participant comparison"} ·
+          Processing: {job ? label(job.state) : "Not started"}
+          {!referenceOnly && (
+            <>
+              {" "}
+              · Assessment:{" "}
+              {report
+                ? report.overall_score != null &&
+                  report.eligibility.state === "ELIGIBLE"
+                  ? "Available"
+                  : report.dimensions.some((d) => d.score != null)
+                    ? "Partially available"
+                    : report.eligibility.state === "ELIGIBLE"
+                      ? "Evidence available; score unavailable"
+                      : report.eligibility.state === "INELIGIBLE"
+                        ? "Unavailable"
+                        : "Pending verification"
+                : "Unavailable"}
+            </>
+          )}
         </p>
-        <h2>{assessmentTitle(job, report, loading)}</h2>
+        <h2>
+          {assessmentTitle(
+            job,
+            report,
+            loading,
+            referenceOnly && Boolean(reference),
+          )}
+        </h2>
         {job && ["running", "queued"].includes(job.state) && (
           <p>
             Current stage: {label(job.stage)}. You can keep exploring or cancel
@@ -152,10 +191,34 @@ export function AnalysisResult({
           </p>
         )}
       </div>
-      {(!report || pending) && (
+      {(referenceOnly || !report || pending) && (
         <button className="primary" onClick={onNext}>
           {nextLabel}
         </button>
+      )}
+      {referenceOnly && reference && (
+        <>
+          <p>
+            {job?.state === "completed" && report
+              ? "Reference measurements are available. No participant comparison was run."
+              : "Run reference inspection to measure this audio, or choose a participant for a delivery comparison."}
+          </p>
+          <p className="meta">
+            {availablePairCount
+              ? `${availablePairCount} participant ${availablePairCount === 1 ? "pair is" : "pairs are"} available for this reference. Select one to compare delivery.`
+              : "No participant pair exists for this reference. Add a participant to compare delivery."}
+          </p>
+          {messages.length > 0 && (
+            <details className="result-requirements">
+              <summary>Reference review and use requirements</summary>
+              <ul>
+                {messages.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </>
       )}
       {pending && (
         <>
@@ -174,7 +237,7 @@ export function AnalysisResult({
           </details>
         </>
       )}
-      {report?.overall_score != null && (
+      {!referenceOnly && report?.overall_score != null && (
         <p>
           Reference agreement:{" "}
           <strong>{number(report.overall_score, 1)} / 100</strong>. This
@@ -182,7 +245,7 @@ export function AnalysisResult({
           overall speaking ability.
         </p>
       )}
-      {hasIndependentEvaluation(job, report, evaluations) && (
+      {!referenceOnly && hasIndependentEvaluation(job, report, evaluations) && (
         <p>
           Independent evaluation completed for this report. See Dataset and
           Evaluation for the stored run and its limitations.

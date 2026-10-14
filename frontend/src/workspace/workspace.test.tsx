@@ -28,6 +28,7 @@ import { ExcerptForm } from "./RecordingTools";
 import { DatasetReadiness } from "./DatasetReadiness";
 import type { DatasetSummary } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
+import { reportMatchesSelection } from "./analysisContext";
 import { WorkspaceNavigation, workspacePages } from "./WorkspaceNavigation";
 
 it("requires a deliberate recording type without changing contract choices", async () => {
@@ -849,6 +850,102 @@ it("keeps processing, missing evidence, partial results and eligible zero findin
   );
   expect(screen.getByText(/No threshold crossings/)).toBeVisible();
   expect(screen.queryByText(/Findings pending/)).not.toBeInTheDocument();
+});
+
+it.each([0, 2])(
+  "presents completed reference inspection honestly with %s existing pairs",
+  (availablePairCount) => {
+    render(
+      <AnalysisResult
+        job={{ state: "completed" } as Job}
+        report={report}
+        reference={
+          { id: "reference", original_filename: "reference.wav" } as Recording
+        }
+        referenceOnly
+        availablePairCount={availablePairCount}
+        loading={false}
+        evaluations={[]}
+        nextLabel={
+          availablePairCount ? "Select a participant" : "Add a participant"
+        }
+        onNext={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", {
+        name: "Reference audio analysis complete",
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        "Reference measurements are available. No participant comparison was run.",
+      ),
+    ).toBeVisible();
+    expect(
+      screen.queryByText(
+        /Delivery assessment|both recordings|No participant mirror/,
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: availablePairCount ? "Select a participant" : "Add a participant",
+      }),
+    ).toBeEnabled();
+  },
+);
+
+it("keeps reference pending, failed, missing measurements and comparison selection separate", () => {
+  expect(assessmentTitle(null, null, false, true)).toContain(
+    "Participant comparison pending selection",
+  );
+  expect(assessmentTitle({ state: "running" } as Job, null, false, true)).toBe(
+    "Reference audio analysis in progress.",
+  );
+  expect(assessmentTitle({ state: "failed" } as Job, null, false, true)).toBe(
+    "Reference audio analysis failed.",
+  );
+  expect(
+    assessmentTitle({ state: "completed" } as Job, null, true, true),
+  ).toContain("Loading measurements");
+  expect(
+    assessmentTitle({ state: "completed" } as Job, null, false, true),
+  ).toContain("Measurements unavailable");
+});
+
+it("rejects mismatched report pair, reference, participant and incomplete inputs", () => {
+  const input = (id: string) =>
+    ({ provenance: { recording_id: id } }) as Report["inputs"][number];
+  const job = { request: { reference_id: "r", pair_id: "pair" } } as Job;
+  const paired = {
+    ...report,
+    pair_id: "pair",
+    inputs: [input("r"), input("p")],
+  };
+  expect(reportMatchesSelection(paired, job, "r", "pair", "p")).toBe(true);
+  expect(reportMatchesSelection(paired, job, "r", null)).toBe(false);
+  expect(reportMatchesSelection(paired, job, "other", "pair", "p")).toBe(false);
+  expect(reportMatchesSelection(paired, job, "r", "pair", "other")).toBe(false);
+  expect(
+    reportMatchesSelection(
+      { ...paired, inputs: [input("r")] },
+      job,
+      "r",
+      "pair",
+      "p",
+    ),
+  ).toBe(false);
+  expect(
+    reportMatchesSelection({ ...paired, pair_id: null }, job, "r", "pair", "p"),
+  ).toBe(false);
+  expect(
+    reportMatchesSelection(
+      { ...paired, pair_id: null, inputs: [input("r")] },
+      { request: { reference_id: "r", pair_id: null } } as Job,
+      "r",
+      null,
+    ),
+  ).toBe(true);
 });
 
 it("binds independent evaluation to report, dataset, implementation and policy without promoting software metrics", () => {

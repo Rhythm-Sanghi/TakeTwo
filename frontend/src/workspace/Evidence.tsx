@@ -18,6 +18,45 @@ export function Location({
     </>
   );
 }
+function ReferenceMeasurements({ input }: { input: Report["inputs"][number] }) {
+  const measurements = [
+    ["Duration (s)", number(input.duration_s)],
+    ["Spectral frames", String(input.spectral_frame_count)],
+    [
+      "RMS / peak (full scale)",
+      `${number(input.quality.rms, 6)} / ${number(input.quality.peak, 6)}`,
+    ],
+    ["Energy baseline (dBFS)", number(input.energy_baseline_dbfs)],
+    ["Pitch baseline — diagnostic (Hz)", number(input.pitch_baseline_hz, 1)],
+    [
+      "Reliable pitch coverage",
+      `${number(input.pitch_valid_fraction * 100, 2)}%`,
+    ],
+    [
+      "Accepted F0 confidence mask",
+      number(input.feature_config.voicing_threshold, 2),
+    ],
+    [
+      "Transcript reviewed",
+      input.provenance.transcript_verified ? "Verified" : "Unverified",
+    ],
+    ["Independent review artifacts", String(input.reviews.length)],
+  ];
+  return (
+    <dl
+      className="reference-measurements"
+      aria-label="Printed reference measurements"
+    >
+      {measurements.map(([name, value]) => (
+        <div key={name}>
+          <dt>{name}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function Scores({ report }: { report: Report }) {
   const key = (r: { code: string; message: string }) =>
     r.code + "\0" + r.message;
@@ -213,10 +252,13 @@ function Measurement({ observation: o }: { observation: Observation }) {
 export function Inspector({
   region,
   report,
+  referenceOnly = false,
 }: {
   region: Region | null;
   report: Report | null;
+  referenceOnly?: boolean;
 }) {
+  const referenceInspection = referenceOnly;
   return (
     <aside className="inspector" aria-label="Evidence inspector">
       <h2>Evidence inspector</h2>
@@ -225,110 +267,125 @@ export function Inspector({
       ) : !region ? (
         <>
           <p>
-            {report.regions.length
-              ? "Select a delivery deviation to inspect its calculation."
-              : report.overall_score == null
-                ? "Comparison is unavailable. Zero detected regions does not indicate a perfect performance."
-                : "No threshold crossings were detected under this policy."}
+            {referenceInspection
+              ? "Reference measurements only. No participant comparison was run."
+              : report.regions.length
+                ? "Select a delivery deviation to inspect its calculation."
+                : report.overall_score == null
+                  ? "Comparison is unavailable. Zero detected regions does not indicate a perfect performance."
+                  : "No threshold crossings were detected under this policy."}
           </p>
           <h3>Actual input evidence</h3>
           {report.inputs.length > 0 && (
             <div className="print-only">
-              <table aria-label="Printed input measurement summary">
-                <thead>
-                  <tr>
-                    <th>Measurement</th>
-                    {report.inputs.map((input, index) => (
-                      <th key={input.provenance.recording_id}>
-                        {index === 0 ? "Reference" : "Participant"}
-                        <br />
-                        {input.provenance.recording_id}
-                        <br />
-                        {input.origin}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(
-                    [
-                      ["Duration (s)", (input) => number(input.duration_s)],
-                      [
-                        "Spectral frames",
-                        (input) => String(input.spectral_frame_count),
-                      ],
-                      [
-                        "Reliable pitch coverage",
-                        (input) =>
-                          `${number(input.pitch_valid_fraction * 100, 2)}%`,
-                      ],
-                      [
-                        "Pitch baseline — diagnostic only (Hz)",
-                        (input) => number(input.pitch_baseline_hz, 1),
-                      ],
-                      [
-                        "Accepted F0 confidence mask",
-                        (input) =>
-                          number(input.feature_config.voicing_threshold, 2),
-                      ],
-                      [
-                        "Energy baseline (dBFS)",
-                        (input) => number(input.energy_baseline_dbfs),
-                      ],
-                      [
-                        "RMS / peak (full scale)",
-                        (input) =>
-                          `${number(input.quality.rms, 6)} / ${number(input.quality.peak, 6)}`,
-                      ],
-                      [
-                        "Transcript reviewed",
-                        (input) =>
-                          input.provenance.transcript_verified
-                            ? "Verified"
-                            : "Unverified",
-                      ],
-                      [
-                        "Independent review artifacts",
-                        (input) => String(input.reviews.length),
-                      ],
-                    ] satisfies [
-                      string,
-                      (input: Report["inputs"][number]) => string,
-                    ][]
-                  ).map(([name, value]) => (
-                    <tr key={name}>
-                      <th scope="row">{name}</th>
-                      {report.inputs.map((input) => (
-                        <td key={input.provenance.recording_id}>
-                          {value(input)}
-                        </td>
+              {referenceInspection ? (
+                <ReferenceMeasurements input={report.inputs[0]} />
+              ) : (
+                <table aria-label="Printed input measurement summary">
+                  <thead>
+                    <tr>
+                      <th>Measurement</th>
+                      {report.inputs.map((input, index) => (
+                        <th key={input.provenance.recording_id}>
+                          {index === 0 ? "Reference" : "Participant"}
+                          <br />
+                          {input.provenance.recording_id}
+                          <br />
+                          {input.origin}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p>
-                Pitch baselines are medians of accepted F0 frames only, not
-                robust estimates over the whole recording. Required reliable
-                coverage:{" "}
-                {number(report.policy.minimum_pitch_fraction * 100, 0)}% per
-                scored phrase; recording-wide coverage is diagnostic. Scientific
-                pitch eligibility:{" "}
-                {label(
-                  report.feature_eligibility.pitch_dynamics?.state ??
-                    "Unavailable",
-                )}
-                . Pitch-dynamics score:{" "}
-                {number(
-                  report.dimensions.find(
-                    (d) => d.dimension === "pitch_dynamics",
-                  )?.score,
-                  1,
-                )}
-                . When reliable voiced frames are insufficient, pitch scoring is
-                unavailable; other gates and observation requirements also
-                apply.
-              </p>
+                  </thead>
+                  <tbody>
+                    {(
+                      [
+                        ["Duration (s)", (input) => number(input.duration_s)],
+                        [
+                          "Spectral frames",
+                          (input) => String(input.spectral_frame_count),
+                        ],
+                        [
+                          "Reliable pitch coverage",
+                          (input) =>
+                            `${number(input.pitch_valid_fraction * 100, 2)}%`,
+                        ],
+                        [
+                          "Pitch baseline — diagnostic only (Hz)",
+                          (input) => number(input.pitch_baseline_hz, 1),
+                        ],
+                        [
+                          "Accepted F0 confidence mask",
+                          (input) =>
+                            number(input.feature_config.voicing_threshold, 2),
+                        ],
+                        [
+                          "Energy baseline (dBFS)",
+                          (input) => number(input.energy_baseline_dbfs),
+                        ],
+                        [
+                          "RMS / peak (full scale)",
+                          (input) =>
+                            `${number(input.quality.rms, 6)} / ${number(input.quality.peak, 6)}`,
+                        ],
+                        [
+                          "Transcript reviewed",
+                          (input) =>
+                            input.provenance.transcript_verified
+                              ? "Verified"
+                              : "Unverified",
+                        ],
+                        [
+                          "Independent review artifacts",
+                          (input) => String(input.reviews.length),
+                        ],
+                      ] satisfies [
+                        string,
+                        (input: Report["inputs"][number]) => string,
+                      ][]
+                    ).map(([name, value]) => (
+                      <tr key={name}>
+                        <th scope="row">{name}</th>
+                        {report.inputs.map((input) => (
+                          <td key={input.provenance.recording_id}>
+                            {value(input)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {referenceInspection ? (
+                <p>
+                  Pitch baselines summarize accepted voiced frames only.
+                  Recording-wide pitch coverage is diagnostic. Audio
+                  measurements do not verify the transcript or establish a
+                  delivery flaw.
+                </p>
+              ) : (
+                <p>
+                  Pitch baselines are medians of accepted F0 frames only, not
+                  robust estimates over the whole recording. Required reliable
+                  coverage:{" "}
+                  {number(report.policy.minimum_pitch_fraction * 100, 0)}% per
+                  scored phrase; recording-wide coverage is diagnostic.
+                  Scientific pitch eligibility:{" "}
+                  {label(
+                    report.feature_eligibility.pitch_dynamics?.state ??
+                      "Unavailable",
+                  )}
+                  . Pitch-dynamics score:{" "}
+                  {number(
+                    report.dimensions.find(
+                      (d) => d.dimension === "pitch_dynamics",
+                    )?.score,
+                    1,
+                  )}
+                  . When reliable voiced frames are insufficient, pitch scoring
+                  is unavailable; other gates and observation requirements also
+                  apply.
+                </p>
+              )}
             </div>
           )}
           {report.inputs.map((input) => (
@@ -354,28 +411,32 @@ export function Inspector({
                     ? "Unavailable"
                     : `${number(input.pitch_baseline_hz, 1)} Hz · median of accepted F0 frames only`}
                 </dd>
-                <dt>Pitch evidence and scoring</dt>
-                <dd>
-                  Required reliable coverage:{" "}
-                  {number(report.policy.minimum_pitch_fraction * 100, 0)}% per
-                  scored phrase. Accepted F0 uses the stored confidence mask (
-                  {number(input.feature_config.voicing_threshold, 2)}).{" "}
-                  Scientific pitch eligibility:{" "}
-                  {label(
-                    report.feature_eligibility.pitch_dynamics?.state ??
-                      "Unavailable",
-                  )}
-                  .{" "}
-                  {report.dimensions.find(
-                    (d) => d.dimension === "pitch_dynamics",
-                  )?.score != null
-                    ? "Pitch-dynamics score available in the rubric table."
-                    : input.pitch_baseline_hz == null ||
-                        input.pitch_valid_fraction <
-                          report.policy.minimum_pitch_fraction
-                      ? "Pitch scoring unavailable: insufficient reliable voiced frames. Recording-wide coverage is diagnostic; phrase eligibility and all other gates still apply."
-                      : "Pitch scoring unavailable: inspect the pitch dimension for evidence, coverage and observation requirements."}
-                </dd>
+                {!referenceInspection && (
+                  <>
+                    <dt>Pitch evidence and scoring</dt>
+                    <dd>
+                      Required reliable coverage:{" "}
+                      {number(report.policy.minimum_pitch_fraction * 100, 0)}%
+                      per scored phrase. Accepted F0 uses the stored confidence
+                      mask ({number(input.feature_config.voicing_threshold, 2)}
+                      ). Scientific pitch eligibility:{" "}
+                      {label(
+                        report.feature_eligibility.pitch_dynamics?.state ??
+                          "Unavailable",
+                      )}
+                      .{" "}
+                      {report.dimensions.find(
+                        (d) => d.dimension === "pitch_dynamics",
+                      )?.score != null
+                        ? "Pitch-dynamics score available in the rubric table."
+                        : input.pitch_baseline_hz == null ||
+                            input.pitch_valid_fraction <
+                              report.policy.minimum_pitch_fraction
+                          ? "Pitch scoring unavailable: insufficient reliable voiced frames. Recording-wide coverage is diagnostic; phrase eligibility and all other gates still apply."
+                          : "Pitch scoring unavailable: inspect the pitch dimension for evidence, coverage and observation requirements."}
+                    </dd>
+                  </>
+                )}
                 <dt>RMS / peak</dt>
                 <dd>
                   {number(input.quality.rms, 6)} /{" "}
