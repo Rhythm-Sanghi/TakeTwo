@@ -123,11 +123,26 @@ Inspect moves keyboard focus to the selected native audio control. Return-to-com
 clears bounded selection and restores its full window. Navigation pauses playback.
 Exploratory listening never submits reviewer completion or independent approval.
 
-Native print puts the measured overview and selected observations first. Print highlights
-use the first three ordered items (the browser starts with six). Clearly marked
-appendices preserve all groups, paired measurements, original candidates, provisional
-word lists, methods and source hashes. JSON/CSV provide full precision. The separate
+**Analysis Summary** prints the overview, first three selected items, concrete
+selection reasons, listening questions, independent native intervals, limits and
+verification status. **Full Evidence Report** adds clearly marked appendices that
+preserve all groups, paired measurements with stable IDs, all anomalies, original
+candidates, provisional word lists, methods and source hashes. JSON/CSV provide
+full precision and are not truncated. Reference-only reports use single-recording
+inspection terminology. The separate
 six-page hackathon technical draft and historical PDFs remain separate.
+
+The v1 contract remains unchanged. `order_reason` now explains the actual supporting
+measurement and inspection threshold before the precise deterministic order policy.
+The primary view shows that item-specific reason; expanded evidence retains the whole
+policy. No detector, grouping threshold, identity or score semantics changed. New
+comparative implementation hashes retain historical envelopes intact. Grouping audit
+found no compatible overlapping/touching leftovers in the genuine 44-group inventory;
+remaining connected overlaps have opposing directions and remain separate.
+
+[Human listening acceptance](comparative-listening-acceptance.md) evaluates product
+usefulness, separately from independent annotations and detection accuracy. Actual
+listening remains pending until a person records their review.
 
 Low pitch coverage and the existing independent F0 limitation remain explicit; no
 new validation data justifies a changed extractor, confidence mask or scoring gate.

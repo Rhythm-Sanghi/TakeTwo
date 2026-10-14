@@ -487,6 +487,17 @@ table button {
 .print-only {
   display: none;
 }
+
+.raw-measurement {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+  max-width: 100%;
+}
+.selection-reason,
+.listening-question {
+  max-width: 85ch;
+}
 .panel > label select {
   display: block;
   width: 100%;
@@ -1253,6 +1264,7 @@ footer {
     text-decoration: none;
   }
   .insight-list {
+    display: block;
     gap: 0;
   }
   .insight-list > li {
@@ -1281,5 +1293,88 @@ footer {
   .comparative-appendix .raw-links {
     font-size: 7pt;
     overflow-wrap: anywhere;
+  }
+  .exploratory-result details > summary {
+    list-style: none;
+  }
+  .exploratory-result details > summary::marker {
+    content: "";
+  }
+  .report-heading h2 {
+    margin-top: 0;
+  }
+  .summary-title,
+  .summary-assessment {
+    display: none;
+  }
+  body[data-report-type="summary"] .summary-title,
+  body[data-report-type="summary"] .summary-assessment {
+    display: block;
+  }
+  body[data-report-type="summary"] .evidence-title,
+  body[data-report-type="summary"] .comparative-appendix,
+  body[data-report-type="summary"] .exploratory-appendix {
+    display: none !important;
+  }
+  body[data-report-type="summary"] .insight-list > li {
+    break-inside: avoid;
+    padding: 6pt 0;
+  }
+  body[data-report-type="summary"] .selection-reason,
+  body[data-report-type="summary"] .listening-question {
+    font-size: 9pt;
+  }
+  body[data-report-type="summary"] main > h1 {
+    display: none;
+  }
+  body[data-report-type="summary"] .exploratory-result {
+    font-size: 9pt;
+    padding: 6pt;
+  }
+  body[data-report-type="summary"] .exploratory-result p {
+    margin: 4pt 0;
+  }
+  body[data-report-type="summary"] .exploratory-result .notice,
+  body[data-report-type="summary"] .exploratory-result .print-only,
+  body[data-report-type="summary"] .exploratory-result .selection-reason,
+  body[data-report-type="summary"] .exploratory-result .listening-question {
+    font-size: 8.5pt;
+  }
+  body[data-report-type="summary"] .summary-assessment {
+    break-inside: avoid;
+  }
+  .comparative-appendix .hash {
+    font-size: 7pt;
+  }
+  .comparative-appendix table.group-provenance {
+    display: table;
+    font-size: 7pt;
+  }
+  .comparative-appendix .group-provenance th:first-child {
+    width: 30%;
+  }
+  .comparative-appendix .group-provenance th:nth-child(2) {
+    width: 70%;
+  }
+  .group-provenance .evidence-reference {
+    white-space: nowrap;
+  }
+  .comparative-appendix table {
+    table-layout: fixed;
+  }
+  .comparative-appendix td {
+    overflow-wrap: anywhere;
+  }
+  .comparative-appendix th:nth-child(1) {
+    width: 32%;
+  }
+  .comparative-appendix th:nth-child(2) {
+    width: 25%;
+  }
+  .comparative-appendix th:nth-child(3) {
+    width: 18%;
+  }
+  .comparative-appendix th:nth-child(4) {
+    width: 25%;
   }
 }

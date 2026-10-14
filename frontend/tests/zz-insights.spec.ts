@@ -2,6 +2,96 @@ import { test, expect } from "@playwright/test";
 import type { ComparativeReport, Job, Recording } from "../src/api";
 import { openHistory, navigateWorkspace } from "./navigation";
 
+test("summary and full evidence print separately with reference-only terminology", async ({
+  page,
+  request,
+}, info) => {
+  const jobs: Job[] = await (await request.get("/api/v1/analyses")).json();
+  for (const paired of [true, false]) {
+    const job = jobs.find(
+      (j) => j.state === "completed" && Boolean(j.request.pair_id) === paired,
+    )!;
+    const report: ComparativeReport = await (
+      await request.get(`/api/v1/analyses/${job.id}/insights`, {
+        timeout: 120000,
+      })
+    ).json();
+    await page.goto("/");
+    await openHistory(page, job.id.slice(0, 12));
+    await expect(page.locator(".comparative-insights")).toBeVisible({
+      timeout: 30000,
+    });
+    if (!paired) {
+      await expect(page.locator(".comparative-insights")).toContainText(
+        "Automatic acoustic inspection",
+      );
+      await expect(page.locator(".comparative-insights")).not.toContainText(
+        "Automatic comparison",
+      );
+      await expect(page.locator(".comparative-insights")).not.toContainText(
+        "0 provisional paired",
+      );
+    }
+    const originalTitle = await page.title();
+    await page.evaluate(() => {
+      window.print = () => {};
+    });
+    for (const type of ["summary", "evidence"]) {
+      await page
+        .getByRole("button", {
+          name:
+            type === "summary"
+              ? "Export Analysis Summary / save PDF"
+              : "Export Full Evidence Report / save PDF",
+          exact: true,
+        })
+        .click();
+      expect(await page.title()).toContain(
+        paired ? "speech-comparison" : "reference-inspection",
+      );
+      await page.emulateMedia({ media: "print" });
+      await expect(page.locator(".comparative-appendix")).toBeVisible({
+        visible: type === "evidence",
+      });
+      await expect(page.locator(".exploratory-appendix")).toBeVisible({
+        visible: type === "evidence",
+      });
+      if (type === "summary") {
+        await expect(page.locator(".summary-title")).toBeVisible();
+        await expect(page.locator(".summary-assessment")).toBeVisible();
+        if (report.inspection_order.length) {
+          await expect(
+            page.locator(".insight-list .selection-reason").first(),
+          ).toBeVisible();
+        } else {
+          await expect(page.locator(".comparative-insights")).toContainText(
+            paired
+              ? "No supported local differences meet the inspection rules"
+              : "No supported recording observations meet the inspection rules",
+          );
+        }
+      } else {
+        const text = await page.locator(".comparative-appendix").textContent();
+        for (const candidate of report.exploratory.candidates)
+          expect(text).toContain(candidate.id);
+      }
+      const pdf = await page.pdf({
+        path: info.outputPath(`${paired ? "paired" : "reference"}-${type}.pdf`),
+        format: "A4",
+        printBackground: true,
+        tagged: true,
+      });
+      expect(pdf.toString("latin1")).toContain("/ToUnicode");
+      await page.emulateMedia({ media: null });
+      await page.evaluate(() => dispatchEvent(new Event("afterprint")));
+      expect(await page.title()).toBe(originalTitle);
+      expect(
+        await page.evaluate(() => document.body.dataset.reportType),
+      ).toBeUndefined();
+    }
+  }
+});
+
 test("native plots stay contained before resize observers finish across breakpoints", async ({
   page,
   request,

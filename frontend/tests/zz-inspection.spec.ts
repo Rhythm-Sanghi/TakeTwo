@@ -43,7 +43,7 @@ test("reference inspection, historical identity and searchable print remain dist
     page.locator(".analysis-outcome .measurement-strip"),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Print analysis summary", exact: true }),
+    page.getByRole("button", { name: "Print workspace evidence", exact: true }),
   ).toBeDisabled();
   await expect(page.locator(".findings")).toHaveCount(0);
   await expect(page.locator(".analysis-outcome")).toContainText(
@@ -255,7 +255,7 @@ test("reference inspection, historical identity and searchable print remain dist
     page.locator(".analysis-outcome .measurement-strip"),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Print analysis summary", exact: true }),
+    page.getByRole("button", { name: "Print workspace evidence", exact: true }),
   ).toBeDisabled();
   await navigateWorkspace(page, "Recording Library");
 });

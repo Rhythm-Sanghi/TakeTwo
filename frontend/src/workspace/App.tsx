@@ -945,18 +945,28 @@ export function App() {
                 <p role="status">Loading exploratory measurements…</p>
               )}
               {activeExploration && !insights && !insightsError && (
-                <p role="status">Loading comparative insights…</p>
+                <p role="status">
+                  {activeExploration.pair_id
+                    ? "Loading comparative insights…"
+                    : "Loading recording insights…"}
+                </p>
               )}
               {activeExploration && insightsError && (
                 <section
                   className="panel"
-                  aria-label="Comparative insight recovery"
+                  aria-label={
+                    activeExploration.pair_id
+                      ? "Comparative insight recovery"
+                      : "Acoustic insight recovery"
+                  }
                 >
                   <p role="alert">
                     {insightsError} Raw exploratory evidence remains available.
                   </p>
                   <button onClick={() => setExplorationRetry((v) => v + 1)}>
-                    Retry comparative insights
+                    {activeExploration.pair_id
+                      ? "Retry comparative insights"
+                      : "Retry recording insights"}
                   </button>
                 </section>
               )}
@@ -1137,7 +1147,7 @@ export function App() {
                   }}
                   disabled={!activeReport}
                 >
-                  Print analysis summary
+                  Print workspace evidence
                 </button>
                 {activeReport && (
                   <p className="meta">

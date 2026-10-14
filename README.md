@@ -59,10 +59,14 @@ For native CPU alignment, install the locked MFA environment and checksummed Eng
 4. Open **Analysis Workspace** and run analysis. Read measured differences and automatic observations first; select **Inspect interval** or **Replay interval** to use the recording's native timestamps. Listen and inspect before considering the separate Verified Assessment.
 5. Open **Technical details · scores, coverage and scientific exports** for the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
 
-Exploratory results have their own JSON and interval CSV exports. **Print exploratory
-report / save PDF** produces selectable text, measured energy plots, native candidate
-tables, provisional words, methods, provenance and missing assessment requirements.
+Exploratory results have complete JSON and interval CSV exports. **Export Analysis
+Summary / save PDF** prints a concise measured overview, three selected inspection
+items with reasons/listening questions, native timestamps and verification status.
+**Export Full Evidence Report / save PDF** additionally preserves all raw windows,
+groups, provisional words, anomalies, methods and provenance in searchable appendices.
 The historical six-page hackathon report stays separate.
+Use the [human listening checklist](docs/comparative-listening-acceptance.md) to
+evaluate usefulness; automatic playback checks do not constitute listening acceptance.
 
 Use **Review Workspace** for browser transcript checks, assisted word/phrase timing, blinded flaw annotation, saved drafts and immutable review exports. A local operator key controls sequential reviewer handoff and separate adjudication; general analysis/peer APIs close during handoff. Read [review workflow and privacy limits](docs/review-workspace.md) before assigning independent reviewers. Typed identities and playback events do not authenticate people or establish scientific eligibility. [Review implementation evidence](docs/review-workspace-validation.md) lists actual checks and outstanding human acceptance.
 

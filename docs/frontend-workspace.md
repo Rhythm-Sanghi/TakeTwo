@@ -13,7 +13,12 @@ Pitch baselines are diagnostic medians of accepted F0 frames; percent coverage,
 stored confidence mask, backend eligibility and score availability remain separate.
 The policy's 50% requirement applies per scored phrase, not to a new React score.
 
-**Print analysis summary** uses standard browser printing. Choose the browser's Save as PDF destination for searchable text; an external system printer may rasterize. Reference inspection prints identity, processing status, relevant use requirements, native waveform/plot and compact actual measurements, without comparison scores. Paired output retains the agreement/evidence tables. A4 styles retain native
+**Export Analysis Summary / save PDF** prints three selected observations with reasons,
+listening questions and verification status. **Export Full Evidence Report / save PDF**
+adds complete inventories and provenance. Both use standard browser printing; select
+Save as PDF for searchable text. The separate **Print workspace evidence** action
+retains the existing native waveform/plot and formal agreement/evidence layout.
+Reference inspection uses single-recording terminology and no comparison scores. A4 styles retain native
 windows, recording/job/version identity, summaries, blockers and unavailable scores;
 controls, raw chart tables and unavailable correspondence help are omitted. Live
 tables and exports remain available. Synchronous print hooks snapshot the existing

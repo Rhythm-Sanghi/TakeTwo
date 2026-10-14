@@ -195,6 +195,17 @@ test("genuine selected pair runs comparative analysis with native A/B listening 
   expect(report.anomalies.length).toBeGreaterThan(0);
   const anomaly = report.anomalies[0];
   const card = page.locator(`[data-evidence-id="${anomaly.id}"]`);
+  await expect(card.locator(".selection-reason")).toBeVisible();
+  await expect(card.locator(".selection-reason")).toContainText(
+    "inspection threshold",
+  );
+  await expect(card.locator(".listening-question")).toContainText(
+    "audible passage",
+  );
+  await card
+    .getByText("Inspect provisional transcript", { exact: true })
+    .click();
+  await expect(card).toContainText(anomaly.before_word.label!);
   for (const role of ["reference", "participant"]) {
     await card
       .getByRole("button", { name: `Listen to ${role}`, exact: true })
@@ -227,6 +238,37 @@ test("genuine selected pair runs comparative analysis with native A/B listening 
     await request.get(`/api/v1/analyses/${job.id}/report`)
   ).json();
   expect(assessment.eligibility.state).not.toBe("ELIGIBLE");
+  await card
+    .getByText("Inspect evidence and selection reason", { exact: true })
+    .click();
+  await expect(card).toContainText(
+    report.inspection_order.find((i) => i.evidence_id === anomaly.id)!
+      .order_reason,
+  );
+  await page.evaluate(() => {
+    window.print = () => {};
+  });
+  for (const type of ["summary", "evidence"]) {
+    await page
+      .getByRole("button", {
+        name:
+          type === "summary"
+            ? "Export Analysis Summary / save PDF"
+            : "Export Full Evidence Report / save PDF",
+        exact: true,
+      })
+      .click();
+    expect(await page.evaluate(() => document.body.dataset.reportType)).toBe(
+      type,
+    );
+    await page.emulateMedia({ media: "print" });
+    await expect(page.locator(".comparative-appendix")).toBeVisible({
+      visible: type === "evidence",
+    });
+    await expect(page.locator(".selection-reason").first()).toBeVisible();
+    await page.emulateMedia({ media: null });
+    await page.evaluate(() => dispatchEvent(new Event("afterprint")));
+  }
   await info.attach("genuine-comparative-report", {
     body: JSON.stringify(report),
     contentType: "application/json",

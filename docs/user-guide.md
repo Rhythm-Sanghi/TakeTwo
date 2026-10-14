@@ -88,15 +88,22 @@ or **Exploratory details / technical appendix** for the original windows, words,
 quality and extraction configuration. Missing/partial text correspondence withholds
 paired comparisons. A machine gap is not automatically silence or hesitation.
 
-**Export comparative JSON** includes the complete new result and original exploratory
-evidence. Printing starts with the measured overview and selected local observations,
-followed by marked technical appendices. **Retry comparative insights** reloads a safe
+**Export comparative JSON** (or **Export single-recording insights JSON** in reference
+inspection) includes the complete result and original exploratory evidence.
+Each selected item shows **Why inspect** and a neutral **Listen for** question.
+Selection is a deterministic support/category/duration policy, not validated importance.
+**Retry comparative insights** reloads a safe
 GET; raw evidence remains available if the additional layer fails.
 
 Export exploratory JSON saves the full versioned report and its checksum. Export interval
-CSV saves every automatic event and method/provenance columns. Print exploratory report /
-save PDF opens native browser printing: select Save as PDF for selectable text and plots.
+CSV saves every automatic event and method/provenance columns. **Export Analysis Summary /
+save PDF** selects three explained observations and verification status. **Export Full
+Evidence Report / save PDF** adds all inventories, methods and provenance. Select the
+browser's Save as PDF destination; mode-specific suggested filenames distinguish
+reference inspection from speech comparison. Neither export truncates JSON/CSV.
 Scientific report exports and the hackathon technical report remain separate.
+Actual listening acceptance remains pending; use the
+[owner checklist and private review form](comparative-listening-acceptance.md).
 
 If loading fails, use Retry exploratory measurements or Reconnect / refresh. Do not
 re-import a stored file. Processing failures show the worker's reason and recovery action;

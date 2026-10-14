@@ -127,6 +127,10 @@ it("plays corresponding native gap intervals independently and returns to full r
 it("retains actual deltas, selection reason, full evidence and versioned JSON export", () => {
   const seek = vi.fn();
   render(<ComparativeInsights report={fixture} onSeek={seek} />);
+  expect(screen.getByText("Larger measured gap; not confidence")).toBeVisible();
+  expect(
+    screen.getByText(/Is the interval before this supplied-text word/),
+  ).toBeVisible();
   expect(screen.getByText(/Participant minus reference gap/)).toHaveTextContent(
     "1.800 s",
   );
@@ -149,6 +153,63 @@ it("retains actual deltas, selection reason, full evidence and versioned JSON ex
   expect(
     screen.getByRole("link", { name: "Export comparative JSON" }),
   ).toHaveAttribute("href", "/api/v1/analyses/job/insights/export");
+});
+
+it("uses single-recording language without irrelevant paired counts or prerequisites", () => {
+  render(
+    <ComparativeInsights
+      report={{
+        ...fixture,
+        exploratory: {
+          ...fixture.exploratory,
+          pair_id: null,
+          recordings: [fixture.exploratory.recordings[0]],
+        },
+        segments: [],
+        anomalies: [],
+        inspection_order: [],
+        correspondence_unavailable_reason:
+          "Reference-only inspection has no paired correspondence.",
+      }}
+      onSeek={vi.fn()}
+    />,
+  );
+  expect(screen.getByText(/Automatic acoustic inspection/)).toBeVisible();
+  expect(
+    screen.getByRole("heading", {
+      name: "Recording observations worth inspecting",
+    }),
+  ).toBeVisible();
+  expect(screen.queryByText(/0 provisional paired/)).toBeNull();
+  expect(
+    screen.queryByText(/Reference-only inspection has no paired/),
+  ).toBeNull();
+  expect(
+    screen.getByRole("link", { name: "Export single-recording insights JSON" }),
+  ).toBeVisible();
+});
+
+it("explains a tiny digital-level difference without established perceptual significance", () => {
+  render(
+    <ComparativeInsights
+      report={{
+        ...fixture,
+        exploratory: {
+          ...fixture.exploratory,
+          comparison: {
+            interpretation: "Measured duration difference",
+            rms_level_delta_db: 0.043847,
+            duration_delta_s: -0.854,
+            relative_duration_delta_percent: -2.83,
+          },
+        } as ComparativeReport["exploratory"],
+      }}
+      onSeek={vi.fn()}
+    />,
+  );
+  expect(
+    screen.getByText(/Small measured digital RMS difference: 0.044 dB/),
+  ).toHaveTextContent("no perceptual significance is established");
 });
 
 it("abstains without paired intervals and does not fabricate scores", () => {

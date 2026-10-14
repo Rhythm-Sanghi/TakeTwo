@@ -128,3 +128,17 @@ Errors use `{error:{code,message,recovery}}`. Request/metadata validation lists 
 Visualization windows retain real sample/frame coordinates. Waveforms are actual min/max bins. Feature windows return original frames when small; otherwise grouped extrema with conservative null gap markers. Any group containing missing measurements becomes a gap, sacrificing detail rather than bridging unobserved pitch. Full spectra/MFCCs and raw series remain in immutable artifacts, not repeated navigation responses.
 
 The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).
+
+## Comparative presentation and printing
+
+The comparative-insights-v1 schema and full SHA-256 JSON/CSV exports are unchanged.
+`order_reason` explains the actual measurement and inspection threshold before the
+deterministic support/category/duration policy; ordering is not validated confidence
+or importance. Updated comparative code gets its own implementation hash and immutable
+envelope without overwriting prior artifacts. Grouping and underlying acoustic,
+exploratory and delivery methods remain unchanged.
+
+Browser **Analysis Summary** and **Full Evidence Report** are distinct native print
+views of the same result, with reference-only inspection terminology where appropriate.
+The summary selects three items; the full report retains all inventories and provenance.
+No print-mode API truncation, new scoring endpoint or schema migration is introduced.

@@ -5,6 +5,7 @@ import { evidenceRequirement } from "./AnalysisResult";
 import { ComparativeInsights } from "./ComparativeInsights";
 import { referenceRequirements } from "./analysisContext";
 import type { ComparativeReport } from "../api";
+import { printAnalysisReport } from "./reportPrint";
 
 function EnergyDistribution({ values }: { values: number[] }) {
   if (values.length !== 3) return null;
@@ -66,7 +67,53 @@ export function ExploratoryResult({
       className="panel exploratory-result"
       aria-label="Exploratory analysis"
     >
+      <header className="print-only report-heading">
+        <h2 className="summary-title">Analysis Summary</h2>
+        <h2 className="evidence-title">Full Evidence Report</h2>
+        <p>
+          {report.pair_id
+            ? "Speech comparison · paired provisional evidence"
+            : "Reference inspection · single-recording evidence"}
+        </p>
+      </header>
       {insights && <ComparativeInsights report={insights} onSeek={onSeek} />}
+      <section className="summary-assessment print-only">
+        <h3>
+          {report.pair_id
+            ? "Verified Assessment status"
+            : "Reference verification status"}
+        </h3>
+        <p>
+          {report.pair_id
+            ? assessment
+              ? `Stored eligibility: ${label(assessment.eligibility.state)}. Automatic insights do not unlock a delivery score.`
+              : "Assessment evidence is unavailable; no eligibility or delivery score is asserted."
+            : "Single-recording inspection does not request a paired delivery assessment. Automatic processing does not verify the reference."}
+        </p>
+        {assessment && (
+          <ul>
+            {(report.pair_id
+              ? [
+                  ...new Set(
+                    (assessment.eligibility.reasons ?? []).map(
+                      evidenceRequirement,
+                    ),
+                  ),
+                ]
+              : referenceRequirements(assessment)
+            ).map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
+        <p>
+          Method: {insights?.config.method ?? report.config.method}; acoustic-v1
+          / exploratory-v1. Dataset {report.dataset_version}; processing{" "}
+          {report.processing_state}. Supplied-text timing and energy activity
+          are provisional. Full Evidence Report and JSON/CSV retain complete
+          provenance.
+        </p>
+      </section>
       <details className="exploratory-appendix" open={!insights}>
         <summary>Exploratory details / technical appendix</summary>
         <h3 className="print-only">
@@ -428,20 +475,25 @@ export function ExploratoryResult({
           Export interval CSV
         </a>
         <button
-          onClick={() => {
-            document.body.dataset.printScope = "exploratory";
-            window.addEventListener(
-              "afterprint",
-              () => {
-                delete document.body.dataset.printScope;
-              },
-              { once: true },
-            );
-            window.print();
-          }}
+          onClick={() =>
+            printAnalysisReport("summary", Boolean(report.pair_id))
+          }
+          disabled={!insights}
         >
-          Print exploratory report / save PDF
+          Export Analysis Summary / save PDF
         </button>
+        <button
+          onClick={() =>
+            printAnalysisReport("evidence", Boolean(report.pair_id))
+          }
+        >
+          Export Full Evidence Report / save PDF
+        </button>
+        <p className="meta">
+          Use the browser's Save as PDF destination. Summary selects three
+          inspection items; full evidence retains every measurement. JSON and
+          CSV remain complete.
+        </p>
       </div>
     </section>
   );
