@@ -175,10 +175,16 @@ test("software UI states distinguish loading, partial evidence, eligible finding
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("status").filter({ hasText: "Processing:" }),
+    page
+      .locator(".analysis-outcome")
+      .getByRole("status")
+      .filter({ hasText: "Processing:" }),
   ).toContainText("Evidence available; score unavailable");
   await expect(
-    page.getByRole("status").filter({ hasText: "Processing:" }),
+    page
+      .locator(".analysis-outcome")
+      .getByRole("status")
+      .filter({ hasText: "Processing:" }),
   ).not.toContainText("Pending verification");
   await page.screenshot({
     path: info.outputPath("software-fixture-eligible-evidence-no-score.png"),

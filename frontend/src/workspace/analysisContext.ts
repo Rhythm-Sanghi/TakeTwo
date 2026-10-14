@@ -1,4 +1,36 @@
-import type { Job, Report } from "../api";
+import type { ExploratoryReport, Job, Recording, Report } from "../api";
+
+export function exploratoryMatchesSelection(
+  report: ExploratoryReport,
+  job: Job,
+  reference: Recording,
+  pairId: string | null,
+  participant?: Recording,
+) {
+  const expected = [reference, ...(participant ? [participant] : [])];
+  return (
+    report.job_id === job.id &&
+    report.reference_id === reference.id &&
+    report.pair_id === pairId &&
+    job.request.reference_id === reference.id &&
+    job.request.pair_id === pairId &&
+    Boolean(pairId) === Boolean(participant) &&
+    report.recordings.length > 0 &&
+    report.recordings.length <= expected.length &&
+    new Set(report.recordings.map((r) => r.recording_id)).size ===
+      report.recordings.length &&
+    report.recordings.every((r) => {
+      const selected = expected.find((item) => item.id === r.recording_id);
+      return (
+        selected &&
+        r.provenance.audio_sha256 === selected.normalized_sha256 &&
+        r.provenance.sample_sha256 === selected.sample_sha256 &&
+        r.provenance.transcript_sha256 === selected.transcript_sha256 &&
+        r.duration_s === selected.normalized_info.duration_s
+      );
+    })
+  );
+}
 
 // A report may be shown only for the exact job request and selected inputs.
 export function reportMatchesSelection(

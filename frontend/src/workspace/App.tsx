@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, label, number, post } from "../api";
 import type {
   Evaluation,
+  ExploratoryReport,
   Health,
   Job,
   Pair,
@@ -15,9 +16,11 @@ import { ImportForm } from "./ImportForm";
 import { Inspector, Scores } from "./Evidence";
 import {
   reportMatchesSelection,
+  exploratoryMatchesSelection,
   referenceRequirements,
 } from "./analysisContext";
 import { AnalysisResult, Findings } from "./AnalysisResult";
+import { ExploratoryResult } from "./ExploratoryResult";
 import { Rubric } from "./Rubric";
 import { RubricGuide } from "./RubricGuide";
 import { Timeline } from "./Timeline";
@@ -143,6 +146,12 @@ export function App() {
     loading: boolean;
   } | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
+  const [exploration, setExploration] = useState<ExploratoryReport | null>(
+    null,
+  );
+  const [explorationError, setExplorationError] = useState("");
+  const [explorationLoading, setExplorationLoading] = useState(false);
+  const [explorationRetry, setExplorationRetry] = useState(0);
   const [seek, setSeek] = useState<
     Record<
       string,
@@ -170,11 +179,18 @@ export function App() {
   const availablePairs = pairs.filter((p) => p.reference_id === reference?.id);
   const pair = availablePairs.find((p) => p.id === pairId);
   const participant = recordings.find((r) => r.id === pair?.participant_id);
-  const overLimit = [reference, participant].some(
-    (r) =>
-      r &&
-      r.normalized_info.duration_s > (health?.maximum_analysis_duration_s ?? 0),
+  const latestAnalysis = jobs.find(
+    (j) =>
+      j.request.reference_id === reference?.id &&
+      j.request.pair_id === (pair?.id ?? null) &&
+      j.state === "completed",
   );
+  const maximumDuration = health?.maximum_analysis_duration_s;
+  const overLimit =
+    maximumDuration != null &&
+    [reference, participant].some(
+      (r) => r && r.normalized_info.duration_s > maximumDuration,
+    );
   const job = jobs.find((j) => j.id === jobId) ?? null;
   const jobMatches =
     job?.request.reference_id === reference?.id &&
@@ -204,6 +220,19 @@ export function App() {
       ? currentReportState.report
       : null;
   const comparisonReport = participant ? activeReport : null;
+  const activeExploration =
+    exploration &&
+    activeJob &&
+    reference &&
+    exploratoryMatchesSelection(
+      exploration,
+      activeJob,
+      reference,
+      pair?.id ?? null,
+      participant,
+    )
+      ? exploration
+      : null;
   const hasAvailableDimensions =
     activeReport &&
     (activeReport.eligibility.state === "ELIGIBLE" ||
@@ -279,14 +308,18 @@ export function App() {
   }, [jobs]);
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     setRegion(null);
     if (!activeJob?.report_path) {
       setReportState(null);
       return;
     }
     const identity = { jobId: activeJob.id, path: activeJob.report_path };
+    const timer = setTimeout(() => controller.abort(), 15000);
     setReportState({ ...identity, report: null, loading: true });
-    api<Report>(`/analyses/${activeJob.id}/report`)
+    api<Report>(`/analyses/${activeJob.id}/report`, {
+      signal: controller.signal,
+    })
       .then((value) => {
         if (!active) return;
         if (
@@ -307,13 +340,94 @@ export function App() {
       .catch((cause) => {
         if (active) {
           setReportState({ ...identity, report: null, loading: false });
-          setError(cause.message);
+          setError(
+            controller.signal.aborted
+              ? "Assessment request timed out. Refresh to reload evidence."
+              : cause.message,
+          );
         }
+      })
+      .finally(() => clearTimeout(timer));
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [activeJob?.id, activeJob?.report_path, recordings, reviews]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setExploration(null);
+    setExplorationError("");
+    setExplorationLoading(false);
+    if (!activeJob || ["queued", "running"].includes(activeJob.state)) return;
+    // Avoid competing serializations of large native feature arrays during report
+    // restoration. A failed formal-report load still permits exploratory recovery.
+    if (
+      activeJob.report_path &&
+      (!currentReportState || currentReportState.loading)
+    )
+      return;
+    const job = activeJob;
+    setExplorationLoading(true);
+    const timer = setTimeout(() => controller.abort(), 15000);
+    let active = true;
+    api<ExploratoryReport>(`/analyses/${job.id}/exploratory`, {
+      signal: controller.signal,
+    })
+      .then((value) => {
+        if (!active) return;
+        if (
+          !reference ||
+          !exploratoryMatchesSelection(
+            value,
+            job,
+            reference,
+            pair?.id ?? null,
+            participant,
+          )
+        )
+          throw new Error(
+            "Exploratory result identity differs from the selected analysis. Refresh its original inputs.",
+          );
+        setExploration(value);
+      })
+      .catch((cause) => {
+        if (active)
+          setExplorationError(
+            controller.signal.aborted
+              ? "Measurement request timed out. Retry loading; do not re-import audio."
+              : cause.message,
+          );
+      })
+      .finally(() => {
+        clearTimeout(timer);
+        if (active) setExplorationLoading(false);
       });
     return () => {
       active = false;
+      clearTimeout(timer);
+      controller.abort();
     };
-  }, [activeJob?.id, activeJob?.report_path, recordings, reviews]);
+  }, [
+    activeJob?.id,
+    activeJob?.state,
+    currentReportState?.loading,
+    explorationRetry,
+  ]);
+
+  function seekObservation(
+    recording: string,
+    start: number,
+    end?: number,
+    play = false,
+  ) {
+    if (recording !== reference?.id && recording !== participant?.id) return;
+    playback.current?.pause();
+    setRegion(null);
+    setAudioTrack(recording === participant?.id ? "participant" : "reference");
+    setSeek({ [recording]: { time: start, end, play, nonce: Date.now() } });
+  }
 
   function navigate(next: Page) {
     setPage(next);
@@ -650,6 +764,11 @@ export function App() {
                         <button onClick={() => navigate("Analysis Workspace")}>
                           Inspect audio in workspace
                         </button>
+                        {latestAnalysis && (
+                          <button onClick={() => openHistory(latestAnalysis)}>
+                            View latest analysis
+                          </button>
+                        )}
                         {reference && (
                           <button
                             onClick={() => {
@@ -699,54 +818,57 @@ export function App() {
           )}
           {page === "Analysis Workspace" && (
             <>
-              <AnalysisResult
-                job={activeJob}
-                report={activeReport}
-                loading={reportLoading}
-                availablePairCount={availablePairs.length}
-                reference={reference}
-                participant={participant}
-                referenceOnly={!participant}
-                evaluations={evaluations}
-                nextLabel={
-                  !reference
-                    ? "Import a reference"
-                    : activeJob &&
-                        ["queued", "running"].includes(activeJob.state)
-                      ? "View processing controls"
-                      : activeJob?.state === "completed" &&
-                          !activeReport &&
-                          !reportLoading
-                        ? "Reload assessment evidence"
-                        : !participant && activeJob?.state === "completed"
-                          ? availablePairs.length
-                            ? "Select a participant"
-                            : "Add a participant"
-                          : hasAvailableDimensions
-                            ? "Understand available dimensions"
-                            : activeReport
-                              ? "Check dataset and review requirements"
-                              : "Choose recordings and run analysis"
-                }
-                onNext={() =>
-                  !reference
-                    ? navigate("Recording Library")
-                    : activeJob?.state === "completed" &&
-                        !activeReport &&
-                        !reportLoading
-                      ? void refresh()
-                      : !participant && activeJob?.state === "completed"
-                        ? availablePairs.length
-                          ? document.getElementById("participant-pair")?.focus()
-                          : (setParticipantFor(reference.id),
-                            navigate("Recording Library"))
-                        : hasAvailableDimensions
-                          ? navigate("Rubric and Evidence")
-                          : activeReport
-                            ? navigate("Dataset and Evaluation")
-                            : document.getElementById("analysis-setup")?.focus()
-                }
-              />
+              <section
+                className="panel recording-identities"
+                aria-label="Selected recordings"
+              >
+                <h2>
+                  {participant ? "Speech comparison" : "Reference inspection"}
+                </h2>
+                <p>
+                  Reference:{" "}
+                  <strong>
+                    {reference?.original_filename ?? "Choose a recording"}
+                  </strong>
+                  {reference &&
+                    ` · ${number(reference.normalized_info.duration_s, 3)} s`}
+                </p>
+                {participant && (
+                  <p>
+                    Participant:{" "}
+                    <strong>{participant.original_filename}</strong> ·{" "}
+                    {number(participant.normalized_info.duration_s, 3)} s
+                  </p>
+                )}
+                <p role="status">
+                  Processing:{" "}
+                  {activeJob ? label(activeJob.state) : "Not started"}
+                  {activeJob &&
+                    ["queued", "running"].includes(activeJob.state) &&
+                    ` · ${label(activeJob.stage)}`}
+                </p>
+              </section>
+              {activeExploration && (
+                <ExploratoryResult
+                  report={activeExploration}
+                  onSeek={seekObservation}
+                  assessment={activeReport}
+                />
+              )}
+              {explorationLoading && (
+                <p role="status">Loading exploratory measurements…</p>
+              )}
+              {activeJob && explorationError && (
+                <section
+                  className="panel"
+                  aria-label="Exploratory measurement recovery"
+                >
+                  <p role="alert">{explorationError}</p>
+                  <button onClick={() => setExplorationRetry((v) => v + 1)}>
+                    Retry exploratory measurements
+                  </button>
+                </section>
+              )}
               <section
                 className="panel analysis-controls"
                 id="analysis-setup"
@@ -898,13 +1020,6 @@ export function App() {
                   </p>
                 </details>
               </section>
-              {comparisonReport && (
-                <Findings
-                  report={comparisonReport}
-                  onSelect={inspect}
-                  onReplay={(item) => inspect(item, true)}
-                />
-              )}
               <h2 className="exploration-heading">
                 Listen and explore evidence
               </h2>
@@ -913,7 +1028,13 @@ export function App() {
                 correspondence is required for linked navigation.
               </p>
               <div className="print-controls">
-                <button onClick={() => window.print()} disabled={!activeReport}>
+                <button
+                  onClick={() => {
+                    delete document.body.dataset.printScope;
+                    window.print();
+                  }}
+                  disabled={!activeReport}
+                >
                   Print analysis summary
                 </button>
                 {activeReport && (
@@ -1130,6 +1251,66 @@ export function App() {
                   </details>
                 )}
               </div>
+              {comparisonReport && (
+                <Findings
+                  report={comparisonReport}
+                  onSelect={inspect}
+                  onReplay={(item) => inspect(item, true)}
+                />
+              )}
+              <h2>
+                {participant
+                  ? "Verified Assessment"
+                  : "Reference evidence and next steps"}
+              </h2>
+              <AnalysisResult
+                job={activeJob}
+                report={activeReport}
+                loading={reportLoading}
+                availablePairCount={availablePairs.length}
+                reference={reference}
+                participant={participant}
+                referenceOnly={!participant}
+                evaluations={evaluations}
+                nextLabel={
+                  !reference
+                    ? "Import a reference"
+                    : activeJob &&
+                        ["queued", "running"].includes(activeJob.state)
+                      ? "View processing controls"
+                      : activeJob?.state === "completed" &&
+                          !activeReport &&
+                          !reportLoading
+                        ? "Reload assessment evidence"
+                        : !participant && activeJob?.state === "completed"
+                          ? availablePairs.length
+                            ? "Select a participant"
+                            : "Add a participant"
+                          : hasAvailableDimensions
+                            ? "Understand available dimensions"
+                            : activeReport
+                              ? "Check dataset and review requirements"
+                              : "Choose recordings and run analysis"
+                }
+                onNext={() =>
+                  !reference
+                    ? navigate("Recording Library")
+                    : activeJob?.state === "completed" &&
+                        !activeReport &&
+                        !reportLoading
+                      ? void refresh()
+                      : !participant && activeJob?.state === "completed"
+                        ? availablePairs.length
+                          ? document.getElementById("participant-pair")?.focus()
+                          : (setParticipantFor(reference.id),
+                            navigate("Recording Library"))
+                        : hasAvailableDimensions
+                          ? navigate("Rubric and Evidence")
+                          : activeReport
+                            ? navigate("Dataset and Evaluation")
+                            : document.getElementById("analysis-setup")?.focus()
+                }
+              />
             </>
           )}
           {page === "Rubric and Evidence" && (
@@ -1164,6 +1345,15 @@ export function App() {
           )}
           {page === "Dataset and Evaluation" && (
             <>
+              {activeExploration && (
+                <p>
+                  Exploratory measurements are available for the selected
+                  analysis. They do not certify dataset or review readiness.{" "}
+                  <button onClick={() => navigate("Analysis Workspace")}>
+                    View exploratory measurements
+                  </button>
+                </p>
+              )}
               <DatasetReadiness
                 report={comparisonReport}
                 summary={datasetSummary}

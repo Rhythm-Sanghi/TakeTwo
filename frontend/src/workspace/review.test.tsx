@@ -239,3 +239,102 @@ it("retains a rejected continuous playback span for the next real update without
   expect(observed[2]).toEqual({ start_s: 1.4, end_s: 1.7 });
   expect(screen.getByRole("button", { name: "Submit review" })).toBeDisabled();
 });
+
+it("keeps an explicitly sought beginning when the play callback arrives milliseconds later", async () => {
+  const observed: unknown[] = [];
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith("/listen"))
+        observed.push(JSON.parse(init?.body as string));
+      return {
+        ok: true,
+        json: async () =>
+          url.includes("waveform")
+            ? { bins: [], start_s: 0, end_s: 2 }
+            : session,
+      };
+    }),
+  );
+  render(<Reviewer sessionId={session.id} />);
+  const player = (await screen.findByLabelText(
+    "Assigned recording playback",
+  )) as HTMLAudioElement;
+  Object.defineProperty(player, "paused", { configurable: true, value: false });
+  await userEvent.click(
+    screen.getByRole("button", { name: "Listen from beginning" }),
+  );
+  player.currentTime = 0.006;
+  fireEvent.play(player);
+  player.currentTime = 0.5;
+  fireEvent.timeUpdate(player);
+  await waitFor(() => expect(observed).toEqual([{ start_s: 0, end_s: 0.5 }]));
+  expect(screen.getByRole("button", { name: "Submit review" })).toBeDisabled();
+});
+
+it("waits for the terminal listening acknowledgment before saving and validating", async () => {
+  const calls: string[] = [];
+  let first: (value: unknown) => void = () => {};
+  let terminal: (value: unknown) => void = () => {};
+  const pendingFirst = new Promise((resolve) => {
+    first = resolve;
+  });
+  const pendingTerminal = new Promise((resolve) => {
+    terminal = resolve;
+  });
+  const success = { ok: true, json: async () => session };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith("/listen")) {
+        const span = JSON.parse(init?.body as string);
+        calls.push(`listen:${span.start_s}-${span.end_s}`);
+        return span.end_s === 0.5 ? pendingFirst : pendingTerminal;
+      }
+      if (url.endsWith("/draft")) calls.push("draft");
+      if (url.endsWith("/validation")) {
+        calls.push("validation");
+        return {
+          ok: true,
+          json: async () => ({
+            can_submit: false,
+            issues: ["Independent decision still missing."],
+            scientific_notice: "Software fixture only.",
+          }),
+        };
+      }
+      return url.includes("waveform")
+        ? { ok: true, json: async () => ({ bins: [], start_s: 0, end_s: 2 }) }
+        : success;
+    }),
+  );
+  render(<Reviewer sessionId={session.id} />);
+  const player = (await screen.findByLabelText(
+    "Assigned recording playback",
+  )) as HTMLAudioElement;
+  Object.defineProperty(player, "paused", { configurable: true, value: false });
+  fireEvent.play(player);
+  player.currentTime = 0.5;
+  fireEvent.timeUpdate(player);
+  await waitFor(() => expect(calls).toEqual(["listen:0-0.5"]));
+  player.currentTime = 2;
+  Object.defineProperty(player, "ended", { configurable: true, value: true });
+  Object.defineProperty(player, "paused", { configurable: true, value: true });
+  fireEvent.ended(player);
+  await userEvent.click(screen.getByRole("button", { name: "Save draft" }));
+  expect(calls).not.toContain("draft");
+  first(success);
+  await waitFor(() => expect(calls).toEqual(["listen:0-0.5", "listen:0.5-2"]));
+  expect(calls).not.toContain("draft");
+  terminal(success);
+  await waitFor(() =>
+    expect(calls).toEqual([
+      "listen:0-0.5",
+      "listen:0.5-2",
+      "draft",
+      "validation",
+    ]),
+  );
+  expect(screen.getByRole("button", { name: "Submit review" })).toBeDisabled();
+});

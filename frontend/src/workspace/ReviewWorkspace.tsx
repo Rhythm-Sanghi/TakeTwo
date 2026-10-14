@@ -677,6 +677,11 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
     // Wait for an outstanding playback heartbeat before optimistic draft save.
     while (inFlight.current)
       await new Promise((resolve) => setTimeout(resolve, 25));
+    // The ended event may be waiting for that same heartbeat. Flush its final
+    // observed span and wait again before asking the backend to validate a save.
+    if (audio.current?.ended) await tick();
+    while (inFlight.current)
+      await new Promise((resolve) => setTimeout(resolve, 25));
     const s = await post<Session>(`${path}/draft`, {
       revision: editRevision.current,
       draft,
@@ -684,6 +689,35 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
     received(s, true);
     await refreshValidation();
     setStatus("Draft saved locally.");
+  }
+  async function listenFromBeginning() {
+    const player = audio.current;
+    if (!player) return;
+    player.pause();
+    playEnd.current = null;
+    last.current = null;
+    if (player.currentTime !== 0) {
+      await new Promise<void>((resolve, reject) => {
+        const complete = () => {
+          clearTimeout(timer);
+          player.removeEventListener("seeked", complete);
+          resolve();
+        };
+        const timer = setTimeout(() => {
+          player.removeEventListener("seeked", complete);
+          reject(
+            new Error(
+              "Could not seek to the beginning. Reload audio and retry listening.",
+            ),
+          );
+        }, 15000);
+        player.addEventListener("seeked", complete, { once: true });
+        player.currentTime = 0;
+      });
+    }
+    // This anchor follows an explicit native seek, before playback starts.
+    last.current = 0;
+    await player.play();
   }
   function replay(a: number, b: number) {
     if (!audio.current || !session) return;
@@ -832,18 +866,7 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
             </p>
             <section className="panel" id="review-listen" tabIndex={-1}>
               <h2>Recording and native timeline</h2>
-              <button
-                onClick={() => {
-                  if (audio.current) {
-                    audio.current.currentTime = 0;
-                    last.current = 0;
-                    playEnd.current = null;
-                    void audio.current
-                      .play()
-                      .catch((e) => setStatus(e.message));
-                  }
-                }}
-              >
+              <button onClick={() => void action(listenFromBeginning)}>
                 Listen from beginning
               </button>
               {session.assignment.scope === "flaws" && (
@@ -882,7 +905,7 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
                 }}
                 onPlay={() => {
                   referenceAudio.current?.pause();
-                  last.current = audio.current?.currentTime ?? null;
+                  last.current ??= audio.current?.currentTime ?? null;
                 }}
               />
               <canvas

@@ -902,6 +902,45 @@ footer {
   margin: 12mm;
 }
 @media print {
+  .exploratory-result {
+    break-inside: auto;
+  }
+  .exploratory-result .findings-list,
+  .exploratory-result .automatic-correspondence {
+    display: none;
+  }
+  .candidate-table {
+    display: table !important;
+    width: 100%;
+    font-size: 8pt;
+    border-collapse: collapse;
+    break-inside: auto;
+  }
+  .candidate-table td,
+  .candidate-table th {
+    border-bottom: 1px solid #d1d5cf;
+    padding: 3pt;
+    text-align: left;
+  }
+  .candidate-table tr {
+    break-inside: avoid;
+  }
+  body[data-print-scope="exploratory"]
+    main
+    > :not(h1):not(.recording-identities):not(.exploratory-result) {
+    display: none !important;
+  }
+  body[data-print-scope="exploratory"] .app-header > span {
+    display: none;
+  }
+  .exploratory-result .findings-list > li,
+  .exploratory-result .measurement-strip > div {
+    break-inside: avoid;
+  }
+  .exploratory-result details::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
   .reference-analysis .inspector dl.reference-measurements {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6pt 12pt;

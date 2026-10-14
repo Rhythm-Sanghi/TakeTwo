@@ -14,6 +14,8 @@ export type Alignment = components["schemas"]["AlignmentResult"];
 export type ImportRequest = components["schemas"]["ImportRequest"];
 export type Evaluation = components["schemas"]["Evaluation"];
 export type Review = components["schemas"]["Review-Output"];
+export type ExploratoryReport = components["schemas"]["ExploratoryReport"];
+export type AcousticCandidate = components["schemas"]["AcousticCandidate"];
 
 export class ApiError extends Error {
   constructor(

@@ -16,10 +16,10 @@ test("mobile result, collection and independent audio state remain usable", asyn
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/");
   await openHistory(page, job.id.slice(0, 12));
-  await expect(page.locator(".analysis-outcome h2")).toBeVisible();
+  await expect(page.locator(".recording-identities h2")).toBeVisible();
   expect(
     await page
-      .locator(".analysis-outcome h2")
+      .locator(".recording-identities h2")
       .evaluate((node) => node.getBoundingClientRect().bottom),
   ).toBeLessThan(740);
   await expect(page.locator(".library")).toHaveCount(0);
