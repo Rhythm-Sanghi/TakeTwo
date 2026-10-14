@@ -316,3 +316,58 @@ def test_exploratory_http_exports_preserve_formal_report(client, monkeypatch):
     audio = root / recording.normalized_path
     audio.write_bytes(b"corrupt test input")
     assert client.get(base + "/exploratory").status_code == 422
+
+
+def test_comparative_cache_integrity_restoration_and_distinct_artifact_errors(client, monkeypatch):
+    import csv
+    import io
+
+    import taketwo.web.app as module
+    from taketwo.dataset.schema import content_hash
+
+    client, root, recording = client
+    job = client.post(
+        "/api/v1/analyses", json={"reference_id": recording.id, "align": False}
+    ).json()
+    job = wait_job(client, job["id"])
+    base = f"/api/v1/analyses/{job['id']}"
+    formal = client.get(base + "/report").json()
+    calls = []
+    original = module.build_insights
+
+    def counted(*args):
+        calls.append(True)
+        return original(*args)
+
+    monkeypatch.setattr(module, "build_insights", counted)
+    result = client.get(base + "/insights").json()
+    assert result["exploratory"]["reference_id"] == recording.id
+    assert result["segments"] == [] and result["correspondence_unavailable_reason"]
+    assert client.get(base + "/insights").json() == result and len(calls) == 1
+    exported = client.get(base + "/insights/export").json()
+    assert exported == {"sha256": content_hash(result), "result": result}
+    rows = list(
+        csv.DictReader(io.StringIO(client.get(base + "/exploratory/export?format=csv").text))
+    )
+    assert [r["candidate_id"] for r in rows] == [
+        c["id"] for c in result["exploratory"]["candidates"]
+    ]
+    assert client.get(base + "/report").json() == formal
+    restarted = TestClient(create_app(root))
+    assert restarted.get(base + "/insights").json() == result and len(calls) == 2
+    stored = next((root / "derived/comparative-insights-v1").glob("insights-*.json"))
+    original_bytes = stored.read_bytes()
+    stored.write_bytes(b"corrupted fixture")
+    assert client.get(base + "/insights").status_code == 422
+    stored.write_bytes(original_bytes)
+    features = root / job["artifacts"][recording.id]["features"]
+    original_bytes = features.read_bytes()
+    features.unlink()
+    missing = client.get(base + "/insights")
+    assert missing.status_code == 404 and missing.json()["error"]["code"] == "artifact_missing"
+    features.write_bytes(b"corrupted fixture")
+    corrupt = client.get(base + "/insights")
+    assert corrupt.status_code == 422 and corrupt.json()["error"]["code"] == "artifact_corrupt"
+    features.write_bytes(original_bytes)
+    assert client.get(base + "/insights").json() == result
+    assert client.get("/api/v1/analyses/no-job/insights").json()["error"]["code"] == "not_found"

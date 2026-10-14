@@ -603,6 +603,82 @@
         }
       }
     },
+    "/api/v1/analyses/{job_id}/insights": {
+      "get": {
+        "summary": "Insights",
+        "operationId": "insights_api_v1_analyses__job_id__insights_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparativeReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/insights/export": {
+      "get": {
+        "summary": "Export Insights",
+        "operationId": "export_insights_api_v1_analyses__job_id__insights_export_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyses/{job_id}/exploratory": {
       "get": {
         "summary": "Exploratory",
@@ -2496,6 +2572,67 @@
         ],
         "title": "AdjudicationRecord"
       },
+      "AlignmentAnomaly": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "before_token_index": {
+            "type": "integer",
+            "title": "Before Token Index"
+          },
+          "before_word": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "after_word": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "gap": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "measurement": {
+            "$ref": "#/components/schemas/LocalMeasurements"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "alignment_confidence": {
+            "type": "null",
+            "title": "Alignment Confidence"
+          },
+          "status": {
+            "type": "string",
+            "const": "automatic_unverified",
+            "title": "Status",
+            "default": "automatic_unverified"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "recording_id",
+          "before_token_index",
+          "before_word",
+          "after_word",
+          "gap",
+          "context",
+          "measurement",
+          "reason"
+        ],
+        "title": "AlignmentAnomaly"
+      },
       "AlignmentConfig": {
         "properties": {
           "backend": {
@@ -2982,6 +3119,143 @@
           "metadata"
         ],
         "title": "Body_upload_api_v1_recordings_post"
+      },
+      "ComparativeReport": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "comparative_insights",
+            "title": "Kind",
+            "default": "comparative_insights"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "config": {
+            "$ref": "#/components/schemas/InsightConfig"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          },
+          "exploratory_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Exploratory Sha256"
+          },
+          "exploratory": {
+            "$ref": "#/components/schemas/ExploratoryReport"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/ObservationGroup"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/PairedSegment"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "anomalies": {
+            "items": {
+              "$ref": "#/components/schemas/AlignmentAnomaly"
+            },
+            "type": "array",
+            "title": "Anomalies"
+          },
+          "inspection_order": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionItem"
+            },
+            "type": "array",
+            "title": "Inspection Order"
+          },
+          "activity_delta_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Delta S"
+          },
+          "low_energy_delta_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low Energy Delta S"
+          },
+          "correspondence_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correspondence Unavailable Reason"
+          },
+          "phrase_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phrase Unavailable Reason"
+          },
+          "phrase_review_sha256": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "type": "array",
+            "title": "Phrase Review Sha256"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "config",
+          "implementation_sha256",
+          "exploratory_sha256",
+          "exploratory",
+          "groups",
+          "segments",
+          "anomalies",
+          "inspection_order",
+          "activity_delta_s",
+          "low_energy_delta_s",
+          "correspondence_unavailable_reason",
+          "phrase_unavailable_reason",
+          "limitations"
+        ],
+        "title": "ComparativeReport"
       },
       "CorrectionRequest": {
         "properties": {
@@ -4283,6 +4557,97 @@
         ],
         "title": "InputEvidence"
       },
+      "InsightConfig": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "const": "comparative-insights-v1",
+            "title": "Method",
+            "default": "comparative-insights-v1"
+          },
+          "grouping": {
+            "type": "string",
+            "const": "overlap-or-touch/same-kind/same-sign/same-config",
+            "title": "Grouping",
+            "default": "overlap-or-touch/same-kind/same-sign/same-config"
+          },
+          "matching": {
+            "type": "string",
+            "const": "complete-identical-indexed-transcript",
+            "title": "Matching",
+            "default": "complete-identical-indexed-transcript"
+          },
+          "anomaly_gap_s": {
+            "type": "number",
+            "const": 1.0,
+            "title": "Anomaly Gap S",
+            "default": 1.0
+          },
+          "anomaly_relative_gap_s": {
+            "type": "number",
+            "const": 0.5,
+            "title": "Anomaly Relative Gap S",
+            "default": 0.5
+          },
+          "initial_items": {
+            "type": "integer",
+            "const": 6,
+            "title": "Initial Items",
+            "default": 6
+          },
+          "ordering": {
+            "type": "string",
+            "const": "quality-first/anomaly/gap/duration/groups/native-id",
+            "title": "Ordering",
+            "default": "quality-first/anomaly/gap/duration/groups/native-id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InsightConfig"
+      },
+      "InspectionItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "alignment_anomaly",
+              "gap_difference",
+              "word_duration",
+              "group"
+            ],
+            "title": "Category"
+          },
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Evidence Id"
+          },
+          "quality_limited": {
+            "type": "boolean",
+            "title": "Quality Limited"
+          },
+          "order_reason": {
+            "type": "string",
+            "title": "Order Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "evidence_id",
+          "quality_limited",
+          "order_reason"
+        ],
+        "title": "InspectionItem"
+      },
       "Interval": {
         "properties": {
           "start_s": {
@@ -4540,6 +4905,80 @@
           "end_s"
         ],
         "title": "ListeningEvent"
+      },
+      "LocalMeasurements": {
+        "properties": {
+          "observed_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Observed S"
+          },
+          "interval_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Interval S"
+          },
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          },
+          "low_energy_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low Energy S"
+          },
+          "median_energy_dbfs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Energy Dbfs"
+          },
+          "energy_range_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Range Db"
+          },
+          "relative_energy_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Energy Db"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "observed_s",
+          "interval_s",
+          "complete",
+          "low_energy_s",
+          "median_energy_dbfs",
+          "energy_range_db",
+          "relative_energy_db"
+        ],
+        "title": "LocalMeasurements"
       },
       "Match": {
         "properties": {
@@ -4920,6 +5359,107 @@
         ],
         "title": "Observation"
       },
+      "ObservationGroup": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "increase",
+              "decrease",
+              "low_energy"
+            ],
+            "title": "Direction"
+          },
+          "candidate_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Candidate Ids"
+          },
+          "representative_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Representative Delta Db"
+          },
+          "delta_range_db": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Delta Range Db"
+          },
+          "median_energy_range_dbfs": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Median Energy Range Dbfs"
+          },
+          "detection": {
+            "$ref": "#/components/schemas/AcousticCandidate"
+          },
+          "limitation": {
+            "type": "string",
+            "title": "Limitation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "recording_id",
+          "kind",
+          "start_s",
+          "end_s",
+          "duration_s",
+          "direction",
+          "candidate_ids",
+          "representative_delta_db",
+          "delta_range_db",
+          "median_energy_range_dbfs",
+          "detection",
+          "limitation"
+        ],
+        "title": "ObservationGroup"
+      },
       "Operation": {
         "properties": {
           "kind": {
@@ -5174,6 +5714,132 @@
           "identity_status"
         ],
         "title": "Pair"
+      },
+      "PairedSegment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "word",
+              "phrase"
+            ],
+            "title": "Kind"
+          },
+          "token_start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Token Start"
+          },
+          "token_end": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Token End"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "participant": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "reference_measurements": {
+            "$ref": "#/components/schemas/LocalMeasurements"
+          },
+          "participant_measurements": {
+            "$ref": "#/components/schemas/LocalMeasurements"
+          },
+          "duration_delta_s": {
+            "type": "number",
+            "title": "Duration Delta S"
+          },
+          "relative_duration_delta_percent": {
+            "type": "number",
+            "title": "Relative Duration Delta Percent"
+          },
+          "reference_gap_before_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Gap Before S"
+          },
+          "participant_gap_before_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participant Gap Before S"
+          },
+          "gap_delta_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gap Delta S"
+          },
+          "relative_energy_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Energy Delta Db"
+          },
+          "status": {
+            "type": "string",
+            "const": "automatic_unverified",
+            "title": "Status",
+            "default": "automatic_unverified"
+          },
+          "limitation": {
+            "type": "string",
+            "title": "Limitation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "token_start",
+          "token_end",
+          "text",
+          "reference",
+          "participant",
+          "reference_measurements",
+          "participant_measurements",
+          "duration_delta_s",
+          "relative_duration_delta_percent",
+          "reference_gap_before_s",
+          "participant_gap_before_s",
+          "gap_delta_s",
+          "relative_energy_delta_db",
+          "limitation"
+        ],
+        "title": "PairedSegment"
       },
       "Policy": {
         "properties": {

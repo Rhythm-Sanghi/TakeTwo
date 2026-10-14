@@ -16,6 +16,7 @@ export type Evaluation = components["schemas"]["Evaluation"];
 export type Review = components["schemas"]["Review-Output"];
 export type ExploratoryReport = components["schemas"]["ExploratoryReport"];
 export type AcousticCandidate = components["schemas"]["AcousticCandidate"];
+export type ComparativeReport = components["schemas"]["ComparativeReport"];
 
 export class ApiError extends Error {
   constructor(

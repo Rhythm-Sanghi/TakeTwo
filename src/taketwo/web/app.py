@@ -32,7 +32,7 @@ from taketwo.analysis.storage import read_artifact as read_analysis
 from taketwo.analysis.storage import recording_input, validate_identity
 from taketwo.comparison.contracts import ArtifactRef, Evaluation, Policy, Report, Review, Span
 from taketwo.comparison.engine import acoustic_gate
-from taketwo.comparison.reviews import reviewed_timing
+from taketwo.comparison.reviews import reviewed_timing, validate_review
 from taketwo.comparison.storage import bound_dataset, implementation_hash, read_artifact
 from taketwo.dataset.errors import DatasetError
 from taketwo.dataset.schema import (
@@ -49,6 +49,10 @@ from taketwo.exploratory.engine import Source
 from taketwo.exploratory.engine import build as build_exploratory
 from taketwo.exploratory.storage import implementation_hash as exploratory_hash
 from taketwo.exploratory.storage import publish as publish_exploratory
+from taketwo.insights.contracts import ComparativeReport
+from taketwo.insights.engine import build as build_insights
+from taketwo.insights.storage import implementation_hash as insights_hash
+from taketwo.insights.storage import publish as publish_insights
 
 from .contracts import (
     AnalysisRequest,
@@ -258,7 +262,20 @@ def create_app(
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(request, exc):
+        if isinstance(exc.detail, dict):
+            return error(exc.status_code, **exc.detail)
         return error(exc.status_code, "request_state", str(exc.detail))
+
+    def artifact_error(status, code, message):
+        return HTTPException(
+            status,
+            {
+                "code": code,
+                "message": message,
+                "recovery": "Restore the original managed artifact or start a new analysis; "
+                "do not re-import unchanged audio.",
+            },
+        )
 
     def recording(rid):
         try:
@@ -274,8 +291,17 @@ def create_app(
         if not relative:
             raise HTTPException(409, "Requested evidence is not available for this job member.")
         path = managed_path(root, relative)
-        stat = path.stat()
-        result = validated_analysis(str(path), stat.st_mtime_ns, stat.st_size)
+        try:
+            stat = path.stat()
+            result = validated_analysis(str(path), stat.st_mtime_ns, stat.st_size)
+        except FileNotFoundError as exc:
+            raise artifact_error(
+                404, "artifact_missing", "Stored acoustic evidence is missing."
+            ) from exc
+        except ValueError as exc:
+            raise artifact_error(
+                422, "artifact_corrupt", "Stored acoustic evidence failed integrity validation."
+            ) from exc
         validate_identity(root, result)
         return result
 
@@ -291,7 +317,16 @@ def create_app(
         job = jobs.get(job_id)
         if not job.report_path:
             raise HTTPException(409, "Analysis has no completed report.")
-        result = read_artifact(managed_path(root, job.report_path))
+        try:
+            result = read_artifact(managed_path(root, job.report_path))
+        except FileNotFoundError as exc:
+            raise artifact_error(
+                404, "artifact_missing", "Stored assessment report is missing."
+            ) from exc
+        except ValueError as exc:
+            raise artifact_error(
+                422, "artifact_corrupt", "Stored assessment report failed integrity validation."
+            ) from exc
         if not isinstance(result, Report):
             raise ValueError("Stored artifact is not a comparison report.")
         if result.implementation_sha256 != implementation_hash():
@@ -558,7 +593,7 @@ def create_app(
     exploratory_cache = OrderedDict()
     exploratory_cache_lock = Lock()
 
-    def exploratory_result(job_id):
+    def exploratory_result(job_id, include_sources=False):
         job, dataset = jobs.get(job_id), load(root)
         pair = next((p for p in dataset.pairs if p.id == job.request.pair_id), None)
         if job.request.pair_id and (pair is None or pair.reference_id != job.request.reference_id):
@@ -634,7 +669,70 @@ def create_app(
             exploratory_cache.move_to_end(key)
             while len(exploratory_cache) > 16:
                 exploratory_cache.popitem(last=False)
+        return (result, sources) if include_sources else result
+
+    insights_cache = OrderedDict()
+    insights_cache_lock = Lock()
+
+    def comparative_result(job_id):
+        measured, sources = exploratory_result(job_id, include_sources=True)
+        implementation = insights_hash()
+        partitions, review_hashes = [], []
+        for source in sources:
+            reviews = []
+            for path in managed_path(root, "derived/comparison-v1").glob("review-*.json"):
+                review = read_artifact(path)
+                if (
+                    isinstance(review, Review)
+                    and review.scope == "timing"
+                    and (
+                        review.provenance.recording_id == source.recording.id
+                        and review.pair_id == measured.pair_id
+                    )
+                ):
+                    validate_review(review, source.recording, source.alignment)
+                    reviews.append(review)
+                    review_hashes.append(content_hash(review.model_dump(mode="json")))
+            _, partition, issue = reviewed_timing(reviews)
+            partitions.append(partition if not issue else None)
+        phrase_spans = (
+            partitions[0] if len(partitions) == 2 and partitions[0] == partitions[1] else None
+        )
+        key = content_hash(
+            [
+                content_hash(measured.model_dump(mode="json")),
+                implementation,
+                sorted(review_hashes),
+                phrase_spans,
+            ]
+        )
+        with insights_cache_lock:
+            result = insights_cache.get(key)
+            if result is None:
+                result = build_insights(
+                    measured, sources, implementation, phrase_spans, sorted(review_hashes)
+                )
+            publish_insights(root, result)
+            insights_cache[key] = result
+            insights_cache.move_to_end(key)
+            while len(insights_cache) > 16:
+                insights_cache.popitem(last=False)
         return result
+
+    @app.get("/api/v1/analyses/{job_id}/insights", response_model=ComparativeReport)
+    def insights(job_id: str):
+        return comparative_result(job_id)
+
+    @app.get("/api/v1/analyses/{job_id}/insights/export")
+    def export_insights(job_id: str):
+        result = comparative_result(job_id).model_dump(mode="json")
+        return Response(
+            canonical_json({"sha256": content_hash(result), "result": result}),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": f'attachment; filename="taketwo-insights-{job_id}.json"'
+            },
+        )
 
     @app.get("/api/v1/analyses/{job_id}/exploratory", response_model=ExploratoryReport)
     def exploratory(job_id: str):
