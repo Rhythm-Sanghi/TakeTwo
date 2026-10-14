@@ -44,3 +44,4 @@ tmp/
 /output/pdf/taketwo-technical-report-2026-10-14.pdf
 # Comparative owner reports contain private filenames, native timings and hashes.
 /output/pdf/taketwo-comparative-*.pdf
+/output/pdf/taketwo-dataset-readiness-*.pdf

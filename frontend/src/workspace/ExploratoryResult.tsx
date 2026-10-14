@@ -485,16 +485,20 @@ export function ExploratoryResult({
         >
           Export interval CSV
         </a>
-        <button onClick={() => print("summary")} disabled={!insights}>
+        <button
+          className="primary"
+          onClick={() => print("summary")}
+          disabled={!insights}
+        >
           Export Analysis Summary / save PDF
         </button>
         <button onClick={() => print("evidence")}>
           Export Full Evidence Report / save PDF
         </button>
         <p className="meta">
-          Use the browser's Save as PDF destination. Summary selects three
-          inspection items; full evidence retains every measurement. JSON and
-          CSV remain complete.
+          Choose Save as PDF in the browser for searchable text. Microsoft Print
+          to PDF can outline text. Summary selects three inspection items; full
+          evidence retains every measurement. JSON and CSV remain complete.
         </p>
       </div>
       {printError && (

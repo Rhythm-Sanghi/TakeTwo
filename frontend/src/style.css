@@ -944,6 +944,11 @@ footer {
     content: "TakeTwo / reference inspection";
   }
 }
+@page dataset-readiness {
+  @bottom-left {
+    content: "TakeTwo / dataset readiness";
+  }
+}
 .insight-list > li {
   border-top: 1px solid #d1d5cf;
   padding: 12px 0;
@@ -973,6 +978,9 @@ footer {
   }
   body[data-report-mode="reference"] {
     page: reference-inspection;
+  }
+  body[data-report-mode="dataset"] {
+    page: dataset-readiness;
   }
   .comparative-insights .summary-selection {
     display: none;
@@ -1412,5 +1420,37 @@ footer {
   }
   .comparative-appendix th:nth-child(4) {
     width: 25%;
+  }
+  body:not([data-print-scope="exploratory"]) .comparative-appendix,
+  body:not([data-print-scope="exploratory"]) .exploratory-appendix,
+  body:not([data-print-scope="exploratory"]) .technical-details,
+  body:not([data-print-scope="exploratory"]) .evidence-details,
+  body:not([data-print-scope="exploratory"]) .interactive-assessment-heading,
+  body:not([data-print-scope="exploratory"]) .reference-print-intro,
+  body:not([data-print-scope="exploratory"]) .evidence-title,
+  body:not([data-print-scope="exploratory"]) .evidence-selection,
+  body:not([data-print-scope="exploratory"]) .app-header > [role="status"],
+  body:not([data-print-scope="exploratory"]) main > .hash.meta,
+  body:not([data-print-scope="exploratory"]) .report-heading > p,
+  body:not([data-print-scope="exploratory"]) .technical-overview:not(.meta) {
+    display: none !important;
+  }
+  body:not([data-print-scope="exploratory"]) .analysis-outcome {
+    display: block !important;
+    break-inside: avoid;
+  }
+  body:not([data-print-scope="exploratory"])
+    .analysis-outcome
+    > :not(.workspace-assessment) {
+    display: none !important;
+  }
+  body[data-print-scope="exploratory"] .workspace-print-note {
+    display: none !important;
+  }
+  .workspace-assessment h2 {
+    margin-top: 0;
+  }
+  body:not([data-print-scope="exploratory"]) main > h1 {
+    margin: 4pt 0;
   }
 }

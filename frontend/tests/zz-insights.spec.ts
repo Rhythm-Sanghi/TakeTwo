@@ -3,6 +3,64 @@ import type { ComparativeReport, Job, Recording } from "../src/api";
 import { openHistory, navigateWorkspace } from "./navigation";
 import { readableEvidenceReason } from "../src/workspace/insightCopy";
 
+test("workspace printing preserves charts and an explicit verification state without technical inventories", async ({
+  page,
+  request,
+}, info) => {
+  const jobs: Job[] = await (await request.get("/api/v1/analyses")).json();
+  for (const paired of [true, false]) {
+    const job = jobs.find(
+      (j) => j.state === "completed" && Boolean(j.request.pair_id) === paired,
+    )!;
+    await page.goto("/");
+    await openHistory(page, job.id.slice(0, 12));
+    await expect(page.locator(".comparative-insights")).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.locator(".feature-chart .uplot")).toHaveCount(
+      paired ? 2 : 1,
+    );
+    await page.evaluate(() => {
+      window.print = () => {};
+    });
+    await page
+      .getByRole("button", { name: "Print workspace evidence", exact: true })
+      .click();
+    expect(await page.evaluate(() => document.body.dataset.reportMode)).toBe(
+      paired ? "paired" : "reference",
+    );
+    await page.emulateMedia({ media: "print" });
+    await expect(page.locator(".comparative-appendix")).not.toBeVisible();
+    await expect(page.locator(".exploratory-appendix")).not.toBeVisible();
+    await expect(
+      page.locator(".interactive-assessment-heading"),
+    ).not.toBeVisible();
+    await expect(page.locator(".workspace-assessment")).toBeVisible();
+    await expect(page.locator(".workspace-assessment")).toContainText(
+      "Dataset",
+    );
+    await page.pdf({
+      path: info.outputPath(`${paired ? "paired" : "reference"}-workspace.pdf`),
+      format: "A4",
+      printBackground: true,
+      tagged: true,
+    });
+    await expect(page.locator(".print-chart").first()).toBeVisible();
+    expect(
+      await page
+        .locator(".print-chart")
+        .first()
+        .evaluate((node: HTMLImageElement) => node.naturalWidth),
+    ).toBeGreaterThan(0);
+    await page.emulateMedia({ media: null });
+    await page.evaluate(() => dispatchEvent(new Event("afterprint")));
+    expect(
+      await page.evaluate(() => document.body.dataset.reportType),
+    ).toBeUndefined();
+    await expect(page.locator(".analysis-outcome")).toBeVisible();
+  }
+});
+
 test("summary and full evidence print separately with reference-only terminology", async ({
   page,
   request,

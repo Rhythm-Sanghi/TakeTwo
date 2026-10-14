@@ -80,6 +80,39 @@ export function hasIndependentEvaluation(
   );
 }
 
+export function printedAssessmentStatus(
+  report: Report | null,
+  referenceOnly: boolean,
+) {
+  if (referenceOnly)
+    return "Automatic processing does not verify the reference. Independently checked text, timing and genuine rights evidence remain required.";
+  if (!report)
+    return "Verified assessment evidence is unavailable. Restore the completed report or finish processing before assessing eligibility.";
+  if (report.overall_score != null && report.eligibility.state === "ELIGIBLE")
+    return `Reference agreement: ${number(report.overall_score, 1)} / 100. This uncalibrated rubric is not overall speaking ability.`;
+  if (
+    report.eligibility.state === "ELIGIBLE" ||
+    report.dimensions.some((d) => d.score != null) ||
+    report.regions.some((r) => r.eligibility.state === "ELIGIBLE")
+  )
+    return "Some evidence is available; the overall assessment remains unavailable. Check dimension coverage and review requirements.";
+  const reasons = [
+    ...(report.eligibility.reasons ?? []),
+    ...Object.values(report.feature_eligibility ?? {}).flatMap(
+      (g) => g.reasons ?? [],
+    ),
+  ];
+  return reasons.some((r) =>
+    [
+      "transcript_unverified",
+      "timing_review_required",
+      "pair_review_required",
+    ].includes(r.code),
+  )
+    ? "Verified assessment is unavailable because independent review requirements have not been satisfied."
+    : "Verified assessment is unavailable because stored eligibility or acoustic requirements have not been satisfied. Inspect the report's reasons before interpreting the measurements.";
+}
+
 export function AnalysisResult({
   job,
   report,
@@ -121,6 +154,21 @@ export function AnalysisResult({
       report.regions.some((r) => r.eligibility.state === "ELIGIBLE"));
   return (
     <section className="panel analysis-outcome" aria-label="Analysis result">
+      <section className="print-only workspace-assessment">
+        <h2>
+          {referenceOnly
+            ? "Reference verification status"
+            : "Verified Assessment"}
+        </h2>
+        <p>{printedAssessmentStatus(report, referenceOnly)}</p>
+        {report && (
+          <p>
+            Dataset {report.dataset_version} · stored eligibility{" "}
+            {label(report.eligibility.state)}. Machine observations and product
+            listening do not constitute independent scientific validation.
+          </p>
+        )}
+      </section>
       <div className="result-pair">
         <span>
           Reference{" "}

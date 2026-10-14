@@ -102,6 +102,10 @@ Evidence Report / save PDF** adds all inventories, methods and provenance. Selec
 browser's Save as PDF destination; mode-specific suggested filenames distinguish
 reference inspection from speech comparison. Neither export truncates JSON/CSV.
 Scientific report exports and the hackathon technical report remain separate.
+For searchable text, choose Chromium **Save as PDF**. The supplied Microsoft Print
+to PDF outputs outline their text. Ordinary workspace printing keeps selected findings,
+native charts and a concise verification state; it is distinct from the complete
+Full Evidence Report. See the [export and text-verification guide](report-export-guide.md).
 Actual listening acceptance remains pending; use the
 [owner checklist and private review form](comparative-listening-acceptance.md).
 The summary directs readers to the separate Full Evidence Report and JSON for complete

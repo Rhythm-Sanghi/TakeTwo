@@ -30,6 +30,7 @@ import { DatasetReadiness } from "./DatasetReadiness";
 import { useDatasetSummary } from "./useDatasetSummary";
 import type { Readiness } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
+import { installWorkspacePrint, printWorkspaceReport } from "./reportPrint";
 
 import { WorkspaceNavigation } from "./WorkspaceNavigation";
 import type { Page } from "./WorkspaceNavigation";
@@ -124,6 +125,7 @@ function Metadata({ item }: { item: Recording }) {
 
 export function App() {
   const [page, setPage] = useState<Page>("Recording Library");
+  const [workspacePrintError, setWorkspacePrintError] = useState("");
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [schemaVersion, setSchemaVersion] = useState(2);
   const { state: datasetState, reload: reloadDataset } = useDatasetSummary();
@@ -183,6 +185,17 @@ export function App() {
   const availablePairs = pairs.filter((p) => p.reference_id === reference?.id);
   const pair = availablePairs.find((p) => p.id === pairId);
   const participant = recordings.find((r) => r.id === pair?.participant_id);
+  useEffect(() => {
+    if (page !== "Analysis Workspace" && page !== "Dataset and Evaluation")
+      return;
+    return installWorkspacePrint(
+      page === "Dataset and Evaluation"
+        ? "dataset"
+        : participant
+          ? "paired"
+          : "reference",
+    );
+  }, [page, participant?.id]);
   const latestAnalysis = jobs.find(
     (j) =>
       j.request.reference_id === reference?.id &&
@@ -618,7 +631,7 @@ export function App() {
       </header>
       <WorkspaceNavigation current={page} onNavigate={navigate} />
       <div className="workspace-shell">
-        <main id="main" tabIndex={-1}>
+        <main id="main" tabIndex={-1} data-workspace={page}>
           <h1 tabIndex={-1} ref={heading}>
             {page}
           </h1>
@@ -1142,8 +1155,16 @@ export function App() {
               <div className="print-controls">
                 <button
                   onClick={() => {
-                    delete document.body.dataset.printScope;
-                    window.print();
+                    setWorkspacePrintError("");
+                    try {
+                      printWorkspaceReport(
+                        participant ? "paired" : "reference",
+                      );
+                    } catch {
+                      setWorkspacePrintError(
+                        "Browser printing could not open. Retry, or use the complete JSON exports.",
+                      );
+                    }
                   }}
                   disabled={!activeReport}
                 >
@@ -1151,11 +1172,24 @@ export function App() {
                 </button>
                 {activeReport && (
                   <p className="meta">
-                    For a searchable PDF, choose Save as PDF in the browser's
-                    print destination.
+                    Workspace printing includes selected observations and
+                    current charts. Start with Analysis Summary for a concise
+                    report; Full Evidence Report retains all technical evidence.
                   </p>
                 )}
               </div>
+              {workspacePrintError && (
+                <p role="alert" className="print-controls">
+                  {workspacePrintError}
+                </p>
+              )}
+              <p className="print-only workspace-print-note">
+                Workspace view: selected observations and current native chart
+                windows. Full inventories, methods and provenance remain in the
+                separate Full Evidence Report and JSON. Charts are visual
+                summaries; complete numerical measurements remain in the data
+                exports.
+              </p>
               {activeReport && (
                 <p className="print-only">
                   {participant
@@ -1370,7 +1404,7 @@ export function App() {
                   onReplay={(item) => inspect(item, true)}
                 />
               )}
-              <h2>
+              <h2 className="interactive-assessment-heading">
                 {participant
                   ? "Verified Assessment"
                   : "Reference evidence and next steps"}

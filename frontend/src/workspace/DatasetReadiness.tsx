@@ -48,9 +48,14 @@ export function DatasetReadiness({
   const current = summary?.review_readiness?.find(
     (r) => r.recording_id === selectedId,
   );
+  const selectedRecording = recordings.find((r) => r.id === selectedId);
   return (
     <section className="panel">
       <h2>Dataset readiness</h2>
+      <p className="print-only readiness-identity">
+        Recording: {selectedRecording?.original_filename ?? "Not selected"} ·
+        dataset {summary?.dataset_version ?? "Unknown"} · readiness {phase}.
+      </p>
       <p>
         Resolve the next requirement for the selected recording before
         evaluating delivery.
