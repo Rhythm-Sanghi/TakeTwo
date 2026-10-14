@@ -1,3 +1,4 @@
+import { navigateWorkspace } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
@@ -48,9 +49,7 @@ test("genuine private pilot: native MFA suggestions, playback and draft boundary
   ).json();
   expect(alignment.status).toBe("succeeded");
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Review Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Review Workspace");
   await page.getByLabel("Operator key", { exact: true }).fill(key);
   await page
     .getByLabel("Recording", { exact: true })
@@ -131,9 +130,7 @@ test("genuine private pilot: native MFA suggestions, playback and draft boundary
   for (const recording of recordings.filter(
     (r: { id: string }) => r.id !== reference.id,
   )) {
-    await page
-      .getByRole("button", { name: "Review Workspace", exact: true })
-      .click();
+    await navigateWorkspace(page, "Review Workspace");
     await page.getByLabel("Operator key", { exact: true }).fill(key);
     await page
       .getByLabel("Recording", { exact: true })

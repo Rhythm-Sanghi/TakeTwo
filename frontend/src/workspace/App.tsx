@@ -23,19 +23,8 @@ import { DatasetReadiness } from "./DatasetReadiness";
 import type { DatasetSummary, Readiness } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
-type Page =
-  | "Recording Library"
-  | "Analysis Workspace"
-  | "Rubric and Evidence"
-  | "Review Workspace"
-  | "Dataset and Evaluation";
-const pages: Page[] = [
-  "Recording Library",
-  "Analysis Workspace",
-  "Rubric and Evidence",
-  "Review Workspace",
-  "Dataset and Evaluation",
-];
+import { WorkspaceNavigation } from "./WorkspaceNavigation";
+import type { Page } from "./WorkspaceNavigation";
 
 function Metadata({ item }: { item: Recording }) {
   return (
@@ -155,6 +144,9 @@ export function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [audioTrack, setAudioTrack] = useState<"reference" | "participant">(
+    "reference",
+  );
   const [align, setAlign] = useState(true);
   const playback = useRef<HTMLAudioElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -252,7 +244,10 @@ export function App() {
 
   function navigate(next: Page) {
     setPage(next);
-    requestAnimationFrame(() => heading.current?.focus());
+    requestAnimationFrame(() => {
+      heading.current?.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
+    });
   }
   function selectRecording(item: Recording) {
     setParticipantFor("");
@@ -284,6 +279,7 @@ export function App() {
     }
   }
   function inspect(item: Region, replay = false) {
+    if (participant) setAudioTrack("participant");
     setRegion(item);
     const nonce = Date.now();
     const requests: typeof seek = {};
@@ -349,96 +345,44 @@ export function App() {
                 : "CPU supervisor unavailable"
               : "Connecting to local service…"}
         </span>
+        <button onClick={() => void refresh()} aria-label="Refresh workspace">
+          Refresh
+        </button>
       </header>
-      <nav aria-label="Workspace areas">
-        {pages.map((name) => (
-          <button
-            key={name}
-            aria-current={page === name ? "page" : undefined}
-            onClick={() => navigate(name)}
-          >
-            {name}
-          </button>
-        ))}
-      </nav>
+      <WorkspaceNavigation current={page} onNavigate={navigate} />
       <div className="workspace-shell">
-        <aside className="library" aria-label="Recording library">
-          <div className="section-heading">
-            <h2>Recordings</h2>
-            <button
-              onClick={() => void refresh()}
-              aria-label="Refresh workspace"
-            >
-              Refresh
-            </button>
-          </div>
-          <p className="meta">
-            {recordings.length} recordings · {pairs.length} pairs
-          </p>
-          {loading ? (
-            <p role="status">Loading recordings…</p>
-          ) : recordings.length === 0 ? (
-            <p>
-              Library is empty. Import a public or self-recorded reference and
-              the words spoken. Then add a participant.
-            </p>
-          ) : (
-            <ul>
-              {recordings.map((item) => (
-                <li key={item.id}>
-                  <button
-                    className="recording-button"
-                    aria-pressed={selected?.id === item.id}
-                    onClick={() => selectRecording(item)}
-                  >
-                    <strong>{item.original_filename}</strong>
-                    <span>
-                      {item.role} / {label(item.origin)}
-                    </span>
-                    <span className="mono">
-                      {number(item.normalized_info.duration_s)} s ·{" "}
-                      {item.transcript.status}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <h3>Analysis history</h3>
-          {jobs.length ? (
-            <ul>
-              {jobs.slice(0, 30).map((item) => (
-                <li key={item.id}>
-                  <button
-                    className="history-button"
-                    onClick={() => openHistory(item)}
-                  >
-                    <span>
-                      {new Date(item.created_at)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace("T", " ")}{" "}
-                      UTC
-                    </span>
-                    <strong>
-                      {recordings.find(
-                        (r) => r.id === item.request.reference_id,
-                      )?.original_filename ?? "Recording"}{" "}
-                      · {item.state} · {item.stage}
-                    </strong>
-                    <span className="mono">{item.id.slice(0, 12)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="meta">No analyses have run.</p>
-          )}
-        </aside>
         <main id="main" tabIndex={-1}>
           <h1 tabIndex={-1} ref={heading}>
             {page}
           </h1>
+          {["Rubric and Evidence", "Review Workspace"].includes(page) &&
+            reference && (
+              <p className="comparison-context">
+                Current analysis comparison:{" "}
+                <strong>{reference.original_filename}</strong> /{" "}
+                <strong>
+                  {participant?.original_filename ?? "No participant selected"}
+                </strong>
+              </p>
+            )}
+          {page === "Recording Library" && (
+            <div className="toolbar library-shortcuts">
+              <button
+                onClick={() =>
+                  document.getElementById("recording-collection")?.focus()
+                }
+              >
+                Recordings and history
+              </button>
+              <button
+                onClick={() =>
+                  document.getElementById("recording-import")?.focus()
+                }
+              >
+                Import a recording
+              </button>
+            </div>
+          )}
           {page === "Review Workspace" && (
             <ReviewWorkspace
               recordings={recordings}
@@ -456,110 +400,221 @@ export function App() {
             </div>
           )}
           {page === "Recording Library" && (
-            <div className="library-content">
-              <section className="panel">
-                <ImportForm
-                  maximumDuration={health?.maximum_analysis_duration_s}
-                  recordings={recordings}
-                  participantFor={participantFor}
-                  schemaVersion={schemaVersion}
-                  onUpgraded={() => void refresh()}
-                  onImported={imported}
-                />
-              </section>
-              <div>
-                {selected ? (
-                  <>
-                    <section className="panel">
-                      <h2>Pair relationships</h2>
-                      {pairs
-                        .filter(
+            <div className="library-workspace">
+              <aside
+                className="library"
+                id="recording-collection"
+                tabIndex={-1}
+                aria-label="Recording library"
+              >
+                <div className="section-heading">
+                  <h2>Recordings</h2>
+                </div>
+                <p className="meta">
+                  {recordings.length} recordings · {pairs.length} pairs
+                </p>
+                {loading ? (
+                  <p role="status">Loading recordings…</p>
+                ) : recordings.length === 0 ? (
+                  <p>
+                    Library is empty. Import a public or self-recorded reference
+                    and the words spoken. Then add a participant.
+                  </p>
+                ) : (
+                  <ul>
+                    {recordings.map((item) => (
+                      <li key={item.id}>
+                        <button
+                          className="recording-button"
+                          aria-pressed={selected?.id === item.id}
+                          onClick={() => selectRecording(item)}
+                        >
+                          <strong>{item.original_filename}</strong>
+                          <span>
+                            {item.role} / {label(item.origin)}
+                          </span>
+                          <span className="mono">
+                            {number(item.normalized_info.duration_s)} s ·{" "}
+                            {item.transcript.status}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <h3>Analysis history</h3>
+                {jobs.length ? (
+                  <ul>
+                    {jobs.slice(0, 30).map((item) => (
+                      <li key={item.id}>
+                        <button
+                          className="history-button"
+                          onClick={() => openHistory(item)}
+                        >
+                          <span>
+                            {new Date(item.created_at)
+                              .toISOString()
+                              .slice(0, 19)
+                              .replace("T", " ")}{" "}
+                            UTC
+                          </span>
+                          <strong>
+                            {recordings.find(
+                              (r) => r.id === item.request.reference_id,
+                            )?.original_filename ?? "Recording"}{" "}
+                            · {item.state}
+                            {item.stage !== item.state &&
+                            !["completed", "cancelled"].includes(item.state)
+                              ? ` · ${label(item.stage)}`
+                              : ""}
+                          </strong>
+                          <span>
+                            {(() => {
+                              const historicPair = pairs.find(
+                                (p) => p.id === item.request.pair_id,
+                              );
+                              return historicPair
+                                ? (recordings.find(
+                                    (r) => r.id === historicPair.participant_id,
+                                  )?.original_filename ??
+                                    "Participant metadata unavailable")
+                                : item.request.pair_id
+                                  ? "Participant metadata unavailable"
+                                  : "Reference inspection";
+                            })()}
+                          </span>
+                          <span className="mono">{item.id.slice(0, 12)}</span>
+                        </button>
+                        <details className="history-details">
+                          <summary>Job details</summary>
+                          <dl>
+                            <dt>Job</dt>
+                            <dd>{item.id}</dd>
+                            <dt>Stage</dt>
+                            <dd>{label(item.stage)}</dd>
+                            <dt>Original request</dt>
+                            <dd>
+                              <pre>{JSON.stringify(item.request, null, 2)}</pre>
+                            </dd>
+                          </dl>
+                        </details>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="meta">No analyses have run.</p>
+                )}
+              </aside>
+
+              <div className="library-content">
+                <section className="panel" id="recording-import" tabIndex={-1}>
+                  <ImportForm
+                    maximumDuration={health?.maximum_analysis_duration_s}
+                    recordings={recordings}
+                    participantFor={participantFor}
+                    schemaVersion={schemaVersion}
+                    onUpgraded={() => void refresh()}
+                    onImported={imported}
+                  />
+                </section>
+                <div>
+                  {selected ? (
+                    <>
+                      <section className="panel">
+                        <h2>Pair relationships</h2>
+                        {pairs
+                          .filter(
+                            (p) =>
+                              p.reference_id === selected.id ||
+                              p.participant_id === selected.id,
+                          )
+                          .map((p) => (
+                            <div key={p.id}>
+                              <button
+                                onClick={() => {
+                                  setSelectedId(p.reference_id);
+                                  setPairId(p.id);
+                                  setJobId("");
+                                  navigate("Analysis Workspace");
+                                }}
+                              >
+                                Compare{" "}
+                                {
+                                  recordings.find(
+                                    (r) => r.id === p.participant_id,
+                                  )?.original_filename
+                                }{" "}
+                                with{" "}
+                                {
+                                  recordings.find(
+                                    (r) => r.id === p.reference_id,
+                                  )?.original_filename
+                                }
+                              </button>{" "}
+                              · {label(p.identity_status)}
+                              <PairCorrection
+                                pair={p}
+                                recordings={recordings}
+                              />
+                            </div>
+                          ))}
+                        {!pairs.some(
                           (p) =>
                             p.reference_id === selected.id ||
                             p.participant_id === selected.id,
-                        )
-                        .map((p) => (
-                          <div key={p.id}>
-                            <button
-                              onClick={() => {
-                                setSelectedId(p.reference_id);
-                                setPairId(p.id);
-                                setJobId("");
-                                navigate("Analysis Workspace");
-                              }}
-                            >
-                              Compare{" "}
-                              {
-                                recordings.find(
-                                  (r) => r.id === p.participant_id,
-                                )?.original_filename
-                              }{" "}
-                              with{" "}
-                              {
-                                recordings.find((r) => r.id === p.reference_id)
-                                  ?.original_filename
-                              }
-                            </button>{" "}
-                            · {label(p.identity_status)}
-                            <PairCorrection pair={p} recordings={recordings} />
-                          </div>
-                        ))}
-                      {!pairs.some(
-                        (p) =>
-                          p.reference_id === selected.id ||
-                          p.participant_id === selected.id,
-                      ) && (
-                        <p>
-                          Incomplete pair: no participant mirror. Raw acoustic
-                          inspection is available.
-                        </p>
-                      )}
-                      <button onClick={() => navigate("Analysis Workspace")}>
-                        Inspect audio in workspace
-                      </button>
-                      {reference && (
-                        <button
-                          onClick={() => {
-                            setParticipantFor(reference.id);
-                            navigate("Recording Library");
-                          }}
-                        >
-                          Add participant
+                        ) && (
+                          <p>
+                            Incomplete pair: no participant mirror. Raw acoustic
+                            inspection is available.
+                          </p>
+                        )}
+                        <button onClick={() => navigate("Analysis Workspace")}>
+                          Inspect audio in workspace
                         </button>
-                      )}
-                      <details>
-                        <summary>What needs independent review?</summary>
-                        <p>
-                          Verify the spoken words with two independent
-                          listeners. Matching pasted text is not verification.
-                          Then check every aligned word and phrase; run a new
-                          analysis after importing real timing reviews. The
-                          Dataset and Evaluation area accepts actual review
-                          files. Corrections use a new dataset version; approval
-                          is never automatic.
-                        </p>
+                        {reference && (
+                          <button
+                            onClick={() => {
+                              setParticipantFor(reference.id);
+                              navigate("Recording Library");
+                            }}
+                          >
+                            Add participant
+                          </button>
+                        )}
+                        <details>
+                          <summary>What needs independent review?</summary>
+                          <p>
+                            Verify the spoken words with two independent
+                            listeners. Matching pasted text is not verification.
+                            Then check every aligned word and phrase; run a new
+                            analysis after importing real timing reviews. The
+                            Dataset and Evaluation area accepts actual review
+                            files. Corrections use a new dataset version;
+                            approval is never automatic.
+                          </p>
+                        </details>
+                      </section>
+                      <details className="panel">
+                        <summary>
+                          Recording metadata and source transcript
+                        </summary>
+                        <Metadata item={selected} />
                       </details>
+                    </>
+                  ) : (
+                    <section className="panel">
+                      <h2>Start with a reference</h2>
+                      <p>
+                        Choose Public source reference for archival speech, or
+                        Self-recorded controlled reference for private practice.
+                        Add a separate participant of the same words, then open
+                        Analysis Workspace. Missing reviews keep scores
+                        unavailable. Synthetic derivatives from dataset tools
+                        remain explicitly labeled.
+                      </p>
                     </section>
-                    <details className="panel">
-                      <summary>
-                        Recording metadata and source transcript
-                      </summary>
-                      <Metadata item={selected} />
-                    </details>
-                  </>
-                ) : (
-                  <section className="panel">
-                    <h2>Start with a reference</h2>
-                    <p>
-                      Choose Public source reference for archival speech, or
-                      Self-recorded controlled reference for private practice.
-                      Add a separate participant of the same words, then open
-                      Analysis Workspace. Missing reviews keep scores
-                      unavailable. Synthetic derivatives from dataset tools
-                      remain explicitly labeled.
-                    </p>
-                  </section>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -575,15 +630,18 @@ export function App() {
                 nextLabel={
                   !reference
                     ? "Import a reference"
-                    : activeJob?.state === "completed" &&
-                        !activeReport &&
-                        !reportLoading
-                      ? "Reload assessment evidence"
-                      : hasAvailableDimensions
-                        ? "Understand available dimensions"
-                        : activeReport
-                          ? "Check dataset and review requirements"
-                          : "Choose recordings and run analysis"
+                    : activeJob &&
+                        ["queued", "running"].includes(activeJob.state)
+                      ? "View processing controls"
+                      : activeJob?.state === "completed" &&
+                          !activeReport &&
+                          !reportLoading
+                        ? "Reload assessment evidence"
+                        : hasAvailableDimensions
+                          ? "Understand available dimensions"
+                          : activeReport
+                            ? "Check dataset and review requirements"
+                            : "Choose recordings and run analysis"
                 }
                 onNext={() =>
                   !reference
@@ -772,8 +830,41 @@ export function App() {
                   evidence or accuracy.
                 </p>
               )}
+              {reference && participant && (
+                <div
+                  className="mobile-track-switch"
+                  role="group"
+                  aria-label="Audio track"
+                >
+                  <button
+                    aria-pressed={audioTrack === "reference"}
+                    onClick={() => {
+                      playback.current?.pause();
+                      setAudioTrack("reference");
+                    }}
+                  >
+                    Reference audio
+                  </button>
+                  <button
+                    aria-pressed={audioTrack === "participant"}
+                    onClick={() => {
+                      playback.current?.pause();
+                      setAudioTrack("participant");
+                    }}
+                  >
+                    Participant audio
+                  </button>
+                  <p className="meta">
+                    Switching pauses playback. Each track keeps its own cursor
+                    and selection.
+                  </p>
+                </div>
+              )}
               <div className="analysis-grid">
-                <div className="timeline-stack">
+                <div
+                  className="timeline-stack"
+                  data-audio-track={participant ? audioTrack : "reference"}
+                >
                   {reference ? (
                     <Timeline
                       maximumDuration={health?.maximum_analysis_duration_s}
@@ -811,58 +902,63 @@ export function App() {
                       onExcerpt={imported}
                     />
                   )}
-                  <section className="panel native-correspondence">
-                    <h2>Native-time correspondence</h2>
-                    <p>
-                      Each track retains its own seconds and cursor. Selecting a
-                      grounded deviation seeks both tracks to their
-                      corresponding intervals or boundary anchors. Equal
-                      timestamps are never assumed.
-                    </p>
-                    <button
-                      disabled={!activeReport?.regions.length}
-                      onClick={() => {
-                        const items = activeReport?.regions ?? [];
-                        if (items.length)
-                          inspect(
-                            items[
-                              (items.findIndex((r) => r.id === region?.id) +
-                                1) %
-                                items.length
-                            ],
-                          );
-                      }}
-                    >
-                      Next detected deviation
-                    </button>
-                    {!activeReport?.regions.length && (
-                      <p className="meta">
-                        Synchronized deviation seeking is unavailable until
-                        reviewed correspondence produces grounded regions.
+                  <details className="panel correspondence-details">
+                    <summary>
+                      Reviewed correspondence and linked navigation
+                    </summary>
+                    <section className="panel native-correspondence">
+                      <h2>Native-time correspondence</h2>
+                      <p>
+                        Each track retains its own seconds and cursor. Selecting
+                        a grounded deviation seeks both tracks to their
+                        corresponding intervals or boundary anchors. Equal
+                        timestamps are never assumed.
                       </p>
+                      <button
+                        disabled={!activeReport?.regions.length}
+                        onClick={() => {
+                          const items = activeReport?.regions ?? [];
+                          if (items.length)
+                            inspect(
+                              items[
+                                (items.findIndex((r) => r.id === region?.id) +
+                                  1) %
+                                  items.length
+                              ],
+                            );
+                        }}
+                      >
+                        Next detected deviation
+                      </button>
+                      {!activeReport?.regions.length && (
+                        <p className="meta">
+                          Synchronized deviation seeking is unavailable until
+                          reviewed correspondence produces grounded regions.
+                        </p>
+                      )}
+                    </section>
+                    {activeReport && activeJob && (
+                      <TokenOverlay
+                        jobId={activeJob.id}
+                        onSeek={(referenceTime, participantTime) => {
+                          const nonce = Date.now();
+                          const requests: typeof seek = {};
+                          if (reference)
+                            requests[reference.id] = {
+                              time: referenceTime,
+                              nonce,
+                            };
+                          if (participant)
+                            requests[participant.id] = {
+                              time: participantTime,
+                              nonce,
+                            };
+                          setRegion(null);
+                          setSeek(requests);
+                        }}
+                      />
                     )}
-                  </section>
-                  {activeReport && activeJob && (
-                    <TokenOverlay
-                      jobId={activeJob.id}
-                      onSeek={(referenceTime, participantTime) => {
-                        const nonce = Date.now();
-                        const requests: typeof seek = {};
-                        if (reference)
-                          requests[reference.id] = {
-                            time: referenceTime,
-                            nonce,
-                          };
-                        if (participant)
-                          requests[participant.id] = {
-                            time: participantTime,
-                            nonce,
-                          };
-                        setRegion(null);
-                        setSeek(requests);
-                      }}
-                    />
-                  )}
+                  </details>
                   {activeReport && (
                     <details className="panel score-panel technical-details">
                       <summary>
@@ -952,11 +1048,14 @@ export function App() {
                   navigate("Review Workspace");
                 }}
               />
-              <ReviewImport
-                jobs={jobs}
-                recordings={recordings}
-                onImported={() => void refresh()}
-              />
+              <details className="panel">
+                <summary>Import independent review evidence</summary>
+                <ReviewImport
+                  jobs={jobs}
+                  recordings={recordings}
+                  onImported={() => void refresh()}
+                />
+              </details>
               <section className="panel">
                 <h2>Persisted evaluation runs</h2>
                 {evaluations.length > 0 && (

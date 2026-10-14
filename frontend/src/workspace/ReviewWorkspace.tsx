@@ -151,30 +151,19 @@ export function ReviewWorkspace({
     <section className="panel review-tools">
       <h2>Prepare an independent handoff</h2>
       <p>
-        Local operator only. Use a fresh private browser window for each
-        reviewer. End handoff and close that window before viewing peer
-        evidence. Typed reviewer IDs are declarations, not verified identities.
+        Choose a recording, assign a review activity, then authorize an isolated
+        reviewer handoff.
       </p>
-      <details>
-        <summary>Operator key and private handoff instructions</summary>
-        <p>
-          Read the operator key from <code>.review-operator-key</code> in the
-          active workspace. Keep it from reviewers. Starting a session blocks
-          general APIs until the operator ends handoff, including after a
-          restart.
-        </p>
-      </details>
+      <p className="assignment-context">
+        Recording to assign:{" "}
+        <strong>
+          {recordings.find((r) => r.id === rid)?.original_filename ??
+            "None selected"}
+        </strong>{" "}
+        · {label(scope)} review
+      </p>
       <label>
-        Operator key
-        <input
-          type="password"
-          autoComplete="off"
-          value={key}
-          onChange={(e) => setKey(e.target.value)}
-        />
-      </label>
-      <label>
-        Recording
+        Recording to review
         <select
           aria-label="Recording"
           value={rid}
@@ -192,14 +181,6 @@ export function ReviewWorkspace({
         </select>
       </label>
       <label>
-        Reviewer identifier
-        <input
-          value={reviewer}
-          onChange={(e) => setReviewer(e.target.value)}
-          placeholder="Pseudonym agreed with the operator"
-        />
-      </label>
-      <label>
         Review activity
         <select
           aria-label="Review activity"
@@ -210,6 +191,19 @@ export function ReviewWorkspace({
           <option value="timing">Assisted word / phrase timing</option>
           <option value="flaws">Blinded flaw annotation</option>
         </select>
+      </label>
+      <label>
+        Reviewer identifier
+        <input
+          aria-label="Reviewer identifier"
+          aria-describedby="reviewer-identity-help"
+          value={reviewer}
+          onChange={(e) => setReviewer(e.target.value)}
+          placeholder="Pseudonym agreed with the operator"
+        />
+        <span className="meta" id="reviewer-identity-help">
+          An identity declaration, not authentication.
+        </span>
       </label>
       {scope !== "flaws" && (
         <label>
@@ -240,8 +234,48 @@ export function ReviewWorkspace({
           />
         </label>
       </details>
+      <fieldset>
+        <legend>Operator authorization</legend>{" "}
+        <details>
+          <summary>Operator key and private handoff instructions</summary>
+          <p>
+            Use a fresh private browser window for each reviewer. End handoff
+            and close that window before viewing peer evidence. An active
+            handoff opens its assigned reviewer session instead of the general
+            workspace. Read the operator key from{" "}
+            <code>.review-operator-key</code> in the active workspace. Keep it
+            from reviewers. Starting a session blocks general APIs until the
+            operator ends handoff, including after a restart.
+          </p>
+        </details>
+        <label>
+          Operator key
+          <input
+            type="password"
+            autoComplete="off"
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+          />
+        </label>
+      </fieldset>
+      <p id="handoff-requirements" className="meta">
+        {[
+          !rid && "Choose a recording.",
+          !reviewer.trim() && "Enter the reviewer’s declared identifier.",
+          scope === "timing" &&
+            !jobId &&
+            "Choose an original alignment for timing review.",
+          !key && "Provide the local operator key.",
+        ]
+          .filter(Boolean)
+          .join(" ") ||
+          "Ready to request a handoff; the backend validates authorization and assignment."}
+      </p>
       <button
-        disabled={!key || !rid || !reviewer || (scope === "timing" && !jobId)}
+        aria-describedby="handoff-requirements"
+        disabled={
+          !key || !rid || !reviewer.trim() || (scope === "timing" && !jobId)
+        }
         onClick={() =>
           void action(async () => {
             const grant = await owner<Grant>("/sessions", {
@@ -275,15 +309,18 @@ export function ReviewWorkspace({
         Load sessions and adjudication
       </button>
       <p role="status">{status}</p>
-      <ReviewImport
-        jobs={jobs}
-        recordings={recordings}
-        onImported={() =>
-          setStatus(
-            "Review imported using the existing Phase 3 pipeline. Reload operator inventory to inspect it.",
-          )
-        }
-      />
+      <details>
+        <summary>Import an existing review file</summary>
+        <ReviewImport
+          jobs={jobs}
+          recordings={recordings}
+          onImported={() =>
+            setStatus(
+              "Review imported using the existing Phase 3 pipeline. Reload operator inventory to inspect it.",
+            )
+          }
+        />
+      </details>
       {inventory && (
         <>
           <h2>Saved sessions</h2>

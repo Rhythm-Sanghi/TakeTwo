@@ -1,3 +1,4 @@
+import { navigateWorkspace, openHistory } from "./navigation";
 import { test, expect, request as http } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Recording, Job, FeatureWindow } from "../src/api";
@@ -105,6 +106,13 @@ test("full native chart domains, recording counts, review navigation and paper l
       .getByRole("button")
       .filter({ hasText: job.id.slice(0, 12) })
       .click();
+    if (
+      (page.viewportSize()?.width ?? 1600) <= 800 &&
+      recording.role === "participant"
+    )
+      await page
+        .getByRole("button", { name: "Participant audio", exact: true })
+        .click();
     const chart = page.getByRole("region", {
       name: `${recording.role} rms chart`,
       exact: true,
@@ -124,6 +132,10 @@ test("full native chart domains, recording counts, review navigation and paper l
     ).toBeVisible();
     for (const width of [1920, 1366, 800, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
+      if (width <= 800 && recording.role === "participant")
+        await page
+          .getByRole("button", { name: "Participant audio", exact: true })
+          .click();
       await expect
         .poll(() =>
           chart.evaluate((n) => {
@@ -161,9 +173,7 @@ test("full native chart domains, recording counts, review navigation and paper l
   expect(counts.inventory_counts.verified_transcripts).toBe(
     before.inventory_counts.verified_transcripts,
   );
-  await page
-    .getByRole("button", { name: "Dataset and Evaluation", exact: true })
-    .click();
+  await navigateWorkspace(page, "Dataset and Evaluation");
   await page.getByLabel("Readiness recording").selectOption(records[4].id);
   await page
     .getByRole("button", { name: "Open Review Workspace", exact: true })
@@ -186,11 +196,7 @@ test("full native chart domains, recording counts, review navigation and paper l
       ).json()
     ).active_session,
   ).toBeNull();
-  await page
-    .locator(".library")
-    .getByRole("button")
-    .filter({ hasText: jobs[4].id.slice(0, 12) })
-    .click();
+  await openHistory(page, jobs[4].id.slice(0, 12));
   await page
     .getByText("Technical details · scores, coverage and scientific exports", {
       exact: true,

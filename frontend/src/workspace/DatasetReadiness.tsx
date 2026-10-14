@@ -45,45 +45,10 @@ export function DatasetReadiness({
     <section className="panel">
       <h2>Dataset readiness</h2>
       <p>
-        Check recording permissions and resolve independent evidence before
-        evaluating delivery. Processing audio alone does not make a pair
-        eligible.
+        Resolve the next requirement for the selected recording before
+        evaluating delivery.
       </p>
-      <dl className="measurement-strip">
-        <div>
-          <dt>Recording inventory</dt>
-          <dd>{recordings.length} takes</dd>
-          <dd>
-            {summary?.inventory_counts?.distinct_speaker_ids ?? "Unavailable"}{" "}
-            recorded speaker IDs ·{" "}
-            {summary?.inventory_counts?.connected_families ?? "Unavailable"}{" "}
-            connected families
-          </dd>
-        </div>
-        <div>
-          <dt>Verified transcripts</dt>
-          <dd>
-            {summary?.inventory_counts?.verified_transcripts ?? "Unavailable"}
-          </dd>
-          <dd>Independent people and agreement still require verification.</dd>
-        </div>
-        <div>
-          <dt>Eligible pairs</dt>
-          <dd>
-            {report
-              ? `Selected comparison: ${report.eligibility.state === "ELIGIBLE" ? "eligible" : "not eligible"}`
-              : "No comparison selected"}
-          </dd>
-          <dd>Workspace-wide eligible pair count unavailable.</dd>
-        </div>
-      </dl>
-      <p className="notice">
-        Evaluation readiness is not established by inventory counts. Genuine
-        independent review completion is recording-specific; inspect
-        authoritative review status below. Stored review assertions do not
-        certify independence or accuracy.
-      </p>
-      <h3>Review readiness / Next required actions</h3>
+      <h3>Next required action</h3>
       {loading ? (
         <p role="status">Loading dataset inventory and review readiness…</p>
       ) : !summary ? (
@@ -165,6 +130,42 @@ export function DatasetReadiness({
           Import a permitted recording before preparing independent reviews.
         </p>
       )}
+      <dl className="measurement-strip">
+        <div>
+          <dt>Recording inventory</dt>
+          <dd>{recordings.length} takes</dd>
+          <dd>
+            {summary?.inventory_counts?.distinct_speaker_ids ?? "Unavailable"}{" "}
+            recorded speaker IDs ·{" "}
+            {summary?.inventory_counts?.connected_families ?? "Unavailable"}{" "}
+            connected families
+          </dd>
+        </div>
+        <div>
+          <dt>Verified transcripts</dt>
+          <dd>
+            {summary?.inventory_counts?.verified_transcripts ?? "Unavailable"}
+          </dd>
+        </div>
+        <div>
+          <dt>Submitted review evidence</dt>
+          <dd>
+            {summary?.inventory_counts?.submitted_independent_assertions ??
+              "Unavailable"}{" "}
+            assertions
+          </dd>
+          <dd>Inspect recording-specific review status.</dd>
+        </div>
+        <div>
+          <dt>Eligible pairs</dt>
+          <dd>
+            {report
+              ? `Selected comparison: ${report.eligibility.state === "ELIGIBLE" ? "eligible" : "not eligible"}`
+              : "No comparison selected"}
+          </dd>
+          <dd>Workspace-wide eligible pair count unavailable.</dd>
+        </div>
+      </dl>
       <details>
         <summary>Details · recording inventory and review assertions</summary>{" "}
         <table tabIndex={0} aria-label="Dataset readiness counts">
@@ -183,18 +184,18 @@ export function DatasetReadiness({
             ))}
           </tbody>
         </table>
-        <p className="notice">
-          Counts describe takes, declared speaker IDs and stored review
-          assertions, not verified human identities or independence. Connected
-          families use the existing split grouping. Machine processing, reviewed
-          evidence, eligible detection and validated accuracy are separate
-          states.
+      </details>
+      <details>
+        <summary>Scientific caveats and evaluation requirements</summary>
+        <p>
+          Counts describe recording takes, declared speaker IDs and stored
+          assertions, not authenticated people or verified independence.
+          Connected families use the existing split grouping. Rights, resolved
+          independent transcript/timing reviews and valid labels/splits are
+          still required. Processing success and inventory counts do not
+          establish eligible detection or validated accuracy.
         </p>
       </details>
-      <p className="meta">
-        Competition dataset readiness is not certified. Rights, actual
-        independent people, resolved evidence and valid splits remain required.
-      </p>
     </section>
   );
 }

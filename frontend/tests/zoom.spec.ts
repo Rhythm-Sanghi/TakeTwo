@@ -1,3 +1,4 @@
+import { navigateWorkspace } from "./navigation";
 import { test, expect, chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs/promises";
@@ -87,11 +88,12 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
       "Review Workspace",
       "Dataset and Evaluation",
     ]) {
-      await page.getByRole("button", { name: area, exact: true }).click();
+      await navigateWorkspace(page, area);
       await expect(
         page.getByRole("heading", { name: area, exact: true }),
       ).toBeFocused();
       if (area === "Analysis Workspace") {
+        await navigateWorkspace(page, "Recording Library");
         const completed = page
           .locator(".library")
           .getByRole("button")
@@ -129,6 +131,13 @@ test("actual Chromium tab zoom at 200 percent retains all workspace areas", asyn
           });
         }
       }
+      if (
+        area === "Analysis Workspace" &&
+        (await page
+          .getByRole("heading", { name: "Recording Library", exact: true })
+          .isVisible())
+      )
+        await navigateWorkspace(page, area);
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,

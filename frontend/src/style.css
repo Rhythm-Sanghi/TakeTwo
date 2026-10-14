@@ -553,13 +553,11 @@ footer {
     border-bottom: 1px solid var(--border);
   }
   .library ul {
-    display: flex;
-    overflow: auto;
-    gap: 8px;
+    display: block;
   }
   .library li {
-    min-width: 190px;
-    max-width: 240px;
+    min-width: 0;
+    max-width: none;
   }
   .app-header {
     padding: 12px;
@@ -600,6 +598,136 @@ footer {
   }
 }
 
+/* The collection belongs to its workspace; task pages use the full working area. */
+.workspace-shell {
+  display: block;
+}
+.library-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.library-workspace .library {
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+.desktop-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.mobile-navigation,
+.mobile-track-switch {
+  display: none;
+}
+.history-details {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+.history-details dd,
+.history-details pre {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.comparison-context,
+.assignment-context {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.assignment-context {
+  border-left: 2px solid var(--teal);
+  padding: 8px 12px;
+  background: #f4f6f2;
+}
+.selection-transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.selection-transport output {
+  font-size: 12px;
+}
+.correspondence-details > .panel {
+  border: 0;
+  padding: 0;
+  margin: 16px 0 0;
+}
+@media (max-width: 800px) {
+  .library-workspace {
+    display: block;
+  }
+  .library ul {
+    display: block;
+    overflow: visible;
+  }
+  .library li {
+    min-width: 0;
+    max-width: none;
+  }
+  .mobile-track-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 16px;
+  }
+  .mobile-track-switch p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .timeline-stack[data-audio-track="reference"] > .track.participant,
+  .timeline-stack[data-audio-track="participant"] > .track.reference {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .desktop-navigation,
+  .app-header .environment {
+    display: none;
+  }
+  .mobile-navigation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    font-size: 13px;
+    margin: 0;
+  }
+  .mobile-navigation select {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .app-header > button {
+    margin-left: auto;
+  }
+  button,
+  .button,
+  select {
+    min-height: 44px;
+  }
+  .brand {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .brand span {
+    font-size: 12px;
+  }
+  main {
+    padding-top: 12px;
+  }
+  .panel,
+  .track,
+  .inspector {
+    padding: 12px;
+  }
+  .library-shortcuts {
+    margin-bottom: 12px;
+  }
+}
 /* Outcome, listening evidence, then technical detail. Shared workstation rhythm. */
 .analysis-outcome {
   border-top: 3px solid var(--teal);
@@ -761,7 +889,7 @@ footer {
     margin: 8px 0;
   }
   .library li {
-    min-width: 165px;
+    min-width: 0;
   }
   .recording-button,
   .history-button {
@@ -787,6 +915,9 @@ footer {
   .app-header {
     padding: 0 0 8pt;
   }
+  .mobile-track-switch,
+  .selection-transport,
+  .library-shortcuts,
   .analysis-outcome,
   .findings,
   .exploration-heading,
@@ -823,6 +954,7 @@ footer {
   .toolbar:has(select) {
     display: none !important;
   }
+  .correspondence-details::details-content,
   .technical-details::details-content,
   .evidence-details::details-content {
     content-visibility: visible !important;
@@ -835,6 +967,12 @@ footer {
   }
   .track .print-identity {
     display: block;
+  }
+  .timeline-stack > .track {
+    display: block !important;
+  }
+  .correspondence-details:not(:has(.print-chart)) {
+    display: none !important;
   }
   main {
     padding: 10pt 0 0;

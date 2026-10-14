@@ -64,37 +64,32 @@ export function RubricGuide({ report }: { report: Report | null }) {
             <section key={key}>
               <h3>{name}</h3>
               <p>{meaning}</p>
-              <p className="meta">Required evidence: {evidence}</p>
+
               <p>
                 <strong>
                   {dimension?.score != null
                     ? `${number(dimension.score, 1)} / 100 reference agreement`
                     : report
-                      ? "Assessment unavailable"
+                      ? gate?.state === "REVIEW_REQUIRED"
+                        ? "Awaiting review"
+                        : gate?.state === "ELIGIBLE"
+                          ? "Evidence eligible; score unavailable"
+                          : "Evidence unavailable"
                       : "No comparison selected"}
                 </strong>
               </p>
-              {dimension && (
-                <p>
-                  {dimension.eligible_count} eligible /{" "}
-                  {dimension.expected_count} expected observations. Higher
-                  agreement means less measured deviation from this reference.
-                </p>
-              )}
               {report && (
                 <>
-                  <p>
-                    Evidence:{" "}
-                    {gate?.state === "ELIGIBLE"
-                      ? "Eligible"
-                      : "Requirements incomplete"}
-                    .{" "}
-                    {dimension?.score == null
-                      ? "No eligible score returned. Resolve the comparison requirements and check dimension coverage."
-                      : "Backend evidence requirements met for this dimension."}
-                  </p>
                   <details>
                     <summary>{name} · evidence details</summary>
+                    {dimension && (
+                      <p>
+                        {dimension.eligible_count} eligible /{" "}
+                        {dimension.expected_count} expected observations;
+                        coverage {number(dimension.coverage * 100, 1)}%.
+                      </p>
+                    )}
+                    <p>Required evidence: {evidence}</p>
                     <ul>
                       {[
                         ...new Set(
@@ -121,9 +116,10 @@ export function RubricGuide({ report }: { report: Report | null }) {
         })}
       </div>
       <p className="meta">
-        Overall agreement requires all four dimensions. Missing evidence is
-        never replaced or reweighted. Acoustic association does not establish a
-        cause.
+        Higher available scores mean less measured deviation from this
+        reference. Overall agreement requires all four dimensions. Missing
+        evidence is never replaced or reweighted. Acoustic association does not
+        establish a cause.
       </p>
     </section>
   );

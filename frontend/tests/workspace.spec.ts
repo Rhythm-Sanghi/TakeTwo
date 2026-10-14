@@ -1,3 +1,4 @@
+import { navigateWorkspace, openHistory } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
@@ -167,6 +168,7 @@ test("actual import → CPU processing → native playback → evidence → expo
       page.getByRole("heading", { name: "Recording metadata", exact: true }),
     ).toBeVisible();
   }
+  await page.getByLabel("Recording type").selectOption("public_reference");
   await page.getByLabel("Audio file", { exact: true }).setInputFiles({
     name: "damaged.wav",
     mimeType: "audio/wav",
@@ -233,9 +235,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     );
     await fillImport(true);
   }
-  await page
-    .getByRole("button", { name: "Analysis Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Analysis Workspace");
   await expect(
     page.getByRole("heading", { name: "Analysis Workspace", exact: true }),
   ).toBeFocused();
@@ -253,15 +253,11 @@ test("actual import → CPU processing → native playback → evidence → expo
     path: testInfo.outputPath("processing.png"),
     fullPage: true,
   });
-  await page
-    .getByRole("button", { name: "Rubric and Evidence", exact: true })
-    .click();
+  await navigateWorkspace(page, "Rubric and Evidence");
   await expect(
     page.getByRole("heading", { name: "Rubric and Evidence", exact: true }),
   ).toBeFocused();
-  await page
-    .getByRole("button", { name: "Analysis Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Analysis Workspace");
   await expect(
     page.getByRole("heading", { name: "Analysis Workspace", exact: true }),
   ).toBeFocused();
@@ -388,9 +384,7 @@ test("actual import → CPU processing → native playback → evidence → expo
   });
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
-  await page
-    .getByRole("button", { name: "Rubric and Evidence", exact: true })
-    .click();
+  await navigateWorkspace(page, "Rubric and Evidence");
   await page
     .getByText("Technical details · thresholds, normalization and weighting", {
       exact: true,
@@ -400,9 +394,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     page.getByText("delivery-v0 · reference agreement", { exact: true }),
   ).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page
-    .getByRole("button", { name: "Dataset and Evaluation", exact: true })
-    .click();
+  await navigateWorkspace(page, "Dataset and Evaluation");
   await expect(page.getByText(/No evaluation results exist/)).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.setViewportSize({ width: 800, height: 1000 });
@@ -417,7 +409,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     "Rubric and Evidence",
     "Dataset and Evaluation",
   ]) {
-    await page.getByRole("button", { name: area, exact: true }).click();
+    await navigateWorkspace(page, area);
     await expect(
       page.getByRole("heading", { name: area, exact: true }),
     ).toBeFocused();
@@ -437,9 +429,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     fullPage: true,
   });
   // Retry the exact request after genuine cancellation; no mocked lifecycle response.
-  await page
-    .getByRole("button", { name: "Analysis Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Analysis Workspace");
   const cancelled = await (
     await request.post("/api/v1/analyses", { data: job.request })
   ).json();
@@ -452,9 +442,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     )
     .toBe("cancelled");
   await page.getByRole("button", { name: "Refresh workspace" }).click();
-  await page
-    .getByRole("button", { name: new RegExp(cancelled.id.slice(0, 12)) })
-    .click();
+  await openHistory(page, cancelled.id.slice(0, 12));
   await expect(
     page.getByRole("heading", { name: "Audio analysis cancelled." }),
   ).toBeVisible();
@@ -489,9 +477,7 @@ test("actual import → CPU processing → native playback → evidence → expo
   expect(errors).toEqual([]);
   if (!genuine) {
     await page.setViewportSize({ width: 1600, height: 1000 });
-    await page
-      .getByRole("button", { name: "Recording Library", exact: true })
-      .click();
+    await navigateWorkspace(page, "Recording Library");
     await page
       .getByLabel("Recording type")
       .selectOption("controlled_reference");
@@ -581,9 +567,7 @@ test("actual import → CPU processing → native playback → evidence → expo
         exact: true,
       }),
     ).toBeVisible();
-    await page
-      .getByRole("button", { name: "Analysis Workspace", exact: true })
-      .click();
+    await navigateWorkspace(page, "Analysis Workspace");
     await expect(page.getByLabel("Participant pair")).not.toHaveValue("");
     await page
       .getByRole("button", { name: "Run analysis", exact: true })
@@ -601,9 +585,7 @@ test("actual import → CPU processing → native playback → evidence → expo
       )
       .click();
     await expect(page.getByText("Overall: Unavailable")).toBeVisible();
-    await page
-      .getByRole("button", { name: "Recording Library", exact: true })
-      .click();
+    await navigateWorkspace(page, "Recording Library");
     await page
       .getByText("Correct this pairing safely", { exact: true })
       .click();
@@ -626,9 +608,7 @@ test("actual import → CPU processing → native playback → evidence → expo
     ).toEqual(result);
     expect(errors).toEqual([]);
     // Explicit fixture excerpts exercise the browser recovery path without guessing real speech cuts.
-    await page
-      .getByRole("button", { name: "Analysis Workspace", exact: true })
-      .click();
+    await navigateWorkspace(page, "Analysis Workspace");
     await page
       .getByRole("region", { name: "reference timeline" })
       .getByText("Precision selection and interval replay")
@@ -650,9 +630,11 @@ test("actual import → CPU processing → native playback → evidence → expo
     const cutId = await page
       .getByRole("combobox", { name: "Reference recording", exact: true })
       .inputValue();
+    await navigateWorkspace(page, "Recording Library");
     await page
       .getByRole("button", { name: /^generated-controlled-participant.wav/ })
       .click();
+    await navigateWorkspace(page, "Analysis Workspace");
     await page
       .getByRole("region", { name: "participant timeline" })
       .getByText("Precision selection and interval replay")
@@ -701,7 +683,7 @@ test("all five workspaces retain controls at desktop, laptop, tablet and narrow 
       "Review Workspace",
       "Dataset and Evaluation",
     ]) {
-      await page.getByRole("button", { name: area, exact: true }).click();
+      await navigateWorkspace(page, area);
       await expect(
         page.getByRole("heading", { name: area, exact: true }),
       ).toBeFocused();

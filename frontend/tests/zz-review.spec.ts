@@ -1,3 +1,4 @@
+import { navigateWorkspace } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
@@ -56,9 +57,7 @@ test("review handoff, actual playback, immutable export and adjudication", async
   expect(recording.transcript.text).toBe("Generated signal fixture only.");
   async function start(reviewer: string) {
     await page.goto("/");
-    await page
-      .getByRole("button", { name: "Review Workspace", exact: true })
-      .click();
+    await navigateWorkspace(page, "Review Workspace");
     await page.getByLabel("Operator key", { exact: true }).fill(key);
     await page
       .getByLabel("Recording", { exact: true })
@@ -194,9 +193,7 @@ test("review handoff, actual playback, immutable export and adjudication", async
     .fill("Different generated fixture words.");
   await finish();
   await unlock();
-  await page
-    .getByRole("button", { name: "Review Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Review Workspace");
   await page.getByLabel("Operator key", { exact: true }).fill(key);
   await page
     .getByRole("button", { name: "Load sessions and adjudication" })

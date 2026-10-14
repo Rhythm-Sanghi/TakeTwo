@@ -28,6 +28,47 @@ import { ExcerptForm } from "./RecordingTools";
 import { DatasetReadiness } from "./DatasetReadiness";
 import type { DatasetSummary } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
+import { WorkspaceNavigation, workspacePages } from "./WorkspaceNavigation";
+
+it("requires a deliberate recording type without changing contract choices", async () => {
+  const fetch = vi.fn();
+  vi.stubGlobal("fetch", fetch);
+  render(<ImportForm recordings={[]} onImported={() => {}} />);
+  const selector = screen.getByLabelText("Recording type");
+  expect(selector).toHaveValue("");
+  expect(selector).toBeRequired();
+  expect(
+    screen.getByRole("button", { name: "Import recording" }),
+  ).toBeDisabled();
+  fireEvent.submit(screen.getByRole("form", { name: "Import recording" }));
+  expect(fetch).not.toHaveBeenCalled();
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    "Choose the recording type",
+  );
+  await userEvent.selectOptions(selector, "public_reference");
+  expect(selector).toHaveValue("public_reference");
+  expect(
+    screen.getByRole("button", { name: "Import recording" }),
+  ).toBeEnabled();
+});
+
+it("exposes all five areas in the compact workspace selector", async () => {
+  const navigate = vi.fn();
+  render(
+    <WorkspaceNavigation current="Analysis Workspace" onNavigate={navigate} />,
+  );
+  const selector = screen.getByRole("combobox", {
+    name: "Workspace",
+  });
+  expect(selector).toHaveValue("Analysis Workspace");
+  for (const page of workspacePages) {
+    await userEvent.selectOptions(selector, page);
+    expect(navigate).toHaveBeenLastCalledWith(page);
+  }
+  expect(
+    screen.getByRole("button", { name: "Analysis Workspace" }),
+  ).toHaveAttribute("aria-current", "page");
+});
 
 vi.mock("uplot", () => ({
   default: class {
@@ -332,6 +373,9 @@ it("uses backend inventory and opens operator preparation without granting acces
   expect(screen.getByLabelText("Recording", { exact: true })).toHaveValue(
     "fixture-take",
   );
+  expect(
+    screen.getByRole("textbox", { name: "Reviewer identifier" }),
+  ).toHaveAccessibleDescription("An identity declaration, not authentication.");
   expect(
     screen.getByRole("button", { name: "Start reviewer handoff" }),
   ).toBeDisabled();

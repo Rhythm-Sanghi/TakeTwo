@@ -1,3 +1,4 @@
+import { navigateWorkspace } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -26,9 +27,7 @@ test("45 s native playback, alignment, responsive CPU processing and report", as
     "synthetic",
   ]);
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Analysis Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Analysis Workspace");
   await page
     .getByLabel("Reference recording")
     .selectOption(

@@ -281,10 +281,11 @@ export function Timeline({
   useEffect(() => {
     const element = canvas.current;
     if (!element || !waveform) return;
-    function draw() {
+    function draw(printWidth?: number) {
       if (!element || !waveform) return;
-      const width = element.clientWidth,
+      const width = printWidth ?? element.clientWidth,
         height = 140;
+      if (width <= 0) return;
       element.width = width * devicePixelRatio;
       element.height = height * devicePixelRatio;
       const ctx = element.getContext("2d");
@@ -353,9 +354,17 @@ export function Timeline({
       ctx.stroke();
     }
     draw();
-    const observer = new ResizeObserver(draw);
+    const resize = () => draw();
+    const print = () => draw(640);
+    const observer = new ResizeObserver(resize);
     observer.observe(element);
-    return () => observer.disconnect();
+    window.addEventListener("beforeprint", print);
+    window.addEventListener("afterprint", resize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("beforeprint", print);
+      window.removeEventListener("afterprint", resize);
+    };
   }, [
     waveform,
     start,
@@ -543,6 +552,26 @@ export function Timeline({
           onChange={(event) => seekTo(Number(event.target.value))}
         />
       </label>
+      <div className="selection-transport">
+        <output className="mono">
+          Selected {number(selection[0])}–{number(selection[1])} s
+        </output>{" "}
+        <button
+          onClick={() => {
+            seekTo(selection[0]);
+            playbackEnd.current = selection[1];
+            void audio.current
+              ?.play()
+              .catch(() =>
+                setError(
+                  "Playback was blocked by the browser; use the audio play control.",
+                ),
+              );
+          }}
+        >
+          Replay selected interval
+        </button>
+      </div>
       <details className="precision-controls">
         <summary>Precision selection and interval replay</summary>
         <div className="toolbar">
@@ -589,21 +618,7 @@ export function Timeline({
               }
             />
           </label>
-          <button
-            onClick={() => {
-              seekTo(selection[0]);
-              playbackEnd.current = selection[1];
-              void audio.current
-                ?.play()
-                .catch(() =>
-                  setError(
-                    "Playback was blocked by the browser; use the audio play control.",
-                  ),
-                );
-            }}
-          >
-            Replay selected interval
-          </button>
+
           <output className="mono">
             Selection {number(selection[1] - selection[0])} s
           </output>

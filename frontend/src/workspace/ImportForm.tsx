@@ -20,8 +20,7 @@ export function ImportForm({
   schemaVersion?: number;
   onUpgraded?: () => void;
 }) {
-  const [type, setType] =
-    useState<Upload["recording_type"]>("public_reference");
+  const [type, setType] = useState<Upload["recording_type"] | "">("");
   const [reference, setReference] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -41,6 +40,10 @@ export function ImportForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!type) {
+      setError("Choose the recording type before importing.");
+      return;
+    }
     const form = event.currentTarget;
     const data = new FormData(form);
     const value = (key: string) => String(data.get(key) ?? "").trim();
@@ -154,12 +157,16 @@ export function ImportForm({
         <label>
           Recording type
           <select
+            required
             value={type}
             onChange={(e) => {
               setType(e.target.value as Upload["recording_type"]);
               setError("");
             }}
           >
+            <option value="" disabled>
+              Choose recording type
+            </option>
             <option value="public_reference">Public source reference</option>
             <option value="controlled_reference">
               Self-recorded controlled reference
@@ -405,7 +412,9 @@ export function ImportForm({
       {error && <p role="alert">{error}</p>}
       <button
         type="submit"
-        disabled={busy || schemaVersion === 1 || (participant && !reference)}
+        disabled={
+          !type || busy || schemaVersion === 1 || (participant && !reference)
+        }
       >
         {busy ? "Validating recording…" : "Import recording"}
       </button>

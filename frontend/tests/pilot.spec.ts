@@ -1,3 +1,4 @@
+import { navigateWorkspace } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
@@ -92,9 +93,7 @@ test("actual private five-take pilot imports without invented rights or reviews"
       (p: { intended_severity: number | null }) => p.intended_severity === null,
     ),
   ).toBe(true);
-  await page
-    .getByRole("button", { name: "Analysis Workspace", exact: true })
-    .click();
+  await navigateWorkspace(page, "Analysis Workspace");
   await expect(page.getByLabel("Participant pair")).not.toHaveValue("");
   await expect(
     page.getByText(/A selected recording exceeds the 45-second/),
@@ -128,7 +127,7 @@ test("actual private five-take pilot imports without invented rights or reviews"
       "Rubric and Evidence",
       "Dataset and Evaluation",
     ]) {
-      await page.getByRole("button", { name: area, exact: true }).click();
+      await navigateWorkspace(page, area);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       expect(
         await page.evaluate(

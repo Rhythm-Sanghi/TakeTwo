@@ -152,18 +152,26 @@ export function AnalysisResult({
           </p>
         )}
       </div>
+      {(!report || pending) && (
+        <button className="primary" onClick={onNext}>
+          {nextLabel}
+        </button>
+      )}
       {pending && (
         <>
           <p>
             {availableEvidence
               ? "Some evidence is eligible. The overall score remains unavailable; inspect each dimension’s coverage and requirements. Findings describe reference agreement, not overall speaking ability."
-              : "Available acoustic measurements are exploratory evidence. They do not establish a delivery flaw or a speaking-quality score."}
+              : "Measured audio features are available; independent evidence is needed before delivery-flaw conclusions. See evidence requirements."}
           </p>
-          <ul className="outcome-requirements">
-            {messages.map((message) => (
-              <li key={message}>{message}</li>
-            ))}
-          </ul>
+          <details className="result-requirements">
+            <summary>Evidence requirements</summary>{" "}
+            <ul className="outcome-requirements">
+              {messages.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </details>
         </>
       )}
       {report?.overall_score != null && (
@@ -180,11 +188,6 @@ export function AnalysisResult({
           Evaluation for the stored run and its limitations.
         </p>
       )}
-      {(!report || pending) && (
-        <button className="primary" onClick={onNext}>
-          {nextLabel}
-        </button>
-      )}
       {report && (
         <dl className="measurement-strip">
           {report.inputs.map((input) => {
@@ -196,22 +199,27 @@ export function AnalysisResult({
               <div key={input.provenance.recording_id}>
                 <dt>{name} · measured audio</dt>
                 <dd>
-                  <strong>{number(input.duration_s, 2)} s</strong> ·{" "}
-                  {input.spectral_frame_count} spectral frames
+                  <strong>{number(input.duration_s, 2)} s</strong>
                 </dd>
                 <dd>
                   Reliable pitch coverage:{" "}
                   {number(input.pitch_valid_fraction * 100, 2)}% · diagnostic
                 </dd>
                 <dd>
-                  Automatic alignment:{" "}
-                  {input.alignment
-                    ? "Automatic artifact available"
-                    : "Unavailable"}
-                </dd>
-                <dd>
-                  Acoustic features:{" "}
-                  {input.features ? "Artifact available" : "Unavailable"}
+                  <details>
+                    <summary>Feature and alignment details</summary>
+                    <p>{input.spectral_frame_count} spectral frames</p>{" "}
+                    <p>
+                      Automatic alignment:{" "}
+                      {input.alignment
+                        ? "Automatic artifact available"
+                        : "Unavailable"}
+                    </p>
+                    <p>
+                      Acoustic features:{" "}
+                      {input.features ? "Artifact available" : "Unavailable"}
+                    </p>
+                  </details>
                 </dd>
               </div>
             );
