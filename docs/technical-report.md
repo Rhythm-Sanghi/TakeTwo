@@ -11,7 +11,10 @@ print reports. A compact cache avoids repeated summary serialization while valid
 source identity. Independent readiness requests preserve partial inventory and explicit
 errors. These observations never become human labels, delivery scores or evaluation
 ground truth. Acoustic-v1 and delivery-v0 are unchanged; the genuine pitch limitation
-persists. See the product completion audit and exploratory methods for current evidence.
+persists. Comparative-insights-v1 now groups compatible windows, compares complete
+indexed supplied-text word positions, diagnoses gaps against independent activity
+and orders inspection transparently; it never approves review or scores. See the
+comparative methods/audit for current evidence.
 Historical PDF reports are preserved. A dated six-page owner-review PDF is generated
 separately; publication and independent scientific acceptance remain owner actions.
 

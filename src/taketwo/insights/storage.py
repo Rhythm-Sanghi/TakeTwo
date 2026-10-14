@@ -11,6 +11,10 @@ from taketwo.dataset.storage import managed_path, read_json, write_new
 from .contracts import ComparativeReport
 
 
+class ComparativeIntegrityError(ValueError):
+    """Existing evidence failed validation; preserve it for recovery."""
+
+
 def implementation_hash():
     return content_hash(
         {p.name: sha256(p.read_bytes()) for p in sorted(Path(__file__).parent.glob("*.py"))}
@@ -32,7 +36,7 @@ def publish(root, result):
             os.link(temporary, path)
         except FileExistsError:
             if path.read_bytes() != content:
-                raise ValueError(
+                raise ComparativeIntegrityError(
                     "Comparative artifact differs; existing evidence preserved."
                 ) from None
     finally:
@@ -47,5 +51,5 @@ def read_artifact(path):
         or set(envelope) != {"sha256", "result"}
         or content_hash(envelope["result"]) != envelope["sha256"]
     ):
-        raise ValueError("Comparative artifact checksum differs.")
+        raise ComparativeIntegrityError("Comparative artifact checksum differs.")
     return ComparativeReport.model_validate_json(canonical_json(envelope["result"]))

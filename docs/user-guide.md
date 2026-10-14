@@ -78,6 +78,21 @@ the authorized review before using general analysis APIs.
 
 ## Export and recover
 
+Read **What analysis found**, then **Differences worth inspecting**. Initial items
+explain their actual difference and selection rule; they are never confirmed flaws.
+Use **Listen to reference** and **Listen to participant** on a paired observation:
+each recording plays its own native interval. **Inspect waveform** moves focus to
+that track's audio control. **Return to complete recording** clears bounded replay.
+Open **Comparative evidence** for every group and provisional word measurement,
+or **Exploratory details / technical appendix** for the original windows, words,
+quality and extraction configuration. Missing/partial text correspondence withholds
+paired comparisons. A machine gap is not automatically silence or hesitation.
+
+**Export comparative JSON** includes the complete new result and original exploratory
+evidence. Printing starts with the measured overview and selected local observations,
+followed by marked technical appendices. **Retry comparative insights** reloads a safe
+GET; raw evidence remains available if the additional layer fails.
+
 Export exploratory JSON saves the full versioned report and its checksum. Export interval
 CSV saves every automatic event and method/provenance columns. Print exploratory report /
 save PDF opens native browser printing: select Save as PDF for selectable text and plots.

@@ -60,7 +60,8 @@ export function ComparativeInsights({
         {report.groups.length} grouped observations retain all{" "}
         {e.candidates.length} raw windows.{" "}
         {report.segments.filter((s) => s.kind === "word").length} provisional
-        word comparisons; {report.anomalies.length} alignment gaps meet the
+        word comparisons; {report.anomalies.length} alignment{" "}
+        {report.anomalies.length === 1 ? "gap meets" : "gaps meet"} the
         inspection rule.
       </p>
       {report.correspondence_unavailable_reason && (
@@ -220,7 +221,8 @@ export function ComparativeInsights({
                 <>
                   <p>
                     {interval(group.start_s, group.end_s)} ·{" "}
-                    {group.candidate_ids.length} connected windows ·{" "}
+                    {group.candidate_ids.length} connected{" "}
+                    {group.candidate_ids.length === 1 ? "window" : "windows"} ·{" "}
                     {label(group.direction)}
                     {group.representative_delta_db == null
                       ? ""

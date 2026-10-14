@@ -2,6 +2,16 @@
 
 ## Exploratory result additions
 
+`GET /api/v1/analyses/{job_id}/insights` and `/insights/export` supply the separate
+[comparative-insights-v1 contract](comparative-insights-schema-v1.json): complete
+exploratory provenance/raw windows, groups, native paired measurements, gap diagnostics
+and explained inspection order. [Methods](comparative-insights.md) specify abstention,
+reviewed phrase partitions and bounded caching. Reviewer handoffs deny these endpoints.
+Missing job IDs return `not_found` 404; absent stored evidence returns `artifact_missing`
+404; failed artifact validation returns `artifact_corrupt` 422. Storage access failures
+remain 503; changed historical inputs/reviews remain 409. Only harmless GET retries
+are offered by the results view; mutations are never automatically retried.
+
 `GET /api/v1/analyses/{job_id}/exploratory` returns the separately versioned
 [Exploratory Speech Analysis contract](exploratory-schema-v1.json). At least one
 completed acoustic feature stage is required (otherwise HTTP 409). Missing members

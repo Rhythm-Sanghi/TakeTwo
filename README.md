@@ -10,6 +10,13 @@ accepted pitch coverage, timestamped acoustic candidates and replay. Reference-o
 inspection works without a participant or independent reviews. Machine-aligned words
 and supported automatic word correspondence remain explicitly unverified.
 
+**Comparative insights** group compatible windows and surface provisional local
+word-duration/gap differences with native A/B replay. The genuine practice pair's
+53 raw windows form 44 groups; every original window remains exportable. A 2.890 s
+machine alignment gap contains no low-energy support under the activity rule, so
+TakeTwo offers inspection instead of claiming a pause. See the
+[matching, grouping and inspection-order methods](docs/comparative-insights.md).
+
 **Verified Assessment** remains separate. Reviewed text, rights, temporal correspondence,
 quality and coverage gates still control delivery findings and scores. Automatic
 observations never become human labels or approvals through display or export.

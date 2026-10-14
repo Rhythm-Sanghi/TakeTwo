@@ -2,6 +2,46 @@ import { test, expect } from "@playwright/test";
 import type { ComparativeReport, Job, Recording } from "../src/api";
 import { openHistory, navigateWorkspace } from "./navigation";
 
+test("native plots stay contained before resize observers finish across breakpoints", async ({
+  page,
+  request,
+}) => {
+  const jobs: Job[] = await (await request.get("/api/v1/analyses")).json();
+  const job = jobs.find((j) => j.state === "completed" && j.request.pair_id)!;
+  await page.goto("/");
+  await openHistory(page, job.id.slice(0, 12));
+  await expect(page.locator(".feature-chart .uplot")).toHaveCount(2);
+  await page.evaluate(() => {
+    const overflow: number[] = [];
+    Object.assign(window, { plotResizeOverflow: overflow });
+    addEventListener("resize", () =>
+      overflow.push(document.documentElement.scrollWidth - innerWidth),
+    );
+  });
+  for (const width of [390, 1366, 1920, 1366, 800, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect
+      .poll(() =>
+        page
+          .locator(".feature-chart .chart-plot")
+          .evaluateAll((nodes) =>
+            nodes.every(
+              (node) =>
+                node.querySelector(".uplot")!.getBoundingClientRect().width <=
+                node.clientWidth + 1,
+            ),
+          ),
+      )
+      .toBe(true);
+  }
+  const overflows = await page.evaluate(
+    () =>
+      (window as Window & { plotResizeOverflow: number[] }).plotResizeOverflow,
+  );
+  expect(overflows.length).toBeGreaterThan(0);
+  expect(overflows.every((width) => width <= 0)).toBe(true);
+});
+
 test("comparative groups retain raw evidence, native replay and recovery after missing artifacts", async ({
   page,
   request,

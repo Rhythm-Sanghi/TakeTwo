@@ -51,6 +51,7 @@ from taketwo.exploratory.storage import implementation_hash as exploratory_hash
 from taketwo.exploratory.storage import publish as publish_exploratory
 from taketwo.insights.contracts import ComparativeReport
 from taketwo.insights.engine import build as build_insights
+from taketwo.insights.storage import ComparativeIntegrityError
 from taketwo.insights.storage import implementation_hash as insights_hash
 from taketwo.insights.storage import publish as publish_insights
 
@@ -250,6 +251,15 @@ def create_app(
     @app.exception_handler(ValueError)
     async def invalid(request, exc):
         return error(422, "invalid_input", str(exc))
+
+    @app.exception_handler(ComparativeIntegrityError)
+    async def corrupted_comparative_artifact(request, exc):
+        return error(
+            422,
+            "artifact_corrupt",
+            str(exc),
+            "Restore the original managed comparative artifact or start a new analysis.",
+        )
 
     @app.exception_handler(OSError)
     async def unavailable_storage(request, exc):

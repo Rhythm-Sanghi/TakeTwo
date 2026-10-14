@@ -358,7 +358,10 @@ def test_comparative_cache_integrity_restoration_and_distinct_artifact_errors(cl
     stored = next((root / "derived/comparative-insights-v1").glob("insights-*.json"))
     original_bytes = stored.read_bytes()
     stored.write_bytes(b"corrupted fixture")
-    assert client.get(base + "/insights").status_code == 422
+    corrupted = client.get(base + "/insights")
+    assert corrupted.status_code == 422
+    assert corrupted.json()["error"]["code"] == "artifact_corrupt"
+    assert "Restore" in corrupted.json()["error"]["recovery"]
     stored.write_bytes(original_bytes)
     features = root / job["artifacts"][recording.id]["features"]
     original_bytes = features.read_bytes()

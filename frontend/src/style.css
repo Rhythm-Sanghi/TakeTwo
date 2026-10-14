@@ -499,6 +499,10 @@ table button {
   min-width: 0;
   max-width: 100%;
 }
+.feature-chart .chart-plot {
+  /* Contain the previous canvas width until ResizeObserver redraws the plot. */
+  overflow: clip;
+}
 .feature-chart > p {
   font-size: 12px;
 }

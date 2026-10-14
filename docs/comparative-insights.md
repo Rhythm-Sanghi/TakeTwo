@@ -124,6 +124,7 @@ clears bounded selection and restores its full window. Navigation pauses playbac
 Exploratory listening never submits reviewer completion or independent approval.
 
 Native print puts the measured overview and selected observations first; clearly marked
+print highlights use the first three ordered items (the browser starts with six).
 appendices preserve all groups, paired measurements, original candidates, provisional
 word lists, methods and source hashes. JSON/CSV provide full precision. The separate
 six-page hackathon technical draft and historical PDFs remain separate.

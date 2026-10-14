@@ -1,6 +1,9 @@
 # Exploratory Speech Analysis v1
 
 Exploratory Speech Analysis summarizes existing acoustic-v1 feature artifacts.
+Its historical v1 contract remains unchanged. The separately versioned
+[comparative layer](comparative-insights.md) now groups its original windows and
+adds provisional native-time measurements, diagnostics and inspection order.
 It is separate from Verified Assessment: it produces no delivery scores, review
 approvals, flaw labels, calibrated confidence, or evaluation accuracy. It never
 writes reviewer drafts, approvals, dataset annotations or comparison artifacts.
