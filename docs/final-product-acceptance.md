@@ -1,5 +1,10 @@
 # Final product acceptance and release-readiness review
 
+This is the prior report-polish milestone. The subsequent
+[final hardening completion](final-hardening-completion.md) records the current
+print, readiness, Windows and verification work. Historical observations below
+remain unchanged.
+
 TakeTwo — Speech analysis workspace. Local engineering evidence and an owner decision
 record; not production certification, independent speech accuracy or publication approval.
 Starting HEAD `35bf504`, clean `master`, 14 October 2026.

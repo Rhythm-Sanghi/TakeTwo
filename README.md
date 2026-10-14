@@ -2,6 +2,11 @@
 
 Speech analysis workspace
 
+Current local hardening and remaining human/scientific gates are recorded in
+[final hardening completion](docs/final-hardening-completion.md). Searchable exports
+use the documented [report workflow](docs/report-export-guide.md); independent
+reviews follow the [reviewed-evidence workflow](docs/reviewed-evidence-workflow.md).
+
 TakeTwo compares reference and participant recordings of the same words, preserves native audio timing, and exposes measured acoustic evidence and an explainable delivery-agreement rubric. The Workshop + Gridline + Studio Utility interface uses restrained surfaces, precise grids, functional controls and explicit unavailable states. Permanent standards are in [AGENTS.md](AGENTS.md).
 
 Successful acoustic processing now produces **Exploratory Speech Analysis**: duration,

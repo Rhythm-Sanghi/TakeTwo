@@ -64,6 +64,13 @@ Peak supervised worker-tree commit was **2,077,245,440 bytes**. This is kernel
 commit accounting, not RSS, and separate from backend startup/restoration timings.
 Native processing is CPU-only; independent scientific accuracy is unestablished.
 
+The final fresh genuine run also passed all three browser tests (4.9 min).
+Its selected pair job completed in **237.640 s**, no cache hits: reference MFA
+116.671 s, participant MFA 91.219 s, reference extraction 15.297 s, participant
+extraction 11.375 s, comparison 1.328 s and validation 0.266 s. Peak supervised
+tree commit was **2,081,546,240 bytes**. These are a second actual run, not a
+comparison establishing universal throughput; host variation remains visible.
+
 ## Concurrent cold-load repair and browser measurements
 
 A fresh browser then reproduced the existing assessment/exploratory request-budget
