@@ -43,6 +43,13 @@ The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/sta
 
 ## Verification
 
+The Windows launcher uses a Selector event loop after a reproduced Proactor
+accept-socket failure during abrupt client resets. Worker processes retain kernel
+supervision and synchronous thread-based launching. See
+[measured Windows hardening evidence](windows-hardening-evidence.md) for cold/warm
+timings, tested recovery, the bounded local-server tradeoff and remaining latency
+and WinError 10054 limits.
+
 Unexpected CPU-worker failures retain a bounded private traceback under
 `.diagnostics/<job-id>.log` in the selected workspace (maximum 32 KiB per failure).
 The API retains a redacted diagnostic; no HTTP route exposes the private trace.

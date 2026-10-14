@@ -134,6 +134,9 @@ export function App() {
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
+  const [serviceState, setServiceState] = useState<
+    "connecting" | "ready" | "unavailable"
+  >("connecting");
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [evaluationState, setEvaluationState] = useState<
@@ -273,6 +276,7 @@ export function App() {
   }, [datasetSummary]);
   const refresh = useCallback(async () => {
     const generation = ++refreshGeneration.current;
+    setServiceState("connecting");
     setEvaluationState("loading");
     refreshRequest.current?.abort();
     const controller = new AbortController();
@@ -298,6 +302,9 @@ export function App() {
         reloadDataset(),
       ]);
       if (generation !== refreshGeneration.current) return;
+      setServiceState(
+        results[3].status === "fulfilled" ? "ready" : "unavailable",
+      );
       setEvaluationState(
         results[5].status === "fulfilled" ? "ready" : "unavailable",
       );
@@ -624,13 +631,17 @@ export function App() {
         </div>
         <span className="environment">LOCAL / CPU</span>
         <span role="status">
-          {activeJob?.state === "running"
-            ? activeJob.stage
-            : health
-              ? health.ready
-                ? "Local workspace ready"
-                : "CPU supervisor unavailable"
-              : "Connecting to local service…"}
+          {serviceState === "unavailable"
+            ? "Local service unavailable. Retry refresh."
+            : serviceState === "connecting"
+              ? "Connecting to local service…"
+              : activeJob?.state === "running"
+                ? activeJob.stage
+                : health
+                  ? health.ready
+                    ? "Local workspace ready"
+                    : "CPU supervisor unavailable"
+                  : "Connecting to local service…"}
         </span>
         <button onClick={() => void refresh()} aria-label="Refresh workspace">
           Refresh
@@ -1524,7 +1535,7 @@ export function App() {
                   navigate("Review Workspace");
                 }}
               />
-              <details className="panel">
+              <details className="panel print-controls">
                 <summary>Import independent review evidence</summary>
                 <ReviewImport
                   jobs={jobs}

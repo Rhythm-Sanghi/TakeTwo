@@ -2,6 +2,7 @@
 
 import argparse
 import socket
+import sys
 from pathlib import Path
 
 import uvicorn
@@ -34,6 +35,10 @@ def main():
         host="127.0.0.1",
         port=args.port,
         access_log=False,
+        # Python 3.11's Windows Proactor can close the accept socket after a
+        # reset during accept. Workers use synchronous Popen in threads, so
+        # this local HTTP service does not require Proactor subprocess pipes.
+        loop="asyncio:SelectorEventLoop" if sys.platform == "win32" else "auto",
     )
 
 

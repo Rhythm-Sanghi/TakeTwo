@@ -4,6 +4,7 @@ import json
 import os
 import re
 import socket
+import struct
 import subprocess
 import sys
 import time
@@ -153,6 +154,30 @@ def test_startup_diagnostics_are_bounded_and_redact_credentials(tmp_path):
     assert "http://127.0.0.1:8765/api/v1/health" in sanitized_startup(
         "http://127.0.0.1:8765/api/v1/health", tmp_path
     )
+
+
+def test_abrupt_client_resets_preserve_listener_and_persisted_history(imported):
+    root, recording = imported
+    process, client = launch(root)
+    try:
+        baseline = client.get("/analyses").json()
+        for _ in range(30):
+            with socket.socket() as connection:
+                connection.connect(("127.0.0.1", client.base_url.port))
+                connection.sendall(b"GET /api/v1/health HTTP/1.1\r\nHost: localhost\r\n\r\n")
+                time.sleep(0.02)
+                # Winsock linger uses two unsigned shorts; zero timeout forces RST.
+                connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("HH", 1, 0))
+        for _ in range(3):
+            assert client.get("/health").status_code == 200
+            assert client.get("/analyses").json() == baseline
+            assert client.get(f"/recordings/{recording.id}").json()["id"] == recording.id
+        assert process.poll() is None
+    finally:
+        client.close()
+        if process.poll() is None:
+            kill(process.service_pid)
+            process.wait(timeout=15)
 
 
 def worker(root):

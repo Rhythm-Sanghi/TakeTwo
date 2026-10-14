@@ -2,7 +2,9 @@
 
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Barrier
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +13,42 @@ from taketwo.dataset.schema import canonical_json
 from taketwo.web.app import create_app, window
 from taketwo.web.contracts import AnalysisRequest
 from taketwo.web.jobs import Jobs
+
+
+def test_concurrent_cold_validation_reads_once_and_retries_changed_or_failed_inputs(monkeypatch):
+    import taketwo.web.app as web
+
+    calls = []
+    sentinel = object()
+
+    def read(path):
+        calls.append(path)
+        time.sleep(0.05)  # Hold a cache miss while the other requests arrive.
+        return sentinel
+
+    monkeypatch.setattr(web, "read_analysis", read)
+    barrier = Barrier(6)
+
+    def request(_):
+        barrier.wait()
+        return web.validated_analysis("software-concurrent-cache-probe", 1, 100)
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        results = list(pool.map(request, range(6)))
+    assert all(result is sentinel for result in results)
+    assert len(calls) == 1
+    assert web.validated_analysis("software-concurrent-cache-probe", 2, 101) is sentinel
+    assert len(calls) == 2  # The existing stat key still invalidates changed artifacts.
+
+    def failed(path):
+        calls.append(path)
+        raise ValueError("Software corruption probe")
+
+    monkeypatch.setattr(web, "read_analysis", failed)
+    for _ in range(2):
+        with pytest.raises(ValueError, match="corruption probe"):
+            web.validated_analysis("software-concurrent-cache-probe", 3, 102)
+    assert len(calls) == 4  # Failure is never cached as successful evidence.
 
 
 @pytest.fixture

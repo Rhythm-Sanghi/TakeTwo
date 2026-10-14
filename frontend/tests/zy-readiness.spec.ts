@@ -1,6 +1,33 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+test("failed health refresh does not announce cached readiness and recovers", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const serviceStatus = page.locator(".app-header [role=status]");
+  await expect(serviceStatus).toHaveText("Local workspace ready");
+  await page.route("**/api/v1/health", (route) =>
+    route.abort("connectionfailed"),
+  );
+  await page
+    .getByRole("button", { name: "Refresh workspace", exact: true })
+    .click();
+  await expect(serviceStatus).toHaveText(
+    "Local service unavailable. Retry refresh.",
+  );
+  await expect(
+    page.getByRole("button", { name: "Reconnect / refresh" }),
+  ).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.unroute("**/api/v1/health");
+  await page.getByRole("button", { name: "Reconnect / refresh" }).click();
+  await expect(serviceStatus).toHaveText("Local workspace ready");
+  await expect(
+    page.getByRole("button", { name: "Reconnect / refresh" }),
+  ).not.toBeVisible();
+});
+
 test("evaluation inventory failure is unavailable, then recovers to an authoritative empty state", async ({
   page,
 }) => {

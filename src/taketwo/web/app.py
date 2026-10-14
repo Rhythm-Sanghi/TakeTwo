@@ -11,7 +11,7 @@ from collections import OrderedDict
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
-from threading import Lock
+from threading import Lock, RLock
 from typing import Annotated
 
 import numpy as np
@@ -91,14 +91,30 @@ def error(status, code, message, recovery="Review the input and retry."):
     )
 
 
+_analysis_validation_lock = RLock()
+
+
 @lru_cache(maxsize=8)
-def validated_analysis(path: str, modified_ns: int, size: int):
+def _read_validated_analysis(path: str, modified_ns: int, size: int):
     return read_analysis(Path(path))
 
 
+def validated_analysis(path: str, modified_ns: int, size: int):
+    # lru_cache permits duplicate concurrent misses. Cold frontend requests can
+    # otherwise deserialize/validate the same large feature artifact repeatedly.
+    # Lock the cache lookup as well as the read; current source checks stay outside.
+    with _analysis_validation_lock:
+        return _read_validated_analysis(path, modified_ns, size)
+
+
 @lru_cache(maxsize=8)
-def validated_analysis_digest(path: str, modified_ns: int, size: int):
+def _validated_analysis_digest(path: str, modified_ns: int, size: int):
     return content_hash(validated_analysis(path, modified_ns, size).model_dump(mode="json"))
+
+
+def validated_analysis_digest(path: str, modified_ns: int, size: int):
+    with _analysis_validation_lock:
+        return _validated_analysis_digest(path, modified_ns, size)
 
 
 def window(series, start, end, maximum):
