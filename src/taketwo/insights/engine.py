@@ -338,12 +338,54 @@ def build(report, sources, implementation_sha256, phrase_spans=None, phrase_revi
             if category == "alignment_anomaly"
             else evidence.reference.start_s
         )
+        if category == "alignment_anomaly":
+            selected_reason = (
+                f"Automatic alignment leaves a {magnitude:.3f} s gap between "
+                f"{evidence.before_word.label!r} and {evidence.after_word.label!r}, "
+                f"meeting the {config.anomaly_gap_s:.3f} s inspection threshold. "
+                f"Acoustic coverage is {evidence.measurement.observed_s:.3f} s; "
+                + (
+                    f"low-energy support is {evidence.measurement.low_energy_s:.3f} s. "
+                    if evidence.measurement.low_energy_s is not None
+                    else "low-energy support is unavailable. "
+                )
+                + "Check supplied text and automatic timing against the recording; "
+                "this establishes neither a pause nor an alignment error. "
+            )
+        elif category == "gap_difference":
+            selected_reason = (
+                f"The absolute provisional gap difference {magnitude:.3f} s "
+                "meets the 0.150 s inspection threshold. "
+                f"Reference gap {evidence.reference_gap_before_s:.3f} s; "
+                f"participant gap {evidence.participant_gap_before_s:.3f} s. "
+                "Check the interval before the supplied-text word; "
+                "a machine gap does not prove hesitation. "
+            )
+        elif category == "word_duration":
+            selected_reason = (
+                f"The absolute provisional word-duration difference {magnitude:.3f} s "
+                "meets the 0.100 s inspection threshold. "
+                "Check the assigned word boundaries; this is not a pronunciation judgment. "
+            )
+        else:
+            rule = (
+                f"absolute energy change at least {evidence.detection.threshold_delta_db:g} dB"
+                if evidence.detection.threshold_delta_db is not None
+                else "the configured low-energy activity rule"
+            )
+            selected_reason = (
+                f"{len(evidence.candidate_ids)} source window(s) meet {rule}; "
+                f"the compatible connected interval spans {magnitude:.3f} s. "
+                "Longer grouped intervals appear first within this category; "
+                "this is a presentation policy, not validated importance. "
+            )
         item = InspectionItem(
             id=identifier("i-", [category, evidence.id]),
             category=category,
             evidence_id=evidence.id,
             quality_limited=limited,
-            order_reason=(
+            order_reason=selected_reason
+            + (
                 "Quality/support limited; shown after complete evidence. "
                 if limited
                 else "Complete native support without recording quality warnings. "

@@ -306,6 +306,9 @@ def test_alignment_gap_has_separate_signal_evidence_and_deterministic_priority(p
     assert a.measurement.low_energy_s < a.measurement.observed_s
     assert a.alignment_confidence is None and "not proof" in a.reason
     assert result.inspection_order[0].category == "alignment_anomaly"
+    reason = result.inspection_order[0].order_reason
+    assert "1.080 s gap" in reason and "1.000 s inspection threshold" in reason
+    assert "low-energy support" in reason and "neither a pause nor an alignment error" in reason
     assert result == build(report, sources, implementation_hash())
     # A warning limits its ordering even when its measured gap is larger.
     report.recordings[1].quality_flags = ["fixture_noise_warning"]
@@ -329,3 +332,56 @@ def test_large_quality_limited_change_does_not_outrank_complete_group(paired):
     assert result.inspection_order[-1].quality_limited is True
     assert result.groups[0].representative_delta_db == 100
     assert result.inspection_order[0].evidence_id != result.groups[0].id
+
+
+def test_selected_group_reason_binds_rule_membership_and_exact_raw_evidence(paired):
+    _, report, sources = paired
+    report = windows(report, [(0, 0.5, "energy_change", 6), (0.5, 1, "energy_change", 7)])
+    before = report.model_dump(mode="json")
+    result = build(report, sources, implementation_hash())
+    assert len(result.groups) == 1
+    assert result.groups[0].candidate_ids == ["c-0", "c-1"]
+    assert result.exploratory.model_dump(mode="json") == before
+    reason = result.inspection_order[0].order_reason
+    assert "2 source window(s)" in reason and "at least 6 dB" in reason
+    assert "1.000 s" in reason and "not validated importance" in reason
+
+
+def test_boundary_single_and_alternating_noisy_groups_retain_provenance(paired):
+    _, report, sources = paired
+    report = windows(
+        report,
+        [
+            (0, 0.5, "energy_change", 6),
+            (0.5, 1, "energy_change", -6),
+            (1, 1.5, "energy_change", 6),
+            (1.5, 2, "energy_change", -6),
+        ],
+    )
+    result = build(report, sources, implementation_hash())
+    assert len(result.groups) == 4
+    assert [g.start_s for g in result.groups] == [0, 0.5, 1, 1.5]
+    assert result.groups[-1].end_s == report.recordings[0].duration_s
+    assert all(len(g.candidate_ids) == 1 for g in result.groups)
+    assert result.exploratory.candidates == report.candidates
+
+
+def test_selection_explanations_keep_v1_contract_and_historical_artifacts(paired):
+    from taketwo.insights.contracts import ComparativeReport
+
+    root, report, sources = paired
+    result = build(report, sources, implementation_hash())
+    historical = result.model_copy(
+        update={
+            "inspection_order": [
+                i.model_copy(update={"order_reason": "Historical presentation policy"})
+                for i in result.inspection_order
+            ]
+        }
+    )
+    path = publish(root, historical)
+    original = path.read_bytes()
+    publish(root, result)
+    assert path.read_bytes() == original
+    assert read_artifact(path) == historical
+    assert ComparativeReport.model_validate(result.model_dump()).schema_version == 1
