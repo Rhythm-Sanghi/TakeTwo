@@ -27,8 +27,8 @@ For native CPU alignment, install the locked MFA environment and checksummed Eng
 1. In **Recording Library**, choose a public-source reference or a self-recorded controlled practice reference, select WAV/FLAC, and supply the actual spoken words.
 2. Confirm local processing permission. Advanced source, speaker, rights and channel information stays available in disclosures; unknown rights are not filled with invented values.
 3. Click **Add participant**, choose a separate take and confirm the intended same-text relationship. The app creates and selects its pair; text remains unverified.
-4. Open **Analysis Workspace** and run analysis. Inspect real waveforms, native audio transport, word markers, features, evidence and any score-withholding reasons.
-5. Export the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
+4. Open **Analysis Workspace** and run analysis. Read the processing and assessment states first, then findings and the next required action. Listen to either native track and explore the supporting evidence.
+5. Open **Technical details · scores, coverage and scientific exports** for the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
 
 Use **Review Workspace** for browser transcript checks, assisted word/phrase timing, blinded flaw annotation, saved drafts and immutable review exports. A local operator key controls sequential reviewer handoff and separate adjudication; general analysis/peer APIs close during handoff. Read [review workflow and privacy limits](docs/review-workspace.md) before assigning independent reviewers. Typed identities and playback events do not authenticate people or establish scientific eligibility. [Review implementation evidence](docs/review-workspace-validation.md) lists actual checks and outstanding human acceptance.
 
@@ -73,7 +73,7 @@ uv run python scripts/check_repository.py
 uv run python scripts/audit_release.py
 ```
 
-The browser suite uses actual local HTTP/audio processing; generated tones are explicit software fixtures. Optional `TAKETWO_REAL_SMOKE=1` requires the documented local archival source/config; `TAKETWO_PILOT_SMOKE=1` requires the user's private five files. No scientific backend route is mocked. See the validation report for checks actually run, failed attempts and environment-blocked tests.
+The browser suite uses actual local HTTP/audio processing; generated tones are explicit software fixtures. Optional `TAKETWO_REAL_SMOKE=1` requires the documented local archival source/config; `TAKETWO_PILOT_SMOKE=1` requires the user's private five files. The processing/review integration tests use actual backend routes. A separate explicitly labeled UI-state test intercepts report responses to exercise loading, partial, eligible findings and eligible-zero presentation; it never changes stored scientific artifacts or establishes speech accuracy. See the validation report for checks actually run, failed attempts and environment-blocked tests.
 
 ## Limitations and submission materials
 
@@ -82,6 +82,8 @@ Acoustic agreement is not persuasion, emotion or speaking ability. `delivery-v0`
 The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf), its [archived source](docs/technical-report-2026-10-12.md), and the [current editable report](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
 
 Public code is verified on `master` at `cd2abe9`: [Windows Actions run 38357432224 passed](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). The earlier failed build-order run remains historical evidence. The subsequent [stabilization audit](docs/stabilization-audit.md) corrects ground-truth selection and narrow-screen controls locally; these changes have not been pushed. Public paired dataset, final report approval, video and submission remain owner actions. Private audio, models, consent records, databases and runtime evidence stay outside releases.
+
+See the [product experience audit](docs/product-experience-audit.md) for the outcome-first redesign, verified user journeys, screenshots, accessibility evidence and remaining human acceptance limits.
 
 ## AI assistance
 

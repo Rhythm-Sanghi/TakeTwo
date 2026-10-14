@@ -1,5 +1,12 @@
 # Browser verification
 
+The product-experience suite also includes `zz-experience.spec.ts`, a route-only
+software UI fixture for report loading, partial dimensions, eligible findings,
+native interval replay and eligible-zero presentation. It intercepts report
+responses in that test only, never edits a stored report or supplies genuine
+review evidence. The other integration cases use actual processing/review APIs.
+See [experience audit](product-experience-audit.md) for executed checks and limits.
+
 The generated suite includes `zy-presentation.spec.ts`: actual generated 15/29/30/40/45
 second WAV imports and CPU extraction, complete native domains/end samples at all
 five widths, same-speaker take counts, operator preselection without access grants,
