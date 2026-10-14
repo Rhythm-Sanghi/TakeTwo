@@ -636,6 +636,51 @@ it("cancels obsolete bounded playback and ignores its late rejected play promise
   expect(screen.getByText(/full recording/)).toBeInTheDocument();
 });
 
+it("returns a panned long recording to its complete native window", () => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      disconnect() {}
+    },
+  );
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ bins: [], start_s: 0, end_s: 10 }),
+    }),
+  );
+  const props = {
+    recording: {
+      id: "presentation-fixture",
+      role: "reference",
+      original_filename: "generated-fixture.wav",
+      origin: "source",
+      transcript: { status: "unverified" },
+      normalized_info: { duration_s: 10 },
+    } as Recording,
+    job: null,
+    regions: [],
+    selected: null,
+    onSelect: vi.fn(),
+    onPlay: vi.fn(),
+  };
+  const view = render(<Timeline {...props} seek={null} />);
+  fireEvent.click(screen.getByRole("button", { name: "Zoom in reference" }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "Later reference window" }),
+  );
+  expect(
+    screen.getByText(/Native viewing window 2.500–7.500/),
+  ).toBeInTheDocument();
+  view.rerender(<Timeline {...props} seek={{ time: 0, nonce: 1 }} />);
+  expect(
+    screen.getByText(/Native viewing window 0.000–10.000/),
+  ).toHaveTextContent("full recording");
+});
+
 it("seeks actual native audio and exposes numeric interval controls", async () => {
   vi.stubGlobal(
     "ResizeObserver",

@@ -123,8 +123,8 @@ Inspect moves keyboard focus to the selected native audio control. Return-to-com
 clears bounded selection and restores its full window. Navigation pauses playback.
 Exploratory listening never submits reviewer completion or independent approval.
 
-Native print puts the measured overview and selected observations first; clearly marked
-print highlights use the first three ordered items (the browser starts with six).
+Native print puts the measured overview and selected observations first. Print highlights
+use the first three ordered items (the browser starts with six). Clearly marked
 appendices preserve all groups, paired measurements, original candidates, provisional
 word lists, methods and source hashes. JSON/CSV provide full precision. The separate
 six-page hackathon technical draft and historical PDFs remain separate.

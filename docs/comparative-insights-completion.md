@@ -12,6 +12,14 @@ previously returned generic storage 503; they now return `artifact_missing` 404.
 Failed stored-envelope validation returns `artifact_corrupt` 422. Missing job IDs,
 unavailable stages, invalidated inputs/reviews, denied access and storage failures
 retain their distinct 404/409/403/503 states and recovery.
+Stored comparative-envelope corruption also has a specific `artifact_corrupt` response
+and restore/new-analysis recovery; it never overwrites the damaged evidence.
+
+Final responsive acceptance found a confirmed transient overflow before uPlot's
+ResizeObserver redraw: document width 642 at viewport 390, and 1602 at viewport 1366.
+Containing the chart's interim visual overflow preserves the redraw and controls.
+The new resize-event regression passes across breakpoints, including before observers
+finish; a settled-layout assertion alone did not catch this race.
 
 The screenshot's original Not Found condition was not reproduced: five fresh genuine
 historical GETs returned 200, including two reference-only jobs; the inspected prior
@@ -123,8 +131,9 @@ directory. Their earlier relocation's cause remains unknown; no original was mov
 
 ## G. Performance and Windows reliability
 
-Final genuine restored comparative GET: cold 11.970 s, repeats 0.290/0.312 s under
-mixed verification load. Earlier first/repeat measurements were 9.864/0.322 s.
+Final genuine restored comparative GET: cold 12.778 s, repeats 0.233/0.235 s under
+mixed verification load. Earlier first/repeat measurements were 9.864/0.322 s and
+11.970/0.290/0.312 s.
 These show bounded cache reuse, not a comparable before/after speed benchmark.
 The compact comparative response is about 256 KiB; no feature arrays are copied into it.
 
@@ -155,16 +164,17 @@ claimed; these remain operational limitations, not suppressed logs.
 
 | Final check | Passed | Failed | Skipped | Evidence |
 | --- | ---: | ---: | ---: | --- |
-| Full Python | 369 | 0 | 0 | 382.21 s; one upstream Starlette deprecation warning |
-| Frontend | 60 | 0 | 0 | 5 files; latest 30.94 s under mixed load |
-| Full generated browser | 11 | 0 | 0 | 7.6 min; native zoom, five widths, axe, replay, recovery, review isolation |
+| Full Python | 369 | 0 | 0 | Latest 492.09 s; one upstream Starlette deprecation warning |
+| Frontend | 60 | 0 | 0 | 5 files; latest 8.82 s |
+| Full generated browser | 12 | 0 | 0 | 5.2 min; resize-event containment, native zoom, five widths, axe, replay, recovery, review isolation |
 | Genuine browser pilot | 3 | 0 | 0 | 5.2 min; real five-file import, fresh MFA/extraction, pair, A/B, exports, native zoom |
+| Genuine native zoom after resize repair | 1 | 0 | 0 | 18.7 s; existing isolated genuine pair, actual tab zoom factor 2 |
 | TypeScript / ESLint / Prettier | pass | 0 | 0 | Executed against current frontend |
 | Ruff / formatting | pass | 0 | 0 | 76 Python files checked |
 | Vite / wheel / source builds | pass | 0 | 0 | Actual production and package builds |
 | Schema / local documentation / official Track C hash | pass | 0 | 0 | Runtime contracts and unchanged official PDF |
 | npm / Python dependency audit | pass | 0 | 0 | No known vulnerabilities in pinned dependencies |
-| Private-data / package preflight | pending final staged run | — | — | Final package/archive inspection follows documentation commit |
+| Private-data / package preflight | pass | 0 | 0 | 203 staged candidate files, 569 reachable history blobs; zero blocking/history/package findings |
 
 Earlier attempts are not hidden: first genuine suite **2 passed / 1 failed / 0 skipped**;
 after timeout-harness correction and isolated execution **3 passed / 0 failed / 0 skipped**.
@@ -181,9 +191,11 @@ Starting HEAD `365ed29`. Focused local commits on `master`:
 - `7d3190d` — audit comparative evidence and restoration states.
 - `96d7cc1` — versioned grouping/native-time comparative backend and contract tests.
 - `82159cf` — results hierarchy, native playback, print highlights and browser coverage.
+- `aa5dd00` — transient chart containment, specific artifact-corruption recovery and methods/evidence documentation.
 
-Final documentation/evidence commit and staged package preflight are recorded after
-their execution. No push, publication, release, original-audio change or external
+The final documentation/evidence commit accompanies this report; its hash and clean
+working tree are reported at handoff. Staged source/history/wheel/archive preflight
+returned zero blocking findings. No push, publication, release, original-audio change or external
 submission is authorized or performed. Owner PDFs remain ignored local artifacts.
 
 ## J. Remaining limitations

@@ -278,7 +278,10 @@ export function Timeline({
         setStart(0);
         setEnd(duration);
       }
-      if (target < start || target > end) {
+      if (
+        (seek.end != null || target !== 0) &&
+        (target < start || target > end)
+      ) {
         setStart(Math.max(0, target - 1));
         setEnd(Math.min(duration, (seek.end ?? target) + 2));
       }
