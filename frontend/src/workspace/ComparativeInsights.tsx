@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { label, number } from "../api";
 import type { ComparativeReport } from "../api";
+import {
+  inspectionReason,
+  readableEvidenceReason,
+  selectionLabel,
+} from "./insightCopy";
 
 type Seek = (
   recording: string,
@@ -45,13 +50,15 @@ export function ComparativeInsights({
         <>
           <h3>Overall recording comparison</h3>
           <p>{e.comparison.interpretation}</p>
-          <p>
+          <p className="level-comparison">
             {e.comparison.rms_level_delta_db == null
               ? "The digital RMS difference is unavailable."
-              : `${Math.abs(e.comparison.rms_level_delta_db) < 0.1 ? "Small measured" : "Measured"} digital RMS difference: ${number(e.comparison.rms_level_delta_db, 3)} dB; no perceptual significance is established.`}{" "}
-            Activity support difference {number(report.activity_delta_s, 3)} s;
-            low-energy support difference {number(report.low_energy_delta_s, 3)}{" "}
-            s.
+              : `${Math.abs(e.comparison.rms_level_delta_db) < 0.1 ? "Small measured" : "Measured"} recording level difference: ${number(e.comparison.rms_level_delta_db, 3)} dB (digital RMS); no perceptual significance is established.`}{" "}
+            <span className="technical-overview">
+              Activity support difference {number(report.activity_delta_s, 3)}{" "}
+              s; low-energy support difference{" "}
+              {number(report.low_energy_delta_s, 3)} s.
+            </span>
           </p>
         </>
       ) : (
@@ -61,7 +68,7 @@ export function ComparativeInsights({
             : "Reference inspection uses one native recording timeline."}
         </p>
       )}
-      <p>
+      <p className="technical-overview observation-counts">
         {report.groups.length} grouped observations retain all{" "}
         {e.candidates.length} raw acoustic windows.
         {e.pair_id && (
@@ -83,7 +90,7 @@ export function ComparativeInsights({
         alignment accuracy. Digital energy depends on gain, microphone and
         noise. Inspection order is not severity or confidence.
       </p>
-      <p className="meta">
+      <p className="meta technical-overview">
         Accepted pitch-frame coverage:{" "}
         {e.recordings
           .map(
@@ -101,10 +108,12 @@ export function ComparativeInsights({
       </h3>
       <p className="local-comparison">
         {e.pair_id
-          ? `Local differences worth inspecting: ${report.anomalies.length} provisional alignment ${report.anomalies.length === 1 ? "anomaly" : "anomalies"}; ${report.inspection_order.filter((i) => i.category === "gap_difference").length} word-gap and ${report.inspection_order.filter((i) => i.category === "word_duration").length} word-duration differences meet the inspection rules. Acoustic groups describe within-recording energy observations.`
-          : "These are measured observations on one recording's native timeline; they describe no paired delivery difference."}
+          ? report.anomalies.length
+            ? `${report.anomalies.length} automatically flagged alignment ${report.anomalies.length === 1 ? "interval merits" : "intervals merit"} inspection. Listen to the selected passages to check the supplied text and automatic timing.`
+            : "Inspect the selected passages for provisional timing or within-recording energy observations; automatic boundaries remain unverified."
+          : "Inspect each measured observation on this recording's own native timeline."}
       </p>
-      <p>
+      <p className="technical-overview">
         <strong>Recommended inspection: </strong>Use the native replay controls
         on each selected item, then check provisional text and waveform/energy
         evidence. Each passage keeps its own clock; the listening questions
@@ -117,12 +126,21 @@ export function ComparativeInsights({
             ? "No supported local differences meet the inspection rules. This is not a delivery assessment."
             : "No supported recording observations meet the inspection rules. Absence of observations does not establish perfect delivery."}
       </p>
-      <p className="print-only report-selection">
+      <p className="print-only summary-selection">
+        {selectionLabel(Math.min(3, shown.length), Boolean(e.pair_id))}{" "}
+        Selection follows the recorded support and category policy, not a
+        validated importance rating. Complete evidence is in the separate Full
+        Evidence Report and JSON export; interval CSV retains every raw acoustic
+        window.
+      </p>
+      <p className="print-only report-selection evidence-selection">
         Selected for inspection: first {Math.min(3, shown.length)} of{" "}
         {report.inspection_order.length} ordered items; full measurements follow
-        in the appendix and JSON. Complete support precedes limited evidence;
-        anomalies, gap differences, word duration and groups follow in that
-        order, with larger measured durations first.
+        in this report's appendix and JSON. Interval CSV retains all raw
+        acoustic windows. Complete support precedes limited evidence;{" "}
+        {e.pair_id
+          ? "anomalies, gap differences, word duration and groups follow in that order, with larger measured durations first."
+          : "single-recording alignment anomalies, when available, precede acoustic groups, with longer measured intervals first."}
       </p>
       <ul className="insight-list">
         {shown.map((item, index) => {
@@ -165,12 +183,7 @@ export function ComparativeInsights({
             (r) =>
               r.recording_id === (group?.recording_id ?? anomaly?.recording_id),
           );
-          const selectionReason =
-            item.order_reason
-              .split(
-                /Complete native support without recording quality warnings\.|Quality\/support limited; shown after complete evidence\./,
-              )[0]
-              .trim() || item.order_reason;
+          const selectionReason = inspectionReason(report, item);
           return (
             <li key={item.id} data-evidence-id={item.evidence_id}>
               <p className="eyebrow insight-category">
@@ -298,7 +311,7 @@ export function ComparativeInsights({
                     {group.representative_delta_db == null
                       ? ""
                       : ` · median supporting change ${number(group.representative_delta_db, 2)} dB (${group.delta_range_db.map((v) => number(v, 2)).join(" to ")})`}
-                    . No cause or delivery error is established.
+                    .
                   </p>
                   <div className="toolbar">
                     {listen(
@@ -328,7 +341,7 @@ export function ComparativeInsights({
                   : segment
                     ? item.category === "gap_difference"
                       ? "Is the interval before this supplied-text word different in the two passages, and do the assigned boundaries fit what you hear? Timing alone does not establish hesitation."
-                      : "Do the assigned word start and end fit the audible passage in each recording? A duration difference does not establish pronunciation quality."
+                      : "Do the assigned word start and end fit the audible passage in each recording?"
                     : group?.direction === "low_energy"
                       ? "What is audible in this measured low-energy interval? Quiet energy does not by itself identify silence or a delivery flaw."
                       : "Is a digital-level change audible within this interval? Gain, microphone and noise can contribute; emphasis and cause are unestablished."}
@@ -360,9 +373,7 @@ export function ComparativeInsights({
               )}
               <details>
                 <summary>Inspect evidence and selection reason</summary>
-                {selectionReason !== item.order_reason && (
-                  <p>{item.order_reason}</p>
-                )}
+                <p>{readableEvidenceReason(item.order_reason)}</p>
                 {anomaly && <p>{anomaly.reason}</p>}
                 {paired && (
                   <>
@@ -447,6 +458,23 @@ export function ComparativeInsights({
             : "Single-recording evidence — all grouped observations"}
         </summary>
         <h3>Technical appendix · comparative-insights-v1</h3>
+        <p>
+          Complete inventory: {e.candidates.length} raw acoustic windows;{" "}
+          {report.groups.length} grouped observations.
+          {e.pair_id &&
+            ` ${report.segments.length} provisional paired measurements; ${report.anomalies.length} alignment ${report.anomalies.length === 1 ? "anomaly" : "anomalies"}; ${report.inspection_order.length} ordered inspection items.`}{" "}
+          These are observation counts, not speaking mistakes.
+        </p>
+        <p>
+          Ordering policy: complete native support without stored quality flags,
+          clipping or RMS below 0.001 precedes limited evidence.{" "}
+          {e.pair_id
+            ? "Categories then follow alignment anomalies, absolute word-gap deltas at least 0.150 s, absolute word-duration deltas at least 0.100 s, and acoustic groups. Anomaly gaps meet the 1.000 s rule and, when correspondence is available, 0.500 s excess over the other recording."
+            : "Single-recording alignment anomalies, when available, precede acoustic groups. The automatic gap rule is 1.000 s."}{" "}
+          Within each category/support tier, larger measured duration or
+          absolute timing delta comes first; ties use native start and evidence
+          ID. This policy is not validated importance, severity or confidence.
+        </p>
         {e.pair_id && (
           <p>
             {report.phrase_unavailable_reason ??

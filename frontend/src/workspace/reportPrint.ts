@@ -5,16 +5,20 @@ export function printAnalysisReport(type: ReportType, paired: boolean) {
   const previousTitle = document.title;
   const previousScope = document.body.dataset.printScope;
   const previousType = document.body.dataset.reportType;
+  const previousMode = document.body.dataset.reportMode;
   const restore = () => {
     document.title = previousTitle;
     if (previousScope == null) delete document.body.dataset.printScope;
     else document.body.dataset.printScope = previousScope;
     if (previousType == null) delete document.body.dataset.reportType;
     else document.body.dataset.reportType = previousType;
+    if (previousMode == null) delete document.body.dataset.reportMode;
+    else document.body.dataset.reportMode = previousMode;
   };
   document.title = `TakeTwo-${paired ? "speech-comparison" : "reference-inspection"}-${type === "summary" ? "analysis-summary" : "full-evidence-report"}`;
   document.body.dataset.printScope = "exploratory";
   document.body.dataset.reportType = type;
+  document.body.dataset.reportMode = paired ? "paired" : "reference";
   window.addEventListener("afterprint", restore, { once: true });
   try {
     window.print();

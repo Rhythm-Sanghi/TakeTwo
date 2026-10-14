@@ -197,7 +197,7 @@ test("genuine selected pair runs comparative analysis with native A/B listening 
   const card = page.locator(`[data-evidence-id="${anomaly.id}"]`);
   await expect(card.locator(".selection-reason")).toBeVisible();
   await expect(card.locator(".selection-reason")).toContainText(
-    "inspection threshold",
+    (anomaly.gap.end_s - anomaly.gap.start_s).toFixed(3),
   );
   await expect(card.locator(".listening-question")).toContainText(
     "audible passage",

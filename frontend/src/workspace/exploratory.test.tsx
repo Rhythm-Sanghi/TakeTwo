@@ -21,6 +21,29 @@ const fixture = {
   limitations: ["Automatic observations do not establish speaking quality."],
 } as unknown as ExploratoryReport;
 
+it("offers recovery when browser printing fails and restores the report scope", () => {
+  const print = vi.spyOn(window, "print").mockImplementation(() => {
+    throw new Error("Blocked");
+  });
+  render(<ExploratoryResult report={fixture} onSeek={vi.fn()} />);
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Export Full Evidence Report / save PDF",
+    }),
+  );
+  expect(screen.getByRole("alert")).toHaveTextContent("Retry the export");
+  expect(document.body.dataset.reportMode).toBeUndefined();
+  print.mockImplementation(() => {});
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Export Full Evidence Report / save PDF",
+    }),
+  );
+  expect(screen.queryByRole("alert")).toBeNull();
+  dispatchEvent(new Event("afterprint"));
+  print.mockRestore();
+});
+
 it("explains partial data and empty candidates without inventing scores", () => {
   render(<ExploratoryResult report={fixture} onSeek={vi.fn()} />);
   expect(screen.getByRole("status")).toHaveTextContent(

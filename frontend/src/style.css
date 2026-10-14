@@ -934,6 +934,16 @@ footer {
   display: grid;
   gap: 12px;
 }
+@page speech-comparison {
+  @bottom-left {
+    content: "TakeTwo / speech comparison";
+  }
+}
+@page reference-inspection {
+  @bottom-left {
+    content: "TakeTwo / reference inspection";
+  }
+}
 .insight-list > li {
   border-top: 1px solid #d1d5cf;
   padding: 12px 0;
@@ -958,6 +968,26 @@ footer {
   text-align: left;
 }
 @media print {
+  body[data-report-mode="paired"] {
+    page: speech-comparison;
+  }
+  body[data-report-mode="reference"] {
+    page: reference-inspection;
+  }
+  .comparative-insights .summary-selection {
+    display: none;
+  }
+  body[data-report-type="summary"] .comparative-insights .summary-selection {
+    display: block;
+  }
+  body[data-report-type="summary"] .evidence-selection,
+  body[data-report-type="summary"] .technical-overview,
+  body[data-report-type="summary"] .comparative-insights > h2 {
+    display: none !important;
+  }
+  .insight-list {
+    break-inside: auto;
+  }
   .insight-list > li {
     break-inside: avoid;
   }
@@ -978,6 +1008,7 @@ footer {
   }
   .comparative-appendix thead {
     display: table-header-group;
+    break-inside: avoid;
   }
   .table-scroll {
     overflow: visible;
@@ -1328,7 +1359,7 @@ footer {
     display: none;
   }
   body[data-report-type="summary"] .exploratory-result {
-    font-size: 9pt;
+    font-size: 9.5pt;
     padding: 6pt;
   }
   body[data-report-type="summary"] .exploratory-result p {
@@ -1338,10 +1369,15 @@ footer {
   body[data-report-type="summary"] .exploratory-result .print-only,
   body[data-report-type="summary"] .exploratory-result .selection-reason,
   body[data-report-type="summary"] .exploratory-result .listening-question {
-    font-size: 8.5pt;
+    font-size: 9.5pt;
   }
   body[data-report-type="summary"] .summary-assessment {
     break-inside: avoid;
+  }
+  body[data-report-type="summary"][data-report-mode="reference"]
+    .insight-list:has(> li:nth-child(3))
+    > li:nth-child(2) {
+    break-before: page;
   }
   .comparative-appendix .hash {
     font-size: 7pt;

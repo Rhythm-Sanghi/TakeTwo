@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import type { ComparativeReport, Job, Recording } from "../src/api";
 import { openHistory, navigateWorkspace } from "./navigation";
+import { readableEvidenceReason } from "../src/workspace/insightCopy";
 
 test("summary and full evidence print separately with reference-only terminology", async ({
   page,
@@ -50,6 +51,9 @@ test("summary and full evidence print separately with reference-only terminology
         paired ? "speech-comparison" : "reference-inspection",
       );
       await page.emulateMedia({ media: "print" });
+      expect(await page.evaluate(() => document.body.dataset.reportMode)).toBe(
+        paired ? "paired" : "reference",
+      );
       await expect(page.locator(".comparative-appendix")).toBeVisible({
         visible: type === "evidence",
       });
@@ -57,6 +61,14 @@ test("summary and full evidence print separately with reference-only terminology
         visible: type === "evidence",
       });
       if (type === "summary") {
+        await expect(page.locator(".summary-selection")).toBeVisible();
+        await expect(page.locator(".evidence-selection")).not.toBeVisible();
+        await expect(page.locator(".summary-selection")).not.toContainText(
+          "appendix",
+        );
+        await expect(
+          page.locator(".technical-overview").first(),
+        ).not.toBeVisible();
         await expect(page.locator(".summary-title")).toBeVisible();
         await expect(page.locator(".summary-assessment")).toBeVisible();
         if (report.inspection_order.length) {
@@ -71,6 +83,8 @@ test("summary and full evidence print separately with reference-only terminology
           );
         }
       } else {
+        await expect(page.locator(".summary-selection")).not.toBeVisible();
+        await expect(page.locator(".evidence-selection")).toBeVisible();
         const text = await page.locator(".comparative-appendix").textContent();
         for (const candidate of report.exploratory.candidates)
           expect(text).toContain(candidate.id);
@@ -87,6 +101,9 @@ test("summary and full evidence print separately with reference-only terminology
       expect(await page.title()).toBe(originalTitle);
       expect(
         await page.evaluate(() => document.body.dataset.reportType),
+      ).toBeUndefined();
+      expect(
+        await page.evaluate(() => document.body.dataset.reportMode),
       ).toBeUndefined();
     }
   }
@@ -192,7 +209,9 @@ test("comparative groups retain raw evidence, native replay and recovery after m
   const exported = await (await request.get(path + "/export")).json();
   expect(exported.result).toEqual(report);
   await card.getByText("Inspect evidence and selection reason").click();
-  await expect(card).toContainText(report.inspection_order[0].order_reason);
+  await expect(card).toContainText(
+    readableEvidenceReason(report.inspection_order[0].order_reason),
+  );
   await page.route(`**${path}`, (route) =>
     route.fulfill({
       status: 404,

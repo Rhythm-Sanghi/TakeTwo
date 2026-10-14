@@ -6,6 +6,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   delete document.body.dataset.printScope;
   delete document.body.dataset.reportType;
+  delete document.body.dataset.reportMode;
 });
 
 it("selects distinct summary/full print scopes and restores title after cancellation", () => {
@@ -14,13 +15,16 @@ it("selects distinct summary/full print scopes and restores title after cancella
   printAnalysisReport("summary", false);
   expect(document.title).toBe("TakeTwo-reference-inspection-analysis-summary");
   expect(document.body.dataset.reportType).toBe("summary");
+  expect(document.body.dataset.reportMode).toBe("reference");
   expect(document.body.dataset.printScope).toBe("exploratory");
   dispatchEvent(new Event("afterprint"));
   expect(document.title).toBe("TakeTwo");
   expect(document.body.dataset.printScope).toBeUndefined();
+  expect(document.body.dataset.reportMode).toBeUndefined();
   printAnalysisReport("evidence", true);
   expect(document.title).toBe("TakeTwo-speech-comparison-full-evidence-report");
   expect(document.body.dataset.reportType).toBe("evidence");
+  expect(document.body.dataset.reportMode).toBe("paired");
   expect(print).toHaveBeenCalledTimes(2);
 });
 
@@ -30,8 +34,10 @@ it("restores previous scope and title when browser printing throws", () => {
   });
   document.title = "Original";
   document.body.dataset.printScope = "previous";
+  document.body.dataset.reportMode = "previous-mode";
   expect(() => printAnalysisReport("summary", true)).toThrow("Unavailable");
   expect(document.title).toBe("Original");
   expect(document.body.dataset.printScope).toBe("previous");
   expect(document.body.dataset.reportType).toBeUndefined();
+  expect(document.body.dataset.reportMode).toBe("previous-mode");
 });

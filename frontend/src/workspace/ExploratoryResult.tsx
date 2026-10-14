@@ -60,6 +60,17 @@ export function ExploratoryResult({
   insights?: ComparativeReport | null;
 }) {
   const [showAll, setShowAll] = useState(false);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const print = (type: "summary" | "evidence") => {
+    setPrintError(null);
+    try {
+      printAnalysisReport(type, Boolean(report.pair_id));
+    } catch {
+      setPrintError(
+        "The browser could not open printing. Retry the export, or use the complete JSON and interval CSV links.",
+      );
+    }
+  };
   const replay = (candidate: AcousticCandidate) =>
     onSeek(candidate.recording_id, candidate.start_s, candidate.end_s, true);
   return (
@@ -88,7 +99,7 @@ export function ExploratoryResult({
             ? assessment
               ? `Stored eligibility: ${label(assessment.eligibility.state)}. Automatic insights do not unlock a delivery score.`
               : "Assessment evidence is unavailable; no eligibility or delivery score is asserted."
-            : "Single-recording inspection does not request a paired delivery assessment. Automatic processing does not verify the reference."}
+            : "This is a single-recording acoustic inspection. Automatic processing does not verify the reference."}
         </p>
         {assessment && (
           <ul>
@@ -110,8 +121,8 @@ export function ExploratoryResult({
           Method: {insights?.config.method ?? report.config.method}; acoustic-v1
           / exploratory-v1. Dataset {report.dataset_version}; processing{" "}
           {report.processing_state}. Supplied-text timing and energy activity
-          are provisional. Full Evidence Report and JSON/CSV retain complete
-          provenance.
+          are provisional. Full Evidence Report and JSON retain complete
+          provenance; interval CSV retains every raw acoustic window.
         </p>
       </section>
       <details className="exploratory-appendix" open={!insights}>
@@ -437,7 +448,7 @@ export function ExploratoryResult({
           </h3>
           <p>
             {!report.pair_id
-              ? "Reference-only inspection; paired delivery assessment is not requested. Processing alone does not verify the reference."
+              ? "Reference-only acoustic inspection. Processing alone does not verify the reference."
               : assessment
                 ? `Stored assessment eligibility: ${label(assessment.eligibility.state)}. This exploratory report supplies no scientific approval or delivery score.`
                 : "Formal assessment evidence is not loaded. Independently checked text, rights and temporal correspondence are required; processing alone does not verify delivery."}
@@ -474,19 +485,10 @@ export function ExploratoryResult({
         >
           Export interval CSV
         </a>
-        <button
-          onClick={() =>
-            printAnalysisReport("summary", Boolean(report.pair_id))
-          }
-          disabled={!insights}
-        >
+        <button onClick={() => print("summary")} disabled={!insights}>
           Export Analysis Summary / save PDF
         </button>
-        <button
-          onClick={() =>
-            printAnalysisReport("evidence", Boolean(report.pair_id))
-          }
-        >
+        <button onClick={() => print("evidence")}>
           Export Full Evidence Report / save PDF
         </button>
         <p className="meta">
@@ -495,6 +497,11 @@ export function ExploratoryResult({
           CSV remain complete.
         </p>
       </div>
+      {printError && (
+        <p role="alert" className="print-controls">
+          {printError}
+        </p>
+      )}
     </section>
   );
 }

@@ -57,6 +57,67 @@ const fixture = {
     "No reviewed phrase partition; comparison withheld",
 } as unknown as ComparativeReport;
 
+it("retains a long recording name and complete raw identifiers in expanded evidence", () => {
+  const filename = "software-" + "long-name-".repeat(8) + ".wav";
+  const rawId = "c-" + "a".repeat(60);
+  const report = {
+    ...fixture,
+    segments: [],
+    anomalies: [],
+    exploratory: {
+      ...fixture.exploratory,
+      pair_id: null,
+      recordings: [{ ...fixture.exploratory.recordings[0], filename }],
+      candidates: [
+        { id: rawId, feature_sha256: "b".repeat(64), start_s: 0, end_s: 1 },
+      ],
+    },
+    groups: [
+      {
+        id: "group",
+        recording_id: "ref",
+        kind: "energy_change",
+        direction: "increase",
+        start_s: 0,
+        end_s: 1,
+        duration_s: 1,
+        candidate_ids: [rawId],
+        representative_delta_db: 8,
+        delta_range_db: [8, 8],
+        median_energy_range_dbfs: [-30, -30],
+        detection: {
+          boundary_resolution_s: 0.01,
+          frame_window_s: 0.025,
+          method: "software-fixture",
+          threshold_delta_db: 6,
+        },
+        limitation: "Software fixture",
+      },
+    ],
+    inspection_order: [
+      {
+        id: "item",
+        category: "group",
+        evidence_id: "group",
+        order_reason: "1 source window(s) meets fixture rule",
+      },
+    ],
+  } as unknown as ComparativeReport;
+  const { container } = render(
+    <ComparativeInsights report={report} onSeek={vi.fn()} />,
+  );
+  expect(
+    screen.getByRole("heading", { name: `energy change · ${filename}` }),
+  ).toBeVisible();
+  fireEvent.click(screen.getByText("Inspect evidence and selection reason"));
+  fireEvent.click(screen.getByText("Every contributing raw measurement"));
+  expect(container.querySelector(".raw-measurement")).toHaveTextContent(rawId);
+  expect(container.querySelector(".raw-measurement")).toHaveTextContent(
+    "b".repeat(64),
+  );
+  expect(screen.getByText("1 source window meets fixture rule")).toBeVisible();
+});
+
 it("includes both surrounding words when replaying a paired alignment anomaly", () => {
   const seek = vi.fn();
   const report = {
@@ -127,7 +188,12 @@ it("plays corresponding native gap intervals independently and returns to full r
 it("retains actual deltas, selection reason, full evidence and versioned JSON export", () => {
   const seek = vi.fn();
   render(<ComparativeInsights report={fixture} onSeek={seek} />);
-  expect(screen.getByText("Larger measured gap; not confidence")).toBeVisible();
+  expect(
+    screen.getByText(/The provisional gap before this word is 2.000 s/),
+  ).toBeVisible();
+  expect(
+    screen.getByText("Larger measured gap; not confidence"),
+  ).not.toBeVisible();
   expect(
     screen.getByText(/Is the interval before this supplied-text word/),
   ).toBeVisible();
@@ -208,7 +274,7 @@ it("explains a tiny digital-level difference without established perceptual sign
     />,
   );
   expect(
-    screen.getByText(/Small measured digital RMS difference: 0.044 dB/),
+    screen.getByText(/Small measured recording level difference: 0.044 dB/),
   ).toHaveTextContent("no perceptual significance is established");
 });
 
