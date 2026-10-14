@@ -29,7 +29,13 @@ perceived loudness or vocal effort.
 
 Candidates use two deterministic rules. Contiguous low-energy hop cells lasting
 at least 0.15 s are described by their position within the recording. Their
-threshold is acoustic-v1's actual baseline minus its configured activity drop.
+threshold is reconstructed from acoustic-v1's actual two-pass rule: seed the upper
+quartile of audible frame levels, select initial frames within the activity drop,
+then apply their median minus that drop together with the configured RMS floor.
+The final descriptive baseline is recomputed after that selection and must not
+be substituted for the threshold actually used. All-floor input has no relative
+baseline; its candidates arise only from the absolute-floor rule. The stored mask
+must agree with this reconstruction or exploratory generation fails closed.
 Adjacent complete 0.5 s windows differing by at least 6 dB in median frame energy
 produce energy-change candidates. Only fully contained energy frames contribute
 to each window. Candidates carry the source feature hash, native bounds, actual
@@ -55,3 +61,23 @@ reviewed rate and cannot establish transcription or timing accuracy.
 Generated-signal tests verify implementation behavior, not real-speech accuracy.
 No independent real F0 or timing ground truth is created by this feature.
 Codex assisted implementation, test design and documentation under human direction.
+
+The browser results view puts recording identity, measured summaries and automatic
+observations before the native listening tools and separate Verified Assessment.
+Candidate inspect/replay actions use their own recording clocks. First-eight display
+limits do not truncate exports. Provisional words have seek controls. Deterministic
+energy-distribution plots use the actual three percentiles, with a −120 to 0 dBFS axis.
+
+CSV includes feature hashes, thresholds, frame/hop resolution and limitations.
+The dedicated native print scope contains selectable measurements, energy plots,
+all candidate rows, native automatic word times, provenance and actual assessment
+requirements when loaded. It does not change the scientific six-page report.
+
+A per-application 16-entry cache retains compact summaries only. Every request still
+validates current source audio and environment identity. Dataset content, job/state,
+selection, feature/alignment hashes, missing stages and exploratory implementation
+hash participate in the key. Publication still checks existing content before reuse.
+The existing stat-keyed validated-acoustic cache also supplies cached artifact digests,
+avoiding repeated serialization during report/overlay/exploratory restoration. It
+retains the existing managed-artifact metadata trust boundary; it is not a defense
+against a privileged local attacker changing bytes while restoring file metadata.

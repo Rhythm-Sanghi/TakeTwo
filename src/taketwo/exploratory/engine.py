@@ -88,6 +88,19 @@ def summarize(source: Source, config: ExploratoryConfig):
     # activity/quiet unions can overlap at transitions; they are not silence durations.
     ends = np.r_[starts[1:], observed_end] if len(starts) else np.array([])
     active = np.asarray(activity.values, dtype=bool)
+    # acoustic-v1 reports a final descriptive median after the last mask update.
+    # Reconstruct the threshold actually used for that update, not that final median.
+    levels = np.asarray(energy.values, dtype=float)
+    audible = np.asarray(f.series["rms"].values, dtype=float) > f.config.energy_floor
+    activity_threshold = None
+    expected_activity = audible
+    if audible.any():
+        seed = float(np.quantile(levels[audible], 0.75, method="linear"))
+        initial = audible & (levels >= seed - f.config.activity_drop_db)
+        activity_threshold = float(np.median(levels[initial])) - f.config.activity_drop_db
+        expected_activity = audible & (levels >= activity_threshold)
+    if not np.array_equal(active, expected_activity):
+        raise ValueError("Stored activity mask differs from acoustic-v1's configured rule.")
     widths = ends - starts
     candidates = []
 
@@ -116,9 +129,7 @@ def summarize(source: Source, config: ExploratoryConfig):
                 median_energy_dbfs=float(np.median(values)),
                 energy_delta_db=delta,
                 method=method,
-                threshold_dbfs=f.energy_baseline_dbfs - f.config.activity_drop_db
-                if delta is None and f.energy_baseline_dbfs is not None
-                else None,
+                threshold_dbfs=activity_threshold if delta is None else None,
                 threshold_delta_db=config.energy_step_db if delta is not None else None,
                 frame_window_s=energy.frame_length / 16000,
                 boundary_resolution_s=energy.hop_length / 16000,

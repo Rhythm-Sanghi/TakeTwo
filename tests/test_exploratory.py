@@ -5,7 +5,13 @@ import json
 import numpy as np
 import pytest
 
-from taketwo.analysis.contracts import FeatureConfig
+from taketwo.analysis.contracts import (
+    AlignmentConfig,
+    AlignmentResult,
+    FeatureConfig,
+    Interval,
+    Resource,
+)
 from taketwo.analysis.features import extract
 from taketwo.analysis.storage import recording_input
 from taketwo.comparison.contracts import ArtifactRef
@@ -65,6 +71,16 @@ def test_native_support_and_candidate_evidence(source):
         assert c.boundary_resolution_s == 0.01
         assert c.threshold_delta_db == (6 if c.kind == "energy_change" else None)
         assert (c.threshold_dbfs is None) == (c.kind == "energy_change")
+        if c.kind != "energy_change":
+            levels = np.asarray(item.features.series["energy"].values)
+            audible = (
+                np.asarray(item.features.series["rms"].values) > item.features.config.energy_floor
+            )
+            seed = np.quantile(levels[audible], 0.75, method="linear")
+            initial = audible & (levels >= seed - item.features.config.activity_drop_db)
+            assert c.threshold_dbfs == pytest.approx(
+                np.median(levels[initial]) - item.features.config.activity_drop_db
+            )
     assert summary.automatic_alignment is None
 
 
@@ -175,6 +191,72 @@ def test_selection_and_provenance_rejection(source):
             processing_state="succeeded",
             implementation_sha256=implementation_hash(),
         )
+
+
+def test_rejects_a_structurally_valid_but_incorrect_activity_mask(source):
+    _, item = source
+    features = item.features.model_copy(deep=True)
+    features.series["activity"].values[0] = 1 - features.series["activity"].values[0]
+    changed = Source(
+        item.recording,
+        features,
+        ArtifactRef(path="fixture.json", sha256=content_hash(features.model_dump(mode="json"))),
+    )
+    with pytest.raises(ValueError, match="activity mask"):
+        summarize(changed, ExploratoryConfig())
+
+
+@pytest.mark.parametrize(
+    "status,oov", [("succeeded", []), ("partial", []), ("succeeded", ["only"])]
+)
+def test_automatic_rate_is_separate_and_abstains_for_incomplete_alignment(imported, status, oov):
+    root, recording = imported
+    _, samples, provenance = recording_input(root, recording.id)
+    resource = Resource(
+        path="fixture-only",
+        sha256="0" * 64,
+        version="fixture",
+        license="fixture",
+        source_url="https://example.invalid/software",
+    )
+    alignment = AlignmentResult(
+        provenance=provenance,
+        config=AlignmentConfig(
+            command=["fixture-only"],
+            expected_version="fixture",
+            model=resource,
+            dictionary=resource,
+        ),
+        duration_s=2.0,
+        original_text=recording.transcript.text,
+        normalized_tokens=recording.tokens,
+        token_offsets=recording.token_offsets,
+        status=status,
+        oov=oov,
+        words=[
+            Interval(start_s=0.1 + i * 0.4, end_s=0.3 + i * 0.4, label=token, token_index=i)
+            for i, token in enumerate(
+                recording.tokens[:3] if status == "partial" else recording.tokens
+            )
+        ],
+    )
+    features = extract(samples, provenance, FeatureConfig(), alignment)
+    item = Source(
+        recording,
+        features,
+        ArtifactRef(path="features.json", sha256=content_hash(features.model_dump(mode="json"))),
+        alignment,
+        ArtifactRef(path="alignment.json", sha256=content_hash(alignment.model_dump(mode="json"))),
+    )
+    summary, _ = summarize(item, ExploratoryConfig())
+    automatic = summary.automatic_alignment
+    assert automatic.independently_verified is False
+    assert recording.transcript.status == "unverified"
+    if status == "succeeded" and not oov:
+        assert automatic.estimated_words_per_minute == pytest.approx(60 * 4 / 1.4)
+    else:
+        assert automatic.estimated_words_per_minute is None
+        assert automatic.rate_unavailable_reason
 
 
 def test_pair_deltas_and_partial_input(source):

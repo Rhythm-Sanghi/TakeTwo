@@ -262,7 +262,17 @@ def test_readiness_rejects_jobs_when_supervisor_stopped(client):
     assert response.status_code == 503
 
 
-def test_exploratory_http_exports_preserve_formal_report(client):
+def test_exploratory_http_exports_preserve_formal_report(client, monkeypatch):
+    import taketwo.web.app as module
+
+    original_build = module.build_exploratory
+    builds = []
+
+    def counted_build(*args, **kwargs):
+        builds.append(kwargs["job_id"])
+        return original_build(*args, **kwargs)
+
+    monkeypatch.setattr(module, "build_exploratory", counted_build)
     client, root, recording = client
     response = client.post("/api/v1/analyses", json={"reference_id": recording.id, "align": False})
     assert response.status_code == 202
@@ -270,6 +280,14 @@ def test_exploratory_http_exports_preserve_formal_report(client):
     wait_job(client, identifier)
     base = f"/api/v1/analyses/{identifier}"
     before = client.get(base + "/report").json()
+    original_publish = module.publish_exploratory
+
+    def unavailable_publish(*args):
+        raise OSError("test-only publication failure")
+
+    monkeypatch.setattr(module, "publish_exploratory", unavailable_publish)
+    assert client.get(base + "/exploratory").status_code == 503
+    monkeypatch.setattr(module, "publish_exploratory", original_publish)
     response = client.get(base + "/exploratory")
     assert response.status_code == 200
     result = response.json()
@@ -290,3 +308,11 @@ def test_exploratory_http_exports_preserve_formal_report(client):
     assert client.get("/api/v1/analyses/missing/exploratory").status_code == 404
     assert client.get(base + "/report").json() == before
     assert len(list((root / "derived/exploratory-v1").glob("exploratory-*.json"))) == 1
+    assert builds == [identifier, identifier]  # Failed publication did not enter the cache.
+    restarted = TestClient(create_app(root))
+    assert restarted.get(base + "/exploratory").json() == result
+    assert builds == [identifier, identifier, identifier]
+    # A cached summary never bypasses current source identity checks.
+    audio = root / recording.normalized_path
+    audio.write_bytes(b"corrupt test input")
+    assert client.get(base + "/exploratory").status_code == 422

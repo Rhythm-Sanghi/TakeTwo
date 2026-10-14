@@ -7,9 +7,11 @@ import os
 import re
 import sqlite3
 import tempfile
+from collections import OrderedDict
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
+from threading import Lock
 from typing import Annotated
 
 import numpy as np
@@ -87,6 +89,11 @@ def error(status, code, message, recovery="Review the input and retry."):
 @lru_cache(maxsize=8)
 def validated_analysis(path: str, modified_ns: int, size: int):
     return read_analysis(Path(path))
+
+
+@lru_cache(maxsize=8)
+def validated_analysis_digest(path: str, modified_ns: int, size: int):
+    return content_hash(validated_analysis(path, modified_ns, size).model_dump(mode="json"))
 
 
 def window(series, start, end, maximum):
@@ -272,6 +279,14 @@ def create_app(
         validate_identity(root, result)
         return result
 
+    def artifact_reference(relative):
+        path = managed_path(root, relative)
+        stat = path.stat()
+        return ArtifactRef(
+            path=relative,
+            sha256=validated_analysis_digest(str(path), stat.st_mtime_ns, stat.st_size),
+        )
+
     def report(job_id):
         job = jobs.get(job_id)
         if not job.report_path:
@@ -288,12 +303,16 @@ def create_app(
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
         for member in result.inputs:
-            features = analysis(job_id, member.provenance.recording_id, "features")
-            if content_hash(features.model_dump(mode="json")) != member.features.sha256:
+            rid = member.provenance.recording_id
+            analysis(job_id, rid, "features")
+            if artifact_reference(job.artifacts[rid]["features"]).sha256 != member.features.sha256:
                 raise ValueError("Report feature hash differs.")
             if member.alignment:
-                aligned = analysis(job_id, member.provenance.recording_id, "alignment")
-                if content_hash(aligned.model_dump(mode="json")) != member.alignment.sha256:
+                analysis(job_id, rid, "alignment")
+                if (
+                    artifact_reference(job.artifacts[rid]["alignment"]).sha256
+                    != member.alignment.sha256
+                ):
                     raise HTTPException(409, "Alignment evidence changed; start a new analysis.")
             current_reviews = []
             for path in managed_path(root, "derived/comparison-v1").glob("review-*.json"):
@@ -536,6 +555,9 @@ def create_app(
     def get_report(job_id: str):
         return report(job_id)
 
+    exploratory_cache = OrderedDict()
+    exploratory_cache_lock = Lock()
+
     def exploratory_result(job_id):
         job, dataset = jobs.get(job_id), load(root)
         pair = next((p for p in dataset.pairs if p.id == job.request.pair_id), None)
@@ -543,6 +565,7 @@ def create_app(
             raise HTTPException(409, "Selected exploratory pair identity changed.")
         members = [job.request.reference_id] + ([pair.participant_id] if pair else [])
         sources, unavailable = [], {}
+
         for rid in members:
             paths = job.artifacts.get(rid, {})
             if not paths.get("features"):
@@ -560,34 +583,57 @@ def create_app(
                 Source(
                     find_recording(dataset, rid),
                     measured,
-                    ArtifactRef(
-                        path=paths["features"],
-                        sha256=content_hash(measured.model_dump(mode="json")),
-                    ),
+                    artifact_reference(paths["features"]),
                     aligned,
-                    ArtifactRef(
-                        path=paths["alignment"],
-                        sha256=content_hash(aligned.model_dump(mode="json")),
-                    )
-                    if aligned
-                    else None,
+                    artifact_reference(paths["alignment"]) if aligned else None,
                 )
             )
         if not sources:
             raise HTTPException(
                 409, "Exploratory measurements require a completed acoustic feature stage."
             )
-        result = build_exploratory(
-            dataset,
-            sources,
-            reference_id=job.request.reference_id,
-            pair_id=job.request.pair_id,
-            job_id=job.id,
-            processing_state=job.state,
-            implementation_sha256=exploratory_hash(),
-            unavailable=unavailable,
+        implementation = exploratory_hash()
+        key = content_hash(
+            {
+                "dataset": dataset.model_dump(mode="json"),
+                "job": job.id,
+                "state": job.state,
+                "reference": job.request.reference_id,
+                "pair": job.request.pair_id,
+                "implementation": implementation,
+                "unavailable": unavailable,
+                "sources": [
+                    {
+                        "features": s.feature_ref.model_dump(mode="json"),
+                        "alignment": s.alignment_ref.model_dump(mode="json")
+                        if s.alignment_ref
+                        else None,
+                    }
+                    for s in sources
+                ],
+            }
         )
-        publish_exploratory(root, result)
+        # Every request above still validates source audio/environment identity.
+        # Cache only compact descriptive reports, never decoded audio or feature arrays.
+        with exploratory_cache_lock:
+            result = exploratory_cache.get(key)
+            if result is None:
+                result = build_exploratory(
+                    dataset,
+                    sources,
+                    reference_id=job.request.reference_id,
+                    pair_id=job.request.pair_id,
+                    job_id=job.id,
+                    processing_state=job.state,
+                    implementation_sha256=implementation,
+                    unavailable=unavailable,
+                )
+            # Enforce publication/size/integrity checks before promoting a cache entry.
+            publish_exploratory(root, result)
+            exploratory_cache[key] = result
+            exploratory_cache.move_to_end(key)
+            while len(exploratory_cache) > 16:
+                exploratory_cache.popitem(last=False)
         return result
 
     @app.get("/api/v1/analyses/{job_id}/exploratory", response_model=ExploratoryReport)
@@ -620,6 +666,12 @@ def create_app(
                     "energy_delta_db",
                     "status",
                     "method",
+                    "feature_sha256",
+                    "threshold_dbfs",
+                    "threshold_delta_db",
+                    "boundary_resolution_s",
+                    "frame_window_s",
+                    "limitation",
                 ]
             )
             for candidate in result.candidates:
@@ -635,6 +687,12 @@ def create_app(
                         candidate.energy_delta_db,
                         candidate.status,
                         candidate.method,
+                        candidate.feature_sha256,
+                        candidate.threshold_dbfs,
+                        candidate.threshold_delta_db,
+                        candidate.boundary_resolution_s,
+                        candidate.frame_window_s,
+                        candidate.limitation,
                     ]
                 )
             body, media = stream.getvalue(), "text/csv"
