@@ -104,6 +104,11 @@ reference inspection from speech comparison. Neither export truncates JSON/CSV.
 Scientific report exports and the hackathon technical report remain separate.
 Actual listening acceptance remains pending; use the
 [owner checklist and private review form](comparative-listening-acceptance.md).
+The summary directs readers to the separate Full Evidence Report and JSON for complete
+evidence; interval CSV contains all raw acoustic windows. If browser printing fails,
+retry the export or use those data links. Follow the
+[spoken accessibility worksheet](spoken-accessibility-acceptance.md) for actual
+Narrator/NVDA review; automated checks alone do not complete it.
 
 If loading fails, use Retry exploratory measurements or Reconnect / refresh. Do not
 re-import a stored file. Processing failures show the worker's reason and recovery action;

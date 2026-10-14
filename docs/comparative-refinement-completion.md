@@ -1,5 +1,17 @@
 # Comparative refinement completion
 
+## Subsequent final polish and acceptance
+
+This document records the `35bf504` refinement milestone. The subsequent
+[final acceptance/readiness report](final-product-acceptance.md) supersedes its print
+presentation: both two-page summaries now show their first selected finding on page 1,
+use correct separate-export references and report-specific footers, and retain readable
+9.5 pt summary text. Full Evidence Reports preserve all measurements and provenance.
+Historical outputs and scientific gates remain unchanged. Actual human listening and
+spoken screen-reader acceptance remain pending with owner worksheets. See the final
+report for current test evidence and the separate engineering/product/scientific/publication
+decisions; passing engineering checks does not clear the other areas.
+
 TakeTwo — Speech analysis workspace. Local product refinement and software evidence,
 not independently established speech-analysis accuracy or production certification.
 Starting revision `5b638cb`, clean `master`, 14 October 2026.

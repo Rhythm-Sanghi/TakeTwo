@@ -140,3 +140,8 @@ Portable generated browser tests and opt-in private fixture preparation are docu
 See the [mobile refinement audit](docs/mobile-refinement-audit.md) for compact navigation, task-first layouts, persistent track selection and executed responsive/print verification.
 
 See the [reference inspection and PDF repair audit](docs/reference-inspection-audit.md) for single-input states, report identity protection, searchable browser print output and verification evidence.
+
+The [final product acceptance review](docs/final-product-acceptance.md) records current
+summary/evidence PDF checks and separate engineering, product, scientific and publication
+decisions. Actual listening and [spoken screen-reader acceptance](docs/spoken-accessibility-acceptance.md)
+remain owner checks.
