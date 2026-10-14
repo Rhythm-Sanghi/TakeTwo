@@ -24,7 +24,7 @@ Tokens are starting choices. Verify actual foreground/background combinations to
 
 ## Workspace structure
 
-Use a compact top bar with name, description, active pair and actual processing state. Main content has a 220-260 px recording library, a flexible central timeline/evidence area and a 300-360 px inspector when space permits. At widths below 1100 px the inspector moves below; below 800 px the library becomes a labeled disclosure. Maintain readable minimum content widths and local chart scrolling rather than shrinking text.
+Use a compact top bar with name, description, active pair and actual processing state. Main content has a 220-260 px recording library and a result area followed by paired native timelines. The inspector is a secondary disclosure below the evidence tools. Timelines stack below 1250 px; below 800 px the library uses compact horizontal lists. Maintain readable minimum content widths and local chart scrolling rather than shrinking text.
 
 Connected views: recording library/import, pair comparison, selected-region inspector, rubric, evaluation runs and export. Start the user with import/select-reference actions and supported formats. Empty lists contain no sample users, fabricated analyses or decorative metrics. Evaluation charts exist only after actual evaluation runs.
 
@@ -59,3 +59,13 @@ Region shading uses a hatch/outline plus category text. Selecting a region updat
 Use semantic landmarks, logical heading order, visible labels, table headers and focus indicators. Tab order follows reading/workflow order. Native controls retain expected keys; Space plays only when the transport has focus, arrows seek only within the focused timeline, and Escape closes overlays and restores focus. Region previous/next buttons provide a non-pointer alternative to dragging. Announce stage changes with a polite live region; errors use an appropriate alert without repeatedly interrupting playback.
 
 At 200% zoom, controls reflow without loss; touch/click targets aim for at least 32 px in dense desktop controls and 44 px for primary transport. Ensure accessible names, text error associations and keyboard access to every chart action. Phase 4 verification includes browser keyboard flows, focus restoration, automated accessibility checks and manual screen-reader/contrast/zoom review; automated checks alone are insufficient.
+
+
+## Information hierarchy
+
+Outcome and next action come first; supporting measurements, findings and listening
+come next; implementation details and diagnostics follow in disclosures. Use the
+shared ruled measurement row for real evidence rather than decorative statistics.
+Pair labels, role names and solid/dashed track signals remain legible without color.
+Review steps show the assigned scope and acknowledged save/validation state, never
+an inferred percentage or completion based on navigation.

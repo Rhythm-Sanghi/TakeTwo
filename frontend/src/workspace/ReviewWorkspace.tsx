@@ -1,3 +1,4 @@
+import { ReviewJourney } from "./ReviewJourney";
 import { useEffect, useRef, useState } from "react";
 import { api, label, post } from "../api";
 import type { components } from "../api.generated";
@@ -154,11 +155,15 @@ export function ReviewWorkspace({
         reviewer. End handoff and close that window before viewing peer
         evidence. Typed reviewer IDs are declarations, not verified identities.
       </p>
-      <p>
-        Read the operator key from <code>.review-operator-key</code> in the
-        active workspace. Keep it from reviewers. Starting a session blocks
-        general APIs until the operator ends handoff, including after a restart.
-      </p>
+      <details>
+        <summary>Operator key and private handoff instructions</summary>
+        <p>
+          Read the operator key from <code>.review-operator-key</code> in the
+          active workspace. Keep it from reviewers. Starting a session blocks
+          general APIs until the operator ends handoff, including after a
+          restart.
+        </p>
+      </details>
       <label>
         Operator key
         <input
@@ -225,13 +230,16 @@ export function ReviewWorkspace({
           </select>
         </label>
       )}
-      <label>
-        Superseded review ID (revision only)
-        <input
-          value={supersedes}
-          onChange={(e) => setSupersedes(e.target.value)}
-        />
-      </label>
+      <details>
+        <summary>Revise an existing review</summary>
+        <label>
+          Superseded review ID (revision only)
+          <input
+            value={supersedes}
+            onChange={(e) => setSupersedes(e.target.value)}
+          />
+        </label>
+      </details>
       <button
         disabled={!key || !rid || !reviewer || (scope === "timing" && !jobId)}
         onClick={() =>
@@ -675,6 +683,11 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
             }),
           );
         } catch (e) {
+          // A rejected heartbeat must not silently discard observed playback.
+          // Carry this continuous span into the next real timeupdate; seeking
+          // or stopping still clears the cursor and the backend retains its gates.
+          if (last.current === t && !player.seeking && !player.paused)
+            last.current = previous;
           setStatus((e as Error).message);
         } finally {
           inFlight.current = false;
@@ -756,20 +769,31 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
               Reviewer {session.assignment.reviewer_id} ·{" "}
               {label(session.assignment.scope)} · {session.state}
             </p>
-            <p className="meta">
-              Session {session.id} · revision {session.revision} · created{" "}
-              {session.created_at} ·{" "}
-              {session.assisted_alignment
-                ? "MFA-assisted inspection; suggestions are unverified"
-                : "No machine flaw predictions or scores exposed"}
-            </p>
+            <ReviewJourney
+              scope={session.assignment.scope}
+              dirty={dirty}
+              busy={busy}
+              submitted={frozen}
+              validated={Boolean(validation?.can_submit)}
+              issues={validation?.issues ?? []}
+            />
+            <details>
+              <summary>Session provenance and assistance</summary>
+              <p className="meta">
+                Session {session.id} · revision {session.revision} · created{" "}
+                {session.created_at} ·{" "}
+                {session.assisted_alignment
+                  ? "MFA-assisted inspection; suggestions are unverified"
+                  : "No machine flaw predictions or scores exposed"}
+              </p>
+            </details>
             <p>
               Listen to the whole recording. Use your own judgment and notes.
               Playback telemetry records interaction, not comprehension or
               authenticated identity. Do not consult another reviewer, intended
               labels, scores or processing recipes.
             </p>
-            <section className="panel">
+            <section className="panel" id="review-listen" tabIndex={-1}>
               <h2>Recording and native timeline</h2>
               <button
                 onClick={() => {
@@ -948,7 +972,12 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
                 />
               </label>
             </section>
-            <fieldset disabled={frozen || busy} className="panel">
+            <fieldset
+              disabled={frozen || busy}
+              className="panel"
+              id="review-evidence"
+              tabIndex={-1}
+            >
               <legend>{label(session.assignment.scope)} evidence</legend>
               <details>
                 <summary>Original supplied transcript</summary>
@@ -1278,61 +1307,64 @@ export function Reviewer({ sessionId }: { sessionId: string }) {
                   </ul>
                 </>
               )}
-              <label>
-                Evidence reference
-                <input
-                  value={draft.evidence_reference}
-                  onChange={(e) =>
-                    change({ evidence_reference: e.target.value })
-                  }
-                  placeholder="Your private listening worksheet / session reference"
-                />
-              </label>
-              <label>
-                Listening notes and uncertainty
-                <textarea
-                  value={draft.notes}
-                  onChange={(e) => change({ notes: e.target.value })}
-                />
-              </label>
-              <label>
-                Review decision
-                <select
-                  aria-label="Review decision"
-                  value={draft.decision}
-                  onChange={(e) =>
-                    change({ decision: e.target.value as Draft["decision"] })
-                  }
-                >
-                  <option value="unresolved">Unresolved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="approved">Approved after inspection</option>
-                </select>
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={draft.independent}
-                  onChange={(e) => change({ independent: e.target.checked })}
-                />
-                I performed my own review, did not review my own performance,
-                and did not consult peer decisions.
-              </label>
-              {session.assignment.scope === "flaws" && (
+              <section id="review-notes" tabIndex={-1}>
+                <h2>Notes and uncertainty</h2>
+                <label>
+                  Evidence reference
+                  <input
+                    value={draft.evidence_reference}
+                    onChange={(e) =>
+                      change({ evidence_reference: e.target.value })
+                    }
+                    placeholder="Your private listening worksheet / session reference"
+                  />
+                </label>
+                <label>
+                  Listening notes and uncertainty
+                  <textarea
+                    value={draft.notes}
+                    onChange={(e) => change({ notes: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Review decision
+                  <select
+                    aria-label="Review decision"
+                    value={draft.decision}
+                    onChange={(e) =>
+                      change({ decision: e.target.value as Draft["decision"] })
+                    }
+                  >
+                    <option value="unresolved">Unresolved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="approved">Approved after inspection</option>
+                  </select>
+                </label>
                 <label>
                   <input
                     type="checkbox"
-                    checked={draft.blinded_to_predictions}
-                    onChange={(e) =>
-                      change({ blinded_to_predictions: e.target.checked })
-                    }
+                    checked={draft.independent}
+                    onChange={(e) => change({ independent: e.target.checked })}
                   />
-                  I did not inspect machine predictions, scores, intended labels
-                  or recipes.
+                  I performed my own review, did not review my own performance,
+                  and did not consult peer decisions.
                 </label>
-              )}
+                {session.assignment.scope === "flaws" && (
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={draft.blinded_to_predictions}
+                      onChange={(e) =>
+                        change({ blinded_to_predictions: e.target.checked })
+                      }
+                    />
+                    I did not inspect machine predictions, scores, intended
+                    labels or recipes.
+                  </label>
+                )}
+              </section>
             </fieldset>
-            <section className="panel">
+            <section className="panel" id="review-submit" tabIndex={-1}>
               <h2>Progress and submission</h2>
               <p>
                 {session.listened_spans

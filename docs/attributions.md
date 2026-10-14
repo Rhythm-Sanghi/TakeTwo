@@ -32,3 +32,10 @@ The 13 October stabilization pass used Codex for audit, exact-inventory ground-t
 resolution, regression tests, responsive selector repair, documentation reconciliation
 and the local report draft. These AI-assisted changes do not supply human reviewer
 independence, acoustic accuracy, consent or publication approval.
+
+
+The subsequent product-experience pass used Codex for outcome-first frontend
+structure, scope-specific review navigation, bounded interval playback, interface
+state fixtures, browser/print verification and documentation. Route-only eligible
+UI fixtures and automated tone reviews are software acceptance evidence, not human
+speech findings, genuine reviewer approvals or accuracy measurements.

@@ -1,5 +1,5 @@
 import type { components } from "../api.generated";
-import type { Recording } from "../api";
+import type { Recording, Report } from "../api";
 
 export type Readiness = components["schemas"]["RecordingReadiness"];
 export type DatasetSummary = components["schemas"]["DatasetSummary"];
@@ -22,6 +22,7 @@ const inventoryLabels: [string, string][] = [
 ];
 
 export function DatasetReadiness({
+  report = null,
   summary,
   recordings,
   selectedId,
@@ -29,6 +30,7 @@ export function DatasetReadiness({
   onReview,
   loading = false,
 }: {
+  report?: Report | null;
   summary: DatasetSummary | null;
   recordings: Recording[];
   selectedId: string;
@@ -42,27 +44,44 @@ export function DatasetReadiness({
   return (
     <section className="panel">
       <h2>Dataset readiness</h2>
-      <table tabIndex={0} aria-label="Dataset readiness counts">
-        <thead>
-          <tr>
-            <th>Evidence</th>
-            <th>Actual workspace count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventoryLabels.map(([key, text]) => (
-            <tr key={key}>
-              <th scope="row">{text}</th>
-              <td>{summary?.inventory_counts?.[key] ?? "Unavailable"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <p>
+        Check recording permissions and resolve independent evidence before
+        evaluating delivery. Processing audio alone does not make a pair
+        eligible.
+      </p>
+      <dl className="measurement-strip">
+        <div>
+          <dt>Recording inventory</dt>
+          <dd>{recordings.length} takes</dd>
+          <dd>
+            {summary?.inventory_counts?.distinct_speaker_ids ?? "Unavailable"}{" "}
+            recorded speaker IDs ·{" "}
+            {summary?.inventory_counts?.connected_families ?? "Unavailable"}{" "}
+            connected families
+          </dd>
+        </div>
+        <div>
+          <dt>Verified transcripts</dt>
+          <dd>
+            {summary?.inventory_counts?.verified_transcripts ?? "Unavailable"}
+          </dd>
+          <dd>Independent people and agreement still require verification.</dd>
+        </div>
+        <div>
+          <dt>Eligible pairs</dt>
+          <dd>
+            {report
+              ? `Selected comparison: ${report.eligibility.state === "ELIGIBLE" ? "eligible" : "not eligible"}`
+              : "No comparison selected"}
+          </dd>
+          <dd>Workspace-wide eligible pair count unavailable.</dd>
+        </div>
+      </dl>
       <p className="notice">
-        Counts describe takes, declared speaker IDs and stored review
-        assertions, not verified human identities or independence. Connected
-        families use the existing split grouping. Machine processing, reviewed
-        evidence, eligible detection and validated accuracy are separate states.
+        Evaluation readiness is not established by inventory counts. Genuine
+        independent review completion is recording-specific; inspect
+        authoritative review status below. Stored review assertions do not
+        certify independence or accuracy.
       </p>
       <h3>Review readiness / Next required actions</h3>
       {loading ? (
@@ -114,19 +133,24 @@ export function DatasetReadiness({
               {["rights", "reviewed_version", "comparison"].includes(
                 current.next_action,
               ) && (
-                <p>
-                  The remaining version/import/evaluation operations use the
-                  documented CLI:{" "}
-                  <code>
-                    uv run taketwo-dataset init --help; uv run taketwo-dataset
-                    import-reference --help; uv run taketwo-dataset
-                    import-flawed --help
-                  </code>
-                  ; <code>uv run taketwo-comparison evaluate --help</code>.
-                  Follow the local <code>docs/human-pilot-kit.md</code> and{" "}
-                  <code>docs/reproducibility.md</code>; preserve originals and
-                  regenerate dependent artifacts.
-                </p>
+                <details>
+                  <summary>
+                    Version and evaluation workflow instructions
+                  </summary>
+                  <p>
+                    The remaining version/import/evaluation operations use the
+                    documented CLI:{" "}
+                    <code>
+                      uv run taketwo-dataset init --help; uv run taketwo-dataset
+                      import-reference --help; uv run taketwo-dataset
+                      import-flawed --help
+                    </code>
+                    ; <code>uv run taketwo-comparison evaluate --help</code>.
+                    Follow the local <code>docs/human-pilot-kit.md</code> and{" "}
+                    <code>docs/reproducibility.md</code>; preserve originals and
+                    regenerate dependent artifacts.
+                  </p>
+                </details>
               )}
             </>
           ) : (
@@ -141,6 +165,32 @@ export function DatasetReadiness({
           Import a permitted recording before preparing independent reviews.
         </p>
       )}
+      <details>
+        <summary>Details · recording inventory and review assertions</summary>{" "}
+        <table tabIndex={0} aria-label="Dataset readiness counts">
+          <thead>
+            <tr>
+              <th>Evidence</th>
+              <th>Actual workspace count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inventoryLabels.map(([key, text]) => (
+              <tr key={key}>
+                <th scope="row">{text}</th>
+                <td>{summary?.inventory_counts?.[key] ?? "Unavailable"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="notice">
+          Counts describe takes, declared speaker IDs and stored review
+          assertions, not verified human identities or independence. Connected
+          families use the existing split grouping. Machine processing, reviewed
+          evidence, eligible detection and validated accuracy are separate
+          states.
+        </p>
+      </details>
       <p className="meta">
         Competition dataset readiness is not certified. Rights, actual
         independent people, resolved evidence and valid splits remain required.

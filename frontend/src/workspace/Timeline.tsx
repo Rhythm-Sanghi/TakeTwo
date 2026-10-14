@@ -179,7 +179,7 @@ export function Timeline({
   job: Job | null;
   regions: Region[];
   selected: string | null;
-  seek: { time: number; end?: number; nonce: number } | null;
+  seek: { time: number; end?: number; play?: boolean; nonce: number } | null;
   onSelect: (region: Region) => void;
   onPlay: (element: HTMLAudioElement) => void;
   references?: Recording[];
@@ -197,6 +197,7 @@ export function Timeline({
   const [error, setError] = useState("");
   const canvas = useRef<HTMLCanvasElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
+  const playbackEnd = useRef<number | null>(null);
   const pointerStart = useRef<number | null>(null);
   const hasFeatures = Boolean(job?.artifacts?.[recording.id]?.features);
   useEffect(() => {
@@ -261,6 +262,14 @@ export function Timeline({
       const target = Math.max(0, Math.min(duration, seek.time));
       audio.current.currentTime = target;
       setCursor(target);
+      playbackEnd.current =
+        seek.play && seek.end != null ? Math.min(duration, seek.end) : null;
+      if (seek.play)
+        void audio.current
+          .play()
+          .catch(() =>
+            setError("Playback was blocked; use the audio play control."),
+          );
       if (seek.end != null)
         setSelection([target, Math.min(duration, seek.end)]);
       if (target < start || target > end) {
@@ -360,6 +369,7 @@ export function Timeline({
   ]);
   function seekTo(time: number) {
     if (audio.current) {
+      playbackEnd.current = null;
       audio.current.currentTime = time;
       setCursor(time);
     }
@@ -421,7 +431,18 @@ export function Timeline({
         src={`/api/v1/recordings/${recording.id}/audio`}
         aria-label={`${recording.role} audio`}
         onPlay={(event) => onPlay(event.currentTarget)}
-        onTimeUpdate={(event) => setCursor(event.currentTarget.currentTime)}
+        onTimeUpdate={(event) => {
+          const player = event.currentTarget;
+          if (
+            playbackEnd.current != null &&
+            player.currentTime >= playbackEnd.current
+          ) {
+            player.pause();
+            player.currentTime = playbackEnd.current;
+            playbackEnd.current = null;
+          }
+          setCursor(player.currentTime);
+        }}
         onError={() =>
           setError(
             "Audio playback failed. Check that the managed WAV is still available.",
@@ -522,65 +543,72 @@ export function Timeline({
           onChange={(event) => seekTo(Number(event.target.value))}
         />
       </label>
-      <div className="toolbar">
-        <output className="mono" aria-live="off">
-          Playhead {number(cursor)} s / sample {sampleAtTime(cursor)}
-        </output>
-        <label>
-          Selection start (s)
-          <input
-            aria-label={`${recording.role} selection start (s)`}
-            type="number"
-            min="0"
-            max={selection[1]}
-            step="0.001"
-            value={selection[0]}
-            onChange={(event) =>
-              setSelection([
-                Math.max(0, Math.min(selection[1], Number(event.target.value))),
-                selection[1],
-              ])
-            }
-          />
-        </label>
-        <label>
-          Selection end (s)
-          <input
-            aria-label={`${recording.role} selection end (s)`}
-            type="number"
-            min={selection[0]}
-            max={duration}
-            step="0.001"
-            value={selection[1]}
-            onChange={(event) =>
-              setSelection([
-                selection[0],
-                Math.min(
-                  duration,
-                  Math.max(selection[0], Number(event.target.value)),
-                ),
-              ])
-            }
-          />
-        </label>
-        <button
-          onClick={() => {
-            seekTo(selection[0]);
-            void audio.current
-              ?.play()
-              .catch(() =>
-                setError(
-                  "Playback was blocked by the browser; use the audio play control.",
-                ),
-              );
-          }}
-        >
-          Play from selection
-        </button>
-        <output className="mono">
-          Selection {number(selection[1] - selection[0])} s
-        </output>
-      </div>
+      <details className="precision-controls">
+        <summary>Precision selection and interval replay</summary>
+        <div className="toolbar">
+          <output className="mono" aria-live="off">
+            Playhead {number(cursor)} s / sample {sampleAtTime(cursor)}
+          </output>
+          <label>
+            Selection start (s)
+            <input
+              aria-label={`${recording.role} selection start (s)`}
+              type="number"
+              min="0"
+              max={selection[1]}
+              step="0.001"
+              value={selection[0]}
+              onChange={(event) =>
+                setSelection([
+                  Math.max(
+                    0,
+                    Math.min(selection[1], Number(event.target.value)),
+                  ),
+                  selection[1],
+                ])
+              }
+            />
+          </label>
+          <label>
+            Selection end (s)
+            <input
+              aria-label={`${recording.role} selection end (s)`}
+              type="number"
+              min={selection[0]}
+              max={duration}
+              step="0.001"
+              value={selection[1]}
+              onChange={(event) =>
+                setSelection([
+                  selection[0],
+                  Math.min(
+                    duration,
+                    Math.max(selection[0], Number(event.target.value)),
+                  ),
+                ])
+              }
+            />
+          </label>
+          <button
+            onClick={() => {
+              seekTo(selection[0]);
+              playbackEnd.current = selection[1];
+              void audio.current
+                ?.play()
+                .catch(() =>
+                  setError(
+                    "Playback was blocked by the browser; use the audio play control.",
+                  ),
+                );
+            }}
+          >
+            Replay selected interval
+          </button>
+          <output className="mono">
+            Selection {number(selection[1] - selection[0])} s
+          </output>
+        </div>
+      </details>
       {error && <p role="alert">{error}</p>}
       {onExcerpt && (
         <ExcerptForm
@@ -645,83 +673,91 @@ export function Timeline({
           displayed.
         </p>
       )}
-      {hasFeatures ? (
-        <>
-          <label>
-            Acoustic series
-            <select
-              aria-label={`${recording.role} acoustic series`}
-              value={feature}
-              onChange={(event) => setFeature(event.target.value)}
-            >
-              {[
-                "rms",
-                "energy",
-                "relative_energy",
-                "f0",
-                "relative_pitch",
-                "activity",
-                "spectral_centroid",
-              ].map((name) => (
-                <option value={name} key={name}>
-                  {label(name)}
-                </option>
-              ))}
-            </select>
-          </label>
-          {!data && !error && (
-            <p role="status">Loading {recording.role} acoustic measurements…</p>
-          )}
-          {data && (
-            <>
-              <FeatureChart
-                data={data}
-                start={start}
-                end={end}
-                role={recording.role}
-              />
-              <p>
-                Speaking rate: {number(data.speaking_rate_wpm)} words/min.{" "}
-                {data.rate_unavailable_reason}
+      <div className="acoustic-evidence">
+        <h3>
+          Acoustic evidence{" "}
+          <span className="meta">· exploratory until reviewed</span>
+        </h3>
+        {hasFeatures ? (
+          <>
+            <label>
+              Acoustic series
+              <select
+                aria-label={`${recording.role} acoustic series`}
+                value={feature}
+                onChange={(event) => setFeature(event.target.value)}
+              >
+                {[
+                  "rms",
+                  "energy",
+                  "relative_energy",
+                  "f0",
+                  "relative_pitch",
+                  "activity",
+                  "spectral_centroid",
+                ].map((name) => (
+                  <option value={name} key={name}>
+                    {label(name)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {!data && !error && (
+              <p role="status">
+                Loading {recording.role} acoustic measurements…
               </p>
-              <details>
-                <summary>Measured quality and pause evidence</summary>
-                <dl>
-                  <dt>RMS (full scale)</dt>
-                  <dd>{number(data.quality.rms, 6)}</dd>
-                  <dt>Peak (full scale)</dt>
-                  <dd>{number(data.quality.peak, 6)}</dd>
-                  <dt>Clipping fraction</dt>
-                  <dd>{number(data.quality.clipping_fraction, 6)}</dd>
-                  <dt>Quality flags</dt>
-                  <dd>
-                    {data.quality.flags.join(", ") ||
-                      "None detected by configured checks"}
-                  </dd>
-                </dl>
-                {data.pauses.length ? (
-                  <ul>
-                    {data.pauses.map((p, i) => (
-                      <li key={i}>
-                        {number(p.start_s)}–{number(p.end_s)} s
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>
-                    No eligible aligned pause intervals available; inspect
-                    activity separately.
-                  </p>
-                )}
-              </details>
-            </>
-          )}
-        </>
-      ) : (
-        <p className="notice">
-          Run analysis to inspect actual acoustic measurements.
-        </p>
-      )}
+            )}
+            {data && (
+              <>
+                <FeatureChart
+                  data={data}
+                  start={start}
+                  end={end}
+                  role={recording.role}
+                />
+                <p>
+                  Speaking rate: {number(data.speaking_rate_wpm)} words/min.{" "}
+                  {data.rate_unavailable_reason}
+                </p>
+                <details>
+                  <summary>Measured quality and pause evidence</summary>
+                  <dl>
+                    <dt>RMS (full scale)</dt>
+                    <dd>{number(data.quality.rms, 6)}</dd>
+                    <dt>Peak (full scale)</dt>
+                    <dd>{number(data.quality.peak, 6)}</dd>
+                    <dt>Clipping fraction</dt>
+                    <dd>{number(data.quality.clipping_fraction, 6)}</dd>
+                    <dt>Quality flags</dt>
+                    <dd>
+                      {data.quality.flags.join(", ") ||
+                        "None detected by configured checks"}
+                    </dd>
+                  </dl>
+                  {data.pauses.length ? (
+                    <ul>
+                      {data.pauses.map((p, i) => (
+                        <li key={i}>
+                          {number(p.start_s)}–{number(p.end_s)} s
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>
+                      No eligible aligned pause intervals available; inspect
+                      activity separately.
+                    </p>
+                  )}
+                </details>
+              </>
+            )}
+          </>
+        ) : (
+          <p className="notice">
+            Run analysis to inspect actual acoustic measurements.
+          </p>
+        )}
+      </div>
     </section>
   );
 }

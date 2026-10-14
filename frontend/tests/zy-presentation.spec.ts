@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, request as http } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Recording, Job, FeatureWindow } from "../src/api";
 
@@ -35,12 +35,17 @@ test("full native chart domains, recording counts, review navigation and paper l
   request,
 }, info) => {
   test.setTimeout(900000);
-  const before = await (await request.get("/api/v1/dataset")).json();
+  const before = await (
+    await request.get("/api/v1/dataset", { maxRetries: 2 })
+  ).json();
   const records: Recording[] = [];
   const jobs: Job[] = [];
   const measurements: unknown[] = [];
   for (const [index, duration] of [15, 29, 30, 40, 45].entries()) {
-    const response = await request.post("/api/v1/recordings", {
+    // A fresh upload context avoids stale Windows keep-alive sockets after CPU/chart inspection.
+    // Do not retry a mutation after an ambiguous connection reset.
+    const upload = await http.newContext({ baseURL: info.project.use.baseURL });
+    const response = await upload.post("/api/v1/recordings", {
       multipart: {
         audio: {
           name: `software-presentation-${duration}.wav`,
@@ -61,6 +66,7 @@ test("full native chart domains, recording counts, review navigation and paper l
     });
     expect(response.status()).toBe(201);
     const recording: Recording = await response.json();
+    await upload.dispose();
     records.push(recording);
     let pairId = null;
     if (index > 0) {
@@ -140,7 +146,10 @@ test("full native chart domains, recording counts, review navigation and paper l
     });
   }
   await page.setViewportSize({ width: 1366, height: 1000 });
-  const counts = await (await request.get("/api/v1/dataset")).json();
+  // Read-only requests may safely reconnect after Windows closes an idle socket.
+  const counts = await (
+    await request.get("/api/v1/dataset", { maxRetries: 2 })
+  ).json();
   expect(
     counts.inventory_counts.human_participant_takes -
       before.inventory_counts.human_participant_takes,
@@ -165,15 +174,27 @@ test("full native chart domains, recording counts, review navigation and paper l
   await expect(
     page.getByRole("button", { name: "Start reviewer handoff" }),
   ).toBeDisabled();
-  expect((await request.get("/api/v1/review-workspace/mode")).ok()).toBe(true);
   expect(
-    (await (await request.get("/api/v1/review-workspace/mode")).json())
-      .active_session,
+    (
+      await request.get("/api/v1/review-workspace/mode", { maxRetries: 2 })
+    ).ok(),
+  ).toBe(true);
+  expect(
+    (
+      await (
+        await request.get("/api/v1/review-workspace/mode", { maxRetries: 2 })
+      ).json()
+    ).active_session,
   ).toBeNull();
   await page
     .locator(".library")
     .getByRole("button")
     .filter({ hasText: jobs[4].id.slice(0, 12) })
+    .click();
+  await page
+    .getByText("Technical details · scores, coverage and scientific exports", {
+      exact: true,
+    })
     .click();
   await expect(page.getByText("Overall: Unavailable")).toBeVisible();
   for (const summary of await page

@@ -33,3 +33,5 @@ tmp/
 /output/pdf/taketwo-technical-report-current.pdf
 # Browser analysis summaries can contain private recording and review evidence.
 /output/pdf/taketwo-analysis-summary.pdf
+
+/output/pdf/taketwo-analysis-experience.pdf

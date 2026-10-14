@@ -12,7 +12,10 @@ import type {
   Review,
 } from "../api";
 import { ImportForm } from "./ImportForm";
-import { Inspector, Location, Scores } from "./Evidence";
+import { Inspector, Scores } from "./Evidence";
+import { AnalysisResult, Findings } from "./AnalysisResult";
+import { Rubric } from "./Rubric";
+import { RubricGuide } from "./RubricGuide";
 import { Timeline } from "./Timeline";
 import { TokenOverlay } from "./TokenOverlay";
 import { PairCorrection, ReviewImport } from "./RecordingTools";
@@ -122,117 +125,6 @@ function Metadata({ item }: { item: Recording }) {
   );
 }
 
-function Rubric({ policy }: { policy: Policy | null }) {
-  if (!policy) return <p>Loading rubric…</p>;
-  return (
-    <section className="panel">
-      <h2>{policy.version} · reference agreement</h2>
-      <p>
-        Initial engineering tolerances; uncalibrated. Acoustic agreement does
-        not measure persuasion, emotion or overall speaking ability. Effective
-        alternative deliveries can differ.
-      </p>
-      <table tabIndex={0} aria-label="Rubric definitions">
-        <thead>
-          <tr>
-            <th>Dimension</th>
-            <th>Weight</th>
-            <th>Signed deviation</th>
-            <th>Tolerance</th>
-            <th>Saturation width</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>Pacing</th>
-            <td>
-              {number(policy.weights ? policy.weights.pacing * 100 : null, 0)}%
-            </td>
-            <td>ln(participant rate / reference rate)</td>
-            <td>{number(policy.pacing_tolerance, 6)}</td>
-            <td>{number(policy.pacing_width, 6)}</td>
-          </tr>
-          <tr>
-            <th>Pause behavior</th>
-            <td>
-              {number(
-                policy.weights ? policy.weights.pause_behavior * 100 : null,
-                0,
-              )}
-              %
-            </td>
-            <td>Participant gap − reference gap (s)</td>
-            <td>
-              max({policy.pause_floor_s} s, {policy.pause_relative} × reference
-              gap, calibrated floor)
-            </td>
-            <td>{policy.pause_width_s} s</td>
-          </tr>
-          <tr>
-            <th>Energy variation</th>
-            <td>
-              {number(
-                policy.weights ? policy.weights.energy_variation * 100 : null,
-                0,
-              )}
-              %
-            </td>
-            <td>Difference in relative Q90−Q10 excursion</td>
-            <td>{policy.energy_tolerance_db} dB</td>
-            <td>{policy.energy_width_db} dB</td>
-          </tr>
-          <tr>
-            <th>Pitch dynamics</th>
-            <td>
-              {number(
-                policy.weights ? policy.weights.pitch_dynamics * 100 : null,
-                0,
-              )}
-              %
-            </td>
-            <td>Difference in relative Q90−Q10 excursion</td>
-            <td>{policy.pitch_tolerance_st} semitones</td>
-            <td>{policy.pitch_width_st} semitones</td>
-          </tr>
-        </tbody>
-      </table>
-      <h3>Explicit aggregation</h3>
-      <p className="mono">
-        excess = max(0, |delta| − tolerance)
-        <br />
-        penalty = min(1, excess / saturation width)
-        <br />
-        dimension = 100 × (1 − Σ(weight × penalty) / Σ(eligible weight))
-      </p>
-      <p>
-        Reference phrase duration weights pacing, energy and pitch; pause
-        boundaries have equal weight. Coverage must reach{" "}
-        {policy.minimum_coverage * 100}% with at least {policy.minimum_phrases}{" "}
-        eligible phrases or {policy.minimum_gaps} gaps. Overall scoring requires
-        all four dimensions; missing weights are never redistributed.
-      </p>
-      <p>
-        Two independent agreeing timing/phrase reviews and verified transcripts
-        are required. Pitch needs at least {policy.minimum_pitch_fraction * 100}
-        % reliable frames; observed frame support needs{" "}
-        {policy.minimum_coverage * 100}% coverage. Clips need at least{" "}
-        {policy.minimum_phrase_words} words and {policy.minimum_phrase_s} s per
-        eligible phrase. Confidence and timing error remain unmeasured.
-      </p>
-      <p>
-        Energy normalization subtracts median active energy in dB. Pitch
-        normalization uses 12 log₂(F0 / median voiced F0). No per-recording
-        variance scaling hides dynamics. Word contour detectors add evidence
-        without additional rubric penalties.
-      </p>
-      <details>
-        <summary>Complete versioned policy</summary>
-        <pre>{JSON.stringify(policy, null, 2)}</pre>
-      </details>
-    </section>
-  );
-}
-
 export function App() {
   const [page, setPage] = useState<Page>("Recording Library");
   const [recordings, setRecordings] = useState<Recording[]>([]);
@@ -255,7 +147,10 @@ export function App() {
   const [reportLoading, setReportLoading] = useState(false);
   const [region, setRegion] = useState<Region | null>(null);
   const [seek, setSeek] = useState<
-    Record<string, { time: number; end?: number; nonce: number }>
+    Record<
+      string,
+      { time: number; end?: number; play?: boolean; nonce: number }
+    >
   >({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -286,6 +181,11 @@ export function App() {
     job?.request.pair_id === (pair?.id ?? null);
   const activeJob = jobMatches ? job : null;
   const activeReport = jobMatches ? report : null;
+  const hasAvailableDimensions =
+    activeReport &&
+    (activeReport.eligibility.state === "ELIGIBLE" ||
+      activeReport.dimensions.some((d) => d.score != null) ||
+      activeReport.regions.some((r) => r.eligibility.state === "ELIGIBLE"));
 
   const refresh = useCallback(async () => {
     try {
@@ -383,7 +283,7 @@ export function App() {
       setStarting(false);
     }
   }
-  function inspect(item: Region) {
+  function inspect(item: Region, replay = false) {
     setRegion(item);
     const nonce = Date.now();
     const requests: typeof seek = {};
@@ -398,6 +298,7 @@ export function App() {
         time:
           item.participant_interval?.start_s ?? item.participant_anchor_s ?? 0,
         end: item.participant_interval?.end_s,
+        play: replay && Boolean(item.participant_interval),
         nonce,
       };
     setSeek(requests);
@@ -639,7 +540,12 @@ export function App() {
                         </p>
                       </details>
                     </section>
-                    <Metadata item={selected} />
+                    <details className="panel">
+                      <summary>
+                        Recording metadata and source transcript
+                      </summary>
+                      <Metadata item={selected} />
+                    </details>
                   </>
                 ) : (
                   <section className="panel">
@@ -659,7 +565,46 @@ export function App() {
           )}
           {page === "Analysis Workspace" && (
             <>
-              <section className="panel analysis-controls">
+              <AnalysisResult
+                job={activeJob}
+                report={activeReport}
+                loading={reportLoading}
+                reference={reference}
+                participant={participant}
+                evaluations={evaluations}
+                nextLabel={
+                  !reference
+                    ? "Import a reference"
+                    : activeJob?.state === "completed" &&
+                        !activeReport &&
+                        !reportLoading
+                      ? "Reload assessment evidence"
+                      : hasAvailableDimensions
+                        ? "Understand available dimensions"
+                        : activeReport
+                          ? "Check dataset and review requirements"
+                          : "Choose recordings and run analysis"
+                }
+                onNext={() =>
+                  !reference
+                    ? navigate("Recording Library")
+                    : activeJob?.state === "completed" &&
+                        !activeReport &&
+                        !reportLoading
+                      ? void refresh()
+                      : hasAvailableDimensions
+                        ? navigate("Rubric and Evidence")
+                        : activeReport
+                          ? navigate("Dataset and Evaluation")
+                          : document.getElementById("analysis-setup")?.focus()
+                }
+              />
+              <section
+                className="panel analysis-controls"
+                id="analysis-setup"
+                tabIndex={-1}
+              >
+                <h2>Choose recordings and process audio</h2>
                 <div className="toolbar">
                   <label>
                     Reference recording
@@ -758,17 +703,6 @@ export function App() {
                       </button>
                     )}
                 </div>
-                {health?.alignment_diagnostics.map((d) => (
-                  <p className="notice" key={d.code}>
-                    {d.message} {d.recovery}
-                  </p>
-                ))}
-                {!participant && (
-                  <p>
-                    Reference inspection only: comparison and scoring require a
-                    participant mirror.
-                  </p>
-                )}
                 {overLimit && (
                   <p className="notice">
                     A selected recording exceeds the{" "}
@@ -779,24 +713,52 @@ export function App() {
                     reference and participant.
                   </p>
                 )}
-                <p className="meta">
-                  {health?.maximum_analysis_duration_s ?? "…"} s analysis limit
-                  · one CPU worker · no fabricated progress estimate. Completed
-                  acoustic artifacts are reused only when
-                  input/configuration/code hashes match.
-                </p>
-                <p role="status" aria-live="polite" aria-atomic="true">
-                  {activeJob ? (
-                    <>
-                      Analysis {activeJob.state}: {activeJob.stage}.{" "}
-                      {activeJob.error &&
-                        `${activeJob.error.message} ${activeJob.error.recovery}`}
-                    </>
-                  ) : (
-                    "No analysis selected."
+                <details>
+                  <summary>Processing configuration and diagnostics</summary>
+                  {health?.alignment_diagnostics.map((d) => (
+                    <p className="notice" key={d.code}>
+                      {d.message} {d.recovery}
+                    </p>
+                  ))}
+                  {!participant && (
+                    <p>
+                      Reference inspection only: comparison and scoring require
+                      a participant mirror.
+                    </p>
                   )}
-                </p>
+                  <p className="meta">
+                    {health?.maximum_analysis_duration_s ?? "…"} s analysis
+                    limit · one CPU worker · no fabricated progress estimate.
+                    Completed acoustic artifacts are reused only when
+                    input/configuration/code hashes match.
+                  </p>
+                  <p role="status" aria-live="polite" aria-atomic="true">
+                    {activeJob ? (
+                      <>
+                        Analysis {activeJob.state}: {activeJob.stage}.{" "}
+                        {activeJob.error &&
+                          `${activeJob.error.message} ${activeJob.error.recovery}`}
+                      </>
+                    ) : (
+                      "No analysis selected."
+                    )}
+                  </p>
+                </details>
               </section>
+              {activeReport && (
+                <Findings
+                  report={activeReport}
+                  onSelect={inspect}
+                  onReplay={(item) => inspect(item, true)}
+                />
+              )}
+              <h2 className="exploration-heading">
+                Listen and explore evidence
+              </h2>
+              <p className="exploration-heading meta">
+                Each recording keeps its own native clock. Reviewed
+                correspondence is required for linked navigation.
+              </p>
               <div className="print-controls">
                 <button onClick={() => window.print()} disabled={!activeReport}>
                   Print analysis summary
@@ -902,46 +864,12 @@ export function App() {
                     />
                   )}
                   {activeReport && (
-                    <section className="panel score-panel">
+                    <details className="panel score-panel technical-details">
+                      <summary>
+                        Technical details · scores, coverage and scientific
+                        exports
+                      </summary>
                       <Scores report={activeReport} />
-                      <h2>Detected deviations</h2>
-                      {activeReport.regions.length ? (
-                        <table tabIndex={0} aria-label="Detected deviations">
-                          <thead>
-                            <tr>
-                              <th>Category</th>
-                              <th>Participant location</th>
-                              <th>Severity</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {activeReport.regions.map((r) => (
-                              <tr key={r.id}>
-                                <th>{label(r.category)}</th>
-                                <td>
-                                  <Location
-                                    interval={r.participant_interval}
-                                    anchor={r.participant_anchor_s}
-                                  />
-                                </td>
-                                <td>{r.severity}</td>
-                                <td>
-                                  <button onClick={() => inspect(r)}>
-                                    Inspect and seek
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <p>
-                          {activeReport.overall_score == null
-                            ? "Flaw detection unavailable until the required evidence is reviewed."
-                            : "No threshold crossings detected under this rubric."}
-                        </p>
-                      )}
                       <div className="toolbar">
                         <a
                           className="button"
@@ -958,7 +886,7 @@ export function App() {
                           Export region CSV
                         </a>
                       </div>
-                    </section>
+                    </details>
                   )}
                 </div>
                 {reportLoading ? (
@@ -969,18 +897,36 @@ export function App() {
                     </p>
                   </aside>
                 ) : (
-                  <Inspector region={region} report={activeReport} />
+                  <details
+                    className="panel evidence-details"
+                    open={Boolean(region)}
+                    key={region?.id ?? "inputs"}
+                  >
+                    <summary>
+                      Evidence inspector · measurements and provenance
+                    </summary>
+                    <Inspector region={region} report={activeReport} />
+                  </details>
                 )}
               </div>
             </>
           )}
           {page === "Rubric and Evidence" && (
             <>
-              <Rubric policy={policy} />
+              <RubricGuide report={activeReport} />
+              <details className="panel">
+                <summary>
+                  Technical details · thresholds, normalization and weighting
+                </summary>
+                <Rubric policy={policy} />
+              </details>
               {activeReport && (
-                <section className="panel">
+                <details className="panel">
+                  <summary>
+                    Technical details · selected comparison scores
+                  </summary>
                   <Scores report={activeReport} />
-                </section>
+                </details>
               )}
               <p>
                 All displayed scoring values come from backend report contracts.
@@ -992,6 +938,7 @@ export function App() {
           {page === "Dataset and Evaluation" && (
             <>
               <DatasetReadiness
+                report={activeReport}
                 summary={datasetSummary}
                 loading={loading}
                 recordings={recordings}

@@ -1,4 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ReviewEntry, Reviewer, ReviewWorkspace } from "./ReviewWorkspace";
@@ -179,4 +185,57 @@ it("shows original timing differences for adjudication without selecting a winne
   expect(
     screen.getByRole("button", { name: "Record adjudication for timing" }),
   ).toBeDisabled();
+});
+
+it("retains a rejected continuous playback span for the next real update without counting seeks", async () => {
+  const observed: { start_s: number; end_s: number }[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith("/listen")) {
+        observed.push(JSON.parse(init?.body as string));
+        if (observed.length === 1)
+          return {
+            ok: false,
+            json: async () => ({
+              error: {
+                message: "Heartbeat rejected.",
+                recovery: "Continue listening.",
+              },
+            }),
+          };
+      }
+      return {
+        ok: true,
+        json: async () =>
+          url.includes("waveform")
+            ? { bins: [], start_s: 0, end_s: 2 }
+            : session,
+      };
+    }),
+  );
+  render(<Reviewer sessionId={session.id} />);
+  const player = (await screen.findByLabelText(
+    "Assigned recording playback",
+  )) as HTMLAudioElement;
+  Object.defineProperty(player, "paused", { configurable: true, value: false });
+  fireEvent.play(player);
+  player.currentTime = 0.5;
+  fireEvent.timeUpdate(player);
+  await screen.findByText(/Heartbeat rejected/);
+  player.currentTime = 1;
+  fireEvent.timeUpdate(player);
+  await waitFor(() => expect(observed).toHaveLength(2));
+  expect(observed[1]).toEqual({ start_s: 0, end_s: 1 });
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Save draft" })).toBeEnabled(),
+  );
+  fireEvent.seeking(player);
+  player.currentTime = 1.4;
+  fireEvent.seeked(player);
+  player.currentTime = 1.7;
+  fireEvent.timeUpdate(player);
+  await waitFor(() => expect(observed).toHaveLength(3));
+  expect(observed[2]).toEqual({ start_s: 1.4, end_s: 1.7 });
+  expect(screen.getByRole("button", { name: "Submit review" })).toBeDisabled();
 });

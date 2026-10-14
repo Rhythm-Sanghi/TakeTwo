@@ -20,6 +20,10 @@ test("actual import → CPU processing → native playback → evidence → expo
     page.getByRole("heading", { name: "Recording Library", exact: true }),
   ).toBeVisible();
   await expect(page.getByText(/Library is empty/)).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath("empty-workspace.png"),
+    fullPage: true,
+  });
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.keyboard.press("Tab");
   await expect(
@@ -151,6 +155,14 @@ test("actual import → CPU processing → native playback → evidence → expo
         { exact: true },
       ),
     ).toBeVisible();
+    if (
+      !(await page
+        .getByRole("heading", { name: "Recording metadata", exact: true })
+        .isVisible())
+    )
+      await page
+        .getByText("Recording metadata and source transcript", { exact: true })
+        .click();
     await expect(
       page.getByRole("heading", { name: "Recording metadata", exact: true }),
     ).toBeVisible();
@@ -179,6 +191,10 @@ test("actual import → CPU processing → native playback → evidence → expo
     0,
   );
   await fillImport();
+  await page.screenshot({
+    path: testInfo.outputPath("first-import.png"),
+    fullPage: true,
+  });
   await expect(
     page.getByText("unverified · 0 recorded reviewers"),
   ).toBeVisible();
@@ -225,7 +241,18 @@ test("actual import → CPU processing → native playback → evidence → expo
   ).toBeFocused();
   if (!genuine)
     await page.getByLabel("Participant pair").selectOption({ index: 1 });
+  await page.screenshot({
+    path: testInfo.outputPath("selected-pair.png"),
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "Run analysis", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Audio analysis in progress." }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath("processing.png"),
+    fullPage: true,
+  });
   await page
     .getByRole("button", { name: "Rubric and Evidence", exact: true })
     .click();
@@ -249,19 +276,34 @@ test("actual import → CPU processing → native playback → evidence → expo
       { timeout: processingTimeout },
     )
     .toBe("completed");
+  await page
+    .getByText("Processing configuration and diagnostics", { exact: true })
+    .click();
   await expect(page.getByText("Analysis completed: completed.")).toBeVisible({
     timeout: processingTimeout,
   });
   // Completion publishes artifacts; report delivery still validates bound evidence.
+  await page
+    .getByText("Technical details · scores, coverage and scientific exports", {
+      exact: true,
+    })
+    .click();
   await expect(page.getByText("Overall: Unavailable")).toBeVisible({
     timeout: 30000,
   });
   await expect(
-    page.getByText(
-      "Zero detected regions does not indicate a perfect performance.",
-      { exact: false },
-    ),
+    page
+      .locator(".findings")
+      .getByText(
+        "Zero detected regions does not indicate a perfect performance.",
+        { exact: false },
+      ),
   ).toBeVisible();
+  await page
+    .getByText("Evidence inspector · measurements and provenance", {
+      exact: true,
+    })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Actual input evidence", exact: true }),
   ).toBeVisible();
@@ -349,6 +391,11 @@ test("actual import → CPU processing → native playback → evidence → expo
   await page
     .getByRole("button", { name: "Rubric and Evidence", exact: true })
     .click();
+  await page
+    .getByText("Technical details · thresholds, normalization and weighting", {
+      exact: true,
+    })
+    .click();
   await expect(
     page.getByText("delivery-v0 · reference agreement", { exact: true }),
   ).toBeVisible();
@@ -408,6 +455,13 @@ test("actual import → CPU processing → native playback → evidence → expo
   await page
     .getByRole("button", { name: new RegExp(cancelled.id.slice(0, 12)) })
     .click();
+  await expect(
+    page.getByRole("heading", { name: "Audio analysis cancelled." }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath("cancelled.png"),
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "Retry this analysis" }).click();
   await expect
     .poll(
@@ -460,6 +514,14 @@ test("actual import → CPU processing → native playback → evidence → expo
     await page
       .getByRole("button", { name: "Import recording", exact: true })
       .click();
+    if (
+      !(await page
+        .getByRole("heading", { name: "Recording metadata", exact: true })
+        .isVisible())
+    )
+      await page
+        .getByText("Recording metadata and source transcript", { exact: true })
+        .click();
     await expect(
       page.getByRole("heading", {
         name: "generated-controlled-reference.wav",
@@ -505,6 +567,14 @@ test("actual import → CPU processing → native playback → evidence → expo
     await page
       .getByRole("button", { name: "Import recording", exact: true })
       .click();
+    if (
+      !(await page
+        .getByRole("heading", { name: "Recording metadata", exact: true })
+        .isVisible())
+    )
+      await page
+        .getByText("Recording metadata and source transcript", { exact: true })
+        .click();
     await expect(
       page.getByRole("heading", {
         name: "generated-controlled-participant.wav",
@@ -518,9 +588,18 @@ test("actual import → CPU processing → native playback → evidence → expo
     await page
       .getByRole("button", { name: "Run analysis", exact: true })
       .click();
+    await page
+      .getByText("Processing configuration and diagnostics", { exact: true })
+      .click();
     await expect(page.getByText("Analysis completed: completed.")).toBeVisible({
       timeout: 60000,
     });
+    await page
+      .getByText(
+        "Technical details · scores, coverage and scientific exports",
+        { exact: true },
+      )
+      .click();
     await expect(page.getByText("Overall: Unavailable")).toBeVisible();
     await page
       .getByRole("button", { name: "Recording Library", exact: true })
@@ -550,6 +629,10 @@ test("actual import → CPU processing → native playback → evidence → expo
     await page
       .getByRole("button", { name: "Analysis Workspace", exact: true })
       .click();
+    await page
+      .getByRole("region", { name: "reference timeline" })
+      .getByText("Precision selection and interval replay")
+      .click();
     await page.getByLabel("reference selection start (s)").fill("0.2");
     await page.getByLabel("reference selection end (s)").fill("1.8");
     await page
@@ -569,6 +652,10 @@ test("actual import → CPU processing → native playback → evidence → expo
       .inputValue();
     await page
       .getByRole("button", { name: /^generated-controlled-participant.wav/ })
+      .click();
+    await page
+      .getByRole("region", { name: "participant timeline" })
+      .getByText("Precision selection and interval replay")
       .click();
     await page.getByLabel("participant selection start (s)").fill("0.3");
     await page.getByLabel("participant selection end (s)").fill("1.7");

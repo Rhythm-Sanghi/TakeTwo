@@ -600,6 +600,174 @@ footer {
   }
 }
 
+/* Outcome, listening evidence, then technical detail. Shared workstation rhythm. */
+.analysis-outcome {
+  border-top: 3px solid var(--teal);
+}
+.analysis-outcome h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  max-width: 48em;
+  margin: 10px 0;
+}
+.eyebrow {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 12px 0 4px;
+}
+.result-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.result-pair span {
+  display: grid;
+  font-size: 12px;
+  color: var(--muted);
+}
+.result-pair strong {
+  font-size: 15px;
+  color: #202824;
+  overflow-wrap: anywhere;
+}
+.measurement-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  margin: 16px 0 0;
+  padding-top: 12px;
+}
+.measurement-strip dt {
+  font-weight: 600;
+  color: #202824;
+}
+.measurement-strip dd {
+  margin: 4px 0;
+  font-size: 12px;
+}
+.outcome-requirements {
+  margin: 8px 0 16px;
+  padding-left: 20px;
+}
+.findings-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.findings-list li + li {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.findings-list h3 {
+  margin: 0;
+}
+.rubric-guide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+}
+.rubric-guide section {
+  border-top: 1px solid var(--border);
+  padding: 4px 0 12px;
+}
+.rubric-guide h3 {
+  margin-bottom: 4px;
+}
+.rubric-guide p {
+  margin: 8px 0;
+}
+.evidence-details {
+  align-self: start;
+}
+.evidence-details .inspector {
+  border: 0;
+  padding: 12px 0 0;
+}
+.review-journey ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.review-journey button {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  color: var(--teal);
+  margin: 0;
+}
+.review-journey button[aria-current="step"] {
+  background: #e3ebe5;
+  border-color: var(--teal);
+  font-weight: 600;
+}
+.review-shell [id],
+#analysis-setup {
+  scroll-margin-top: 16px;
+}
+.acoustic-evidence {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 4px;
+}
+.acoustic-evidence h3 {
+  font-size: 14px;
+}
+.technical-details > summary,
+.evidence-details > summary {
+  font-weight: 600;
+}
+.precision-controls {
+  margin-top: 8px;
+}
+.analysis-grid {
+  display: block;
+}
+.timeline-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.timeline-stack > :not(.track) {
+  grid-column: 1 / -1;
+}
+.track .print-identity {
+  display: none;
+}
+@media (max-width: 1250px) {
+  .timeline-stack {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 800px) {
+  .rubric-guide {
+    grid-template-columns: 1fr;
+  }
+  .analysis-outcome h2 {
+    font-size: 19px;
+  }
+  .library {
+    padding: 8px 12px;
+  }
+  .library h3 {
+    margin: 8px 0;
+  }
+  .library ul {
+    margin: 8px 0;
+  }
+  .library li {
+    min-width: 165px;
+  }
+  .recording-button,
+  .history-button {
+    padding: 8px;
+  }
+}
 @page {
   size: A4;
   margin: 12mm;
@@ -619,6 +787,13 @@ footer {
   .app-header {
     padding: 0 0 8pt;
   }
+  .analysis-outcome,
+  .findings,
+  .exploration-heading,
+  .acoustic-evidence > h3,
+  .precision-controls,
+  .technical-details > summary,
+  .evidence-details > summary,
   .environment,
   .skip,
   nav,
@@ -628,6 +803,8 @@ footer {
   .analysis-controls,
   .native-correspondence,
   .token-overlay:has(.notice),
+  .token-overlay:not(:has(.print-chart)),
+  .acoustic-evidence > details,
   button,
   .button,
   input,
@@ -646,8 +823,17 @@ footer {
   .toolbar:has(select) {
     display: none !important;
   }
+  .technical-details::details-content,
+  .evidence-details::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
   .workspace-shell,
-  .analysis-grid {
+  .analysis-grid,
+  .timeline-stack {
+    display: block;
+  }
+  .track .print-identity {
     display: block;
   }
   main {
@@ -684,6 +870,10 @@ footer {
   .inspector section,
   table {
     break-inside: avoid;
+  }
+  .track {
+    width: 100%;
+    max-width: 100%;
   }
   .analysis-grid > *,
   .timeline-stack,

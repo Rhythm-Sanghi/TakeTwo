@@ -92,6 +92,7 @@ export default defineConfig({
             "workspace.spec.ts",
             "zoom.spec.ts",
             "zy-presentation.spec.ts",
+            "zz-experience.spec.ts",
             "zz-review.spec.ts",
           ],
   timeout: genuine || reviewPilot ? 900000 : 240000,

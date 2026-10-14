@@ -39,6 +39,9 @@ test("review handoff, actual playback, immutable export and adjudication", async
     await page
       .getByRole("button", { name: "Import recording", exact: true })
       .click();
+    await page
+      .getByText("Recording metadata and source transcript", { exact: true })
+      .click();
     await expect(
       page.getByRole("heading", {
         name: "generated-reference.wav",
@@ -70,7 +73,9 @@ test("review handoff, actual playback, immutable export and adjudication", async
     expect((await request.get("/api/v1/reviews")).status()).toBe(403);
     expect((await request.get("/api/v1/analyses")).status()).toBe(403);
   }
+  let fixtureReview = 0;
   async function finish() {
+    fixtureReview += 1;
     await page
       .getByLabel("Evidence reference", { exact: true })
       .fill("Playwright software fixture, not a human worksheet");
@@ -81,6 +86,13 @@ test("review handoff, actual playback, immutable export and adjudication", async
       );
     await page.getByLabel("Review decision").selectOption("approved");
     await page.getByLabel(/I performed my own review/).check();
+    await expect(
+      page.getByRole("region", { name: "Assigned review steps" }),
+    ).toContainText("Unsaved changes");
+    await page.screenshot({
+      path: info.outputPath(`software-review-${fixtureReview}-unsaved.png`),
+      fullPage: true,
+    });
     await page.getByRole("button", { name: "Listen from beginning" }).click();
     await expect
       .poll(
@@ -88,6 +100,10 @@ test("review handoff, actual playback, immutable export and adjudication", async
         { timeout: 15000 },
       )
       .toBe(true);
+    const capabilityUrl = page.url();
+    await page.getByRole("button", { name: "4. Validate and submit" }).click();
+    await expect(page.locator("#review-submit")).toBeFocused();
+    expect(page.url()).toBe(capabilityUrl);
     await page.getByRole("button", { name: "Save draft", exact: true }).click();
     await expect(
       page.getByText("Draft saved locally.", { exact: true }),
@@ -95,6 +111,13 @@ test("review handoff, actual playback, immutable export and adjudication", async
     await expect(
       page.getByRole("button", { name: "Submit review", exact: true }),
     ).toBeEnabled();
+    await expect(
+      page.getByRole("region", { name: "Assigned review steps" }),
+    ).toContainText("Backend completion check passed");
+    await page.screenshot({
+      path: info.outputPath(`software-review-${fixtureReview}-validated.png`),
+      fullPage: true,
+    });
     await page
       .getByRole("button", { name: "Submit review", exact: true })
       .click();
@@ -123,6 +146,10 @@ test("review handoff, actual playback, immutable export and adjudication", async
     ).toBeVisible();
   }
   await start("software-reviewer-a");
+  await page.screenshot({
+    path: info.outputPath("software-review-draft.png"),
+    fullPage: true,
+  });
   await page
     .getByLabel("Reviewer-corrected transcript")
     .fill("Generated signal fixture only.");
@@ -141,7 +168,7 @@ test("review handoff, actual playback, immutable export and adjudication", async
   await page.getByLabel("Selection start (ms)").focus();
   await page.keyboard.press("ArrowUp");
   await expect(page.getByLabel("Selection start (ms)")).toHaveValue("1");
-  for (const width of [800, 320]) {
+  for (const width of [1920, 1366, 800, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     expect(
       await page.evaluate(
@@ -149,6 +176,10 @@ test("review handoff, actual playback, immutable export and adjudication", async
       ),
     ).toBe(true);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`software-review-draft-${width}.png`),
+      fullPage: true,
+    });
   }
   await page.setViewportSize({ width: 1600, height: 1000 });
   await finish();

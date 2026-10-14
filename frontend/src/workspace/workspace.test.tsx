@@ -8,7 +8,14 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import type { Recording, Region, Report } from "../api";
+import type { Evaluation, Job, Recording, Region, Report } from "../api";
+import {
+  AnalysisResult,
+  assessmentTitle,
+  Findings,
+  hasIndependentEvaluation,
+} from "./AnalysisResult";
+import { ReviewJourney } from "./ReviewJourney";
 import { Inspector, Scores } from "./Evidence";
 import {
   FeatureChart,
@@ -295,6 +302,9 @@ it("uses backend inventory and opens operator preparation without granting acces
       onReview={onReview}
     />,
   );
+  await userEvent.click(
+    screen.getByText("Details · recording inventory and review assertions"),
+  );
   expect(
     screen.getByRole("row", { name: "Human-recorded participant takes 4" }),
   ).toBeVisible();
@@ -571,10 +581,32 @@ it("seeks actual native audio and exposes numeric interval controls", async () =
   fireEvent.play(audio);
   expect(onPlay).toHaveBeenCalledWith(audio);
   expect(screen.getByText(/sample 20000/)).toBeInTheDocument();
+  fireEvent.click(screen.getByText("Precision selection and interval replay"));
   fireEvent.change(screen.getByLabelText("reference selection start (s)"), {
     target: { value: ".5" },
   });
   expect(screen.getByText("Selection 1.500 s")).toBeInTheDocument();
+  const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+  const pause = vi
+    .spyOn(HTMLMediaElement.prototype, "pause")
+    .mockImplementation(() => {});
+  fireEvent.change(screen.getByLabelText("reference selection end (s)"), {
+    target: { value: "1" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Replay selected interval" }),
+  );
+  expect(play).toHaveBeenCalled();
+  expect(audio.currentTime).toBe(0.5);
+  audio.currentTime = 1.1;
+  fireEvent.timeUpdate(audio);
+  expect(pause).toHaveBeenCalledOnce();
+  expect(audio.currentTime).toBe(1);
+  fireEvent.change(screen.getByLabelText("Seek reference"), {
+    target: { value: "1.25" },
+  });
+  fireEvent.timeUpdate(audio);
+  expect(audio.currentTime).toBe(1.25);
   await waitFor(() =>
     expect(
       screen.getByRole("img", { name: /Measured reference waveform/ }),
@@ -708,3 +740,132 @@ it.each([
   if (enabled) expect(button).toBeEnabled();
   else expect(button).toBeDisabled();
 });
+
+it("keeps processing, missing evidence, partial results and eligible zero findings distinct", () => {
+  const job = { state: "completed" } as Job;
+  expect(assessmentTitle(null, null, false)).toBe("Audio not processed.");
+  for (const state of ["queued", "running", "failed", "cancelled"] as const)
+    expect(assessmentTitle({ ...job, state }, report, false)).not.toContain(
+      "results available",
+    );
+  expect(assessmentTitle(job, null, true)).toContain("Loading assessment");
+  expect(assessmentTitle(job, null, false)).toContain("evidence unavailable");
+  expect(
+    assessmentTitle(
+      job,
+      { ...report, eligibility: { state: "ELIGIBLE" } },
+      false,
+    ),
+  ).toBe("Eligible evidence available. Overall assessment unavailable.");
+  expect(assessmentTitle(job, report, false)).toBe(
+    "Audio analysis complete. Delivery assessment unavailable.",
+  );
+  expect(
+    assessmentTitle(
+      job,
+      { ...report, eligibility: { state: "REVIEW_REQUIRED" } },
+      false,
+    ),
+  ).toBe("Audio analysis complete. Delivery assessment awaiting verification.");
+  expect(
+    assessmentTitle(
+      job,
+      { ...report, dimensions: [{ ...report.dimensions[0], score: 70 }] },
+      false,
+    ),
+  ).toContain("Some dimensions available");
+  const onNext = vi.fn();
+  const view = render(
+    <AnalysisResult
+      job={job}
+      report={report}
+      loading={false}
+      evaluations={[]}
+      onNext={onNext}
+      nextLabel="Check requirements"
+    />,
+  );
+  expect(screen.queryByText(/100/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Check requirements" }));
+  expect(onNext).toHaveBeenCalledOnce();
+  view.rerender(
+    <Findings report={report} onSelect={vi.fn()} onReplay={vi.fn()} />,
+  );
+  expect(screen.getByText(/Findings pending/)).toBeVisible();
+  view.rerender(
+    <Findings
+      report={{
+        ...report,
+        eligibility: { state: "ELIGIBLE" },
+        overall_score: 100,
+      }}
+      onSelect={vi.fn()}
+      onReplay={vi.fn()}
+    />,
+  );
+  expect(screen.getByText(/No threshold crossings/)).toBeVisible();
+  expect(screen.queryByText(/Findings pending/)).not.toBeInTheDocument();
+});
+
+it("binds independent evaluation to report, dataset, implementation and policy without promoting software metrics", () => {
+  const hash = "a".repeat(64);
+  const job = {
+    report_path: `derived/comparison-v1/comparison-${hash}.json`,
+  } as Job;
+  const evaluation = {
+    report_sha256: [hash],
+    dataset_sha256: report.dataset_sha256,
+    implementation_sha256: report.implementation_sha256,
+    policy_sha256: report.policy_sha256,
+    eligibility: { state: "ELIGIBLE" },
+    origin: "human",
+    independent_real_validation: true,
+    metrics: {},
+    config: { mode: "held_out" },
+  } as Evaluation;
+  expect(hasIndependentEvaluation(job, report, [evaluation])).toBe(true);
+  for (const change of [
+    { report_sha256: ["b".repeat(64)] },
+    { dataset_sha256: "other" },
+    { implementation_sha256: "other" },
+    { policy_sha256: "other" },
+    { origin: "synthetic" },
+    { independent_real_validation: false },
+    { metrics: null },
+    { config: { mode: "software_fixture" } },
+  ])
+    expect(
+      hasIndependentEvaluation(job, report, [
+        { ...evaluation, ...change } as Evaluation,
+      ]),
+    ).toBe(false);
+});
+
+it.each(["transcript", "timing", "flaws"] as const)(
+  "guides %s without approving evidence by navigation",
+  (scope) => {
+    render(
+      <ReviewJourney
+        scope={scope}
+        dirty={true}
+        busy={false}
+        submitted={false}
+        validated={false}
+        issues={["Listen to the complete recording."]}
+      />,
+    );
+    const link = screen.getByRole("button", { name: "4. Validate and submit" });
+    const fragment = window.location.hash;
+    fireEvent.click(link);
+    expect(window.location.hash).toBe(fragment);
+    expect(link).toHaveAttribute("aria-current", "step");
+    expect(screen.getByText(/Unsaved changes/)).toBeVisible();
+    expect(
+      screen.getByText(/Moving between steps does not approve/),
+    ).toBeVisible();
+    expect(screen.getByText("Listen to the complete recording.")).toBeVisible();
+    expect(
+      screen.queryByText("Backend completion check passed."),
+    ).not.toBeInTheDocument();
+  },
+);
