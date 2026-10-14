@@ -42,3 +42,5 @@ tmp/
 
 # Dated completion report is a local owner-review artifact, not a release.
 /output/pdf/taketwo-technical-report-2026-10-14.pdf
+# Comparative owner reports contain private filenames, native timings and hashes.
+/output/pdf/taketwo-comparative-*.pdf

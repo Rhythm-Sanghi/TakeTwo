@@ -150,6 +150,10 @@ export function App() {
     null,
   );
   const [explorationError, setExplorationError] = useState("");
+  const [insights, setInsights] = useState<
+    import("../api").ComparativeReport | null
+  >(null);
+  const [insightsError, setInsightsError] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
   const [explorationRetry, setExplorationRetry] = useState(0);
   const [seek, setSeek] = useState<
@@ -416,6 +420,67 @@ export function App() {
     explorationRetry,
   ]);
 
+  useEffect(() => {
+    setInsights(null);
+    setInsightsError("");
+    if (!activeExploration) return;
+    let current = true;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    api<import("../api").ComparativeReport>(
+      `/analyses/${activeExploration.job_id}/insights`,
+      { signal: controller.signal },
+    )
+      .then((value) => {
+        if (!current) return;
+        if (
+          !activeJob ||
+          !reference ||
+          !exploratoryMatchesSelection(
+            value.exploratory,
+            activeJob,
+            reference,
+            pair?.id ?? null,
+            participant,
+          ) ||
+          value.exploratory.dataset_sha256 !==
+            activeExploration.dataset_sha256 ||
+          value.exploratory.recordings.some(
+            (r) =>
+              r.feature_artifact.sha256 !==
+              activeExploration.recordings.find(
+                (s) => s.recording_id === r.recording_id,
+              )?.feature_artifact.sha256,
+          ) ||
+          value.exploratory.recordings.some(
+            (r) =>
+              r.alignment_artifact?.sha256 !==
+              activeExploration.recordings.find(
+                (s) => s.recording_id === r.recording_id,
+              )?.alignment_artifact?.sha256,
+          )
+        )
+          throw new Error(
+            "Comparative source identity changed. Refresh the selected analysis.",
+          );
+        setInsights(value);
+      })
+      .catch((cause) => {
+        if (current)
+          setInsightsError(
+            controller.signal.aborted
+              ? "Comparative request timed out; retry loading the measurements."
+              : cause.message,
+          );
+      })
+      .finally(() => clearTimeout(timer));
+    return () => {
+      current = false;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [activeExploration]);
+
   function seekObservation(
     recording: string,
     start: number,
@@ -427,9 +492,18 @@ export function App() {
     setRegion(null);
     setAudioTrack(recording === participant?.id ? "participant" : "reference");
     setSeek({ [recording]: { time: start, end, play, nonce: Date.now() } });
+    if (!play)
+      requestAnimationFrame(() => {
+        const role =
+          recording === participant?.id ? "participant" : "reference";
+        document
+          .querySelector<HTMLAudioElement>(`.track.${role} audio`)
+          ?.focus();
+      });
   }
 
   function navigate(next: Page) {
+    playback.current?.pause();
     setPage(next);
     requestAnimationFrame(() => {
       heading.current?.focus({ preventScroll: true });
@@ -849,14 +923,42 @@ export function App() {
                 </p>
               </section>
               {activeExploration && (
+                <p className="hash meta">
+                  Analysis {activeExploration.job_id} · dataset{" "}
+                  {activeExploration.dataset_version} ·{" "}
+                  {activeExploration.state}
+                </p>
+              )}
+              {activeExploration && (
                 <ExploratoryResult
                   report={activeExploration}
                   onSeek={seekObservation}
+                  insights={
+                    insights?.exploratory.job_id === activeExploration.job_id
+                      ? insights
+                      : null
+                  }
                   assessment={activeReport}
                 />
               )}
               {explorationLoading && (
                 <p role="status">Loading exploratory measurements…</p>
+              )}
+              {activeExploration && !insights && !insightsError && (
+                <p role="status">Loading comparative insights…</p>
+              )}
+              {activeExploration && insightsError && (
+                <section
+                  className="panel"
+                  aria-label="Comparative insight recovery"
+                >
+                  <p role="alert">
+                    {insightsError} Raw exploratory evidence remains available.
+                  </p>
+                  <button onClick={() => setExplorationRetry((v) => v + 1)}>
+                    Retry comparative insights
+                  </button>
+                </section>
               )}
               {activeJob && explorationError && (
                 <section

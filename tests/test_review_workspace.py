@@ -266,6 +266,8 @@ def test_blind_api_isolation_and_owner_recovery(imported):
             "review-workspace/inventory",
             f"recordings/{recording.id}/audio",
             "analyses/other/report",
+            "analyses/other/insights",
+            "analyses/other/insights/export",
         ]:
             assert (
                 client.get(f"/api/v1/{path}", headers={"X-Review-Operator": operator}).status_code

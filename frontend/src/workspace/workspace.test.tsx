@@ -576,6 +576,66 @@ it("import begins with unverified text and no invented approvals", async () => {
   await user.tab();
   expect(screen.getByLabelText("Recording type")).toHaveFocus();
 });
+it("cancels obsolete bounded playback and ignores its late rejected play promise", async () => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      disconnect() {}
+    },
+  );
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ bins: [], start_s: 0, end_s: 2 }),
+    }),
+  );
+  let rejectPlay: (error: Error) => void = () => {};
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(
+    () =>
+      new Promise<void>((_, reject) => {
+        rejectPlay = reject;
+      }),
+  );
+  const pause = vi
+    .spyOn(HTMLMediaElement.prototype, "pause")
+    .mockImplementation(() => {});
+  const props = {
+    recording: {
+      id: "fixture",
+      role: "reference",
+      original_filename: "generated-fixture.wav",
+      origin: "source",
+      transcript: { status: "unverified" },
+      normalized_info: { duration_s: 2 },
+    } as Recording,
+    job: null,
+    regions: [],
+    selected: null,
+    onSelect: vi.fn(),
+    onPlay: vi.fn(),
+  };
+  const view = render(
+    <Timeline
+      {...props}
+      seek={{ time: 0.5, end: 0.75, play: true, nonce: 1 }}
+    />,
+  );
+  view.rerender(<Timeline {...props} seek={null} />);
+  expect(pause).toHaveBeenCalled();
+  rejectPlay(new Error("Old playback cancelled"));
+  await waitFor(() =>
+    expect(screen.queryByText(/Playback was blocked/)).toBeNull(),
+  );
+  view.rerender(<Timeline {...props} seek={{ time: 0, nonce: 2 }} />);
+  expect(
+    (screen.getByLabelText("reference audio") as HTMLAudioElement).currentTime,
+  ).toBe(0);
+  expect(screen.getByText(/full recording/)).toBeInTheDocument();
+});
+
 it("seeks actual native audio and exposes numeric interval controls", async () => {
   vi.stubGlobal(
     "ResizeObserver",

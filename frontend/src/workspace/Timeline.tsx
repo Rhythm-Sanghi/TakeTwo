@@ -258,6 +258,8 @@ export function Timeline({
     end,
   ]);
   useEffect(() => {
+    let current = true;
+    const element = audio.current;
     if (seek && audio.current) {
       const target = Math.max(0, Math.min(duration, seek.time));
       audio.current.currentTime = target;
@@ -265,18 +267,26 @@ export function Timeline({
       playbackEnd.current =
         seek.play && seek.end != null ? Math.min(duration, seek.end) : null;
       if (seek.play)
-        void audio.current
-          .play()
-          .catch(() =>
-            setError("Playback was blocked; use the audio play control."),
-          );
+        void audio.current.play().catch(() => {
+          if (current)
+            setError("Playback was blocked; use the audio play control.");
+        });
       if (seek.end != null)
         setSelection([target, Math.min(duration, seek.end)]);
+      else if (target === 0) {
+        setSelection([0, duration]);
+        setStart(0);
+        setEnd(duration);
+      }
       if (target < start || target > end) {
         setStart(Math.max(0, target - 1));
         setEnd(Math.min(duration, (seek.end ?? target) + 2));
       }
     }
+    return () => {
+      current = false;
+      if (seek?.play) element?.pause();
+    };
   }, [seek]); // Explicit seek requests preserve each track's independent cursor.
   useEffect(() => {
     const element = canvas.current;

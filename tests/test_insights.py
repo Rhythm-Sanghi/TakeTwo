@@ -312,3 +312,20 @@ def test_alignment_gap_has_separate_signal_evidence_and_deterministic_priority(p
     limited = build(report, sources, implementation_hash())
     assert all(i.quality_limited for i in limited.inspection_order)
     assert all("not severity" in i.order_reason for i in limited.inspection_order)
+
+
+def test_large_quality_limited_change_does_not_outrank_complete_group(paired):
+    _, report, sources = paired
+    report = windows(report, [(0, 0.5, "energy_change", 6), (0, 2, "energy_change", 100)])
+    report.candidates[1] = report.candidates[1].model_copy(
+        update={
+            "recording_id": sources[1].recording.id,
+            "feature_sha256": sources[1].feature_ref.sha256,
+        }
+    )
+    report.recordings[1].quality_flags = ["fixture_noise_warning"]
+    result = build(report, sources, implementation_hash())
+    assert result.inspection_order[0].quality_limited is False
+    assert result.inspection_order[-1].quality_limited is True
+    assert result.groups[0].representative_delta_db == 100
+    assert result.inspection_order[0].evidence_id != result.groups[0].id

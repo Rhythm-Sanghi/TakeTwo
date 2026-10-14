@@ -900,8 +900,74 @@ footer {
 @page {
   size: A4;
   margin: 12mm;
+  @bottom-left {
+    content: "TakeTwo / automatic inspection";
+    font-family: "Segoe UI", sans-serif;
+    font-size: 8pt;
+    color: #4d5b54;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: "Segoe UI", sans-serif;
+    font-size: 8pt;
+    color: #4d5b54;
+  }
+}
+.insight-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.insight-list > li {
+  border-top: 1px solid #d1d5cf;
+  padding: 12px 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.insight-list h4 {
+  margin: 0 0 8px;
+}
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.comparative-appendix table {
+  width: 100%;
+  font-size: 0.85rem;
+}
+.comparative-appendix td,
+.comparative-appendix th {
+  padding: 6px;
+  vertical-align: top;
+  text-align: left;
 }
 @media print {
+  .insight-list > li {
+    break-inside: avoid;
+  }
+  .comparative-insights > .notice {
+    font-size: 9pt;
+  }
+  .comparative-appendix,
+  .exploratory-appendix {
+    break-before: page;
+  }
+  .comparative-appendix table {
+    display: table;
+    width: 100%;
+    font-size: 8pt;
+  }
+  .comparative-appendix tr {
+    break-inside: avoid;
+  }
+  .comparative-appendix thead {
+    display: table-header-group;
+  }
+  .table-scroll {
+    overflow: visible;
+    max-height: none;
+  }
   .exploratory-result {
     break-inside: auto;
   }
@@ -1181,5 +1247,35 @@ footer {
   a {
     color: inherit;
     text-decoration: none;
+  }
+  .insight-list {
+    gap: 0;
+  }
+  .insight-list > li {
+    padding: 6pt 0;
+  }
+  .insight-list details {
+    display: none !important;
+  }
+  .insight-list > li:nth-child(n + 4),
+  .comparative-insights .inspection-count {
+    display: none;
+  }
+  .comparative-appendix table {
+    break-inside: auto;
+  }
+  .comparative-appendix td {
+    padding: 3pt;
+  }
+  .comparative-appendix td details {
+    display: none !important;
+  }
+  .comparative-appendix > summary,
+  .exploratory-appendix > summary {
+    display: none;
+  }
+  .comparative-appendix .raw-links {
+    font-size: 7pt;
+    overflow-wrap: anywhere;
   }
 }

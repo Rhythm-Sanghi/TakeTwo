@@ -2,6 +2,7 @@ import { navigateWorkspace } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
+import type { ComparativeReport, Job, Pair, Recording } from "../src/api";
 
 // Optional local acceptance: these originals are user-provided and never shipped.
 const fixtures = process.env.TAKETWO_GENUINE_FIXTURES!;
@@ -139,5 +140,101 @@ test("actual private five-take pilot imports without invented rights or reviews"
   await testInfo.attach("actual-pilot-inventory", {
     body: JSON.stringify({ recordings, pairs }, null, 2),
     contentType: "application/json",
+  });
+});
+
+test("genuine selected pair runs comparative analysis with native A/B listening and complete exports", async ({
+  page,
+  request,
+}, info) => {
+  const recordings: Recording[] = await (
+    await request.get("/api/v1/recordings")
+  ).json();
+  const pairs: Pair[] = await (await request.get("/api/v1/pairs")).json();
+  const reference = recordings.find(
+    (r) => r.original_filename === "reference.wav",
+  )!;
+  const participant = recordings.find(
+    (r) => r.original_filename === "uneven.wav",
+  )!;
+  const pair = pairs.find(
+    (p) =>
+      p.reference_id === reference.id && p.participant_id === participant.id,
+  )!;
+  await page.goto("/");
+  await navigateWorkspace(page, "Analysis Workspace");
+  await page
+    .getByRole("combobox", { name: "Reference recording", exact: true })
+    .selectOption(reference.id);
+  await page
+    .getByRole("combobox", { name: "Participant pair", exact: true })
+    .selectOption(pair.id);
+  await page.getByRole("button", { name: "Run analysis", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "What analysis found", exact: true }),
+  ).toBeVisible({ timeout: 630000 });
+  const jobs: Job[] = await (await request.get("/api/v1/analyses")).json();
+  const job = jobs.find(
+    (j) => j.state === "completed" && j.request.pair_id === pair.id,
+  )!;
+  expect(job).toBeTruthy();
+  const endpoint = `/api/v1/analyses/${job.id}/insights`;
+  const report: ComparativeReport = await (await request.get(endpoint)).json();
+  expect(
+    report.exploratory.recordings.map((r) => r.provenance.audio_sha256).sort(),
+  ).toEqual(
+    [reference.normalized_sha256, participant.normalized_sha256].sort(),
+  );
+  expect(report.groups.length).toBeLessThan(
+    report.exploratory.candidates.length,
+  );
+  expect(report.segments.filter((s) => s.kind === "word")).toHaveLength(
+    reference.tokens.length,
+  );
+  expect(report.phrase_unavailable_reason).toBeTruthy();
+  expect(report.anomalies.length).toBeGreaterThan(0);
+  const anomaly = report.anomalies[0];
+  const card = page.locator(`[data-evidence-id="${anomaly.id}"]`);
+  for (const role of ["reference", "participant"]) {
+    await card
+      .getByRole("button", { name: `Listen to ${role}`, exact: true })
+      .click();
+    const audio = page.getByLabel(`${role} audio`, { exact: true });
+    await expect
+      .poll(() => audio.evaluate((n: HTMLAudioElement) => n.paused))
+      .toBe(false);
+    await expect
+      .poll(() => audio.evaluate((n: HTMLAudioElement) => n.paused), {
+        timeout: 15000,
+      })
+      .toBe(true);
+  }
+  const exported = await (await request.get(endpoint + "/export")).json();
+  expect(exported.result).toEqual(report);
+  const csv = await (
+    await request.get(
+      `/api/v1/analyses/${job.id}/exploratory/export?format=csv`,
+    )
+  ).text();
+  expect(
+    csv
+      .split(/\r?\n/)
+      .filter((row) => row.startsWith("c-"))
+      .map((row) => row.split(",")[0])
+      .sort(),
+  ).toEqual(report.exploratory.candidates.map((c) => c.id).sort());
+  const assessment = await (
+    await request.get(`/api/v1/analyses/${job.id}/report`)
+  ).json();
+  expect(assessment.eligibility.state).not.toBe("ELIGIBLE");
+  await info.attach("genuine-comparative-report", {
+    body: JSON.stringify(report),
+    contentType: "application/json",
+  });
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({
+    path: info.outputPath("genuine-comparative-workspace.png"),
+    fullPage: true,
   });
 });

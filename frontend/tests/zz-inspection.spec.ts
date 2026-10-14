@@ -291,6 +291,12 @@ test("exploratory measurements, native candidate replay, export and request reco
     exact: true,
   });
   await expect(result).toContainText(report.comparison!.interpretation);
+  await expect(
+    result.getByRole("heading", { name: "What analysis found", exact: true }),
+  ).toBeVisible();
+  await result
+    .getByText("Exploratory details / technical appendix", { exact: true })
+    .click();
   await result
     .getByRole("button", { name: "Inspect interval", exact: true })
     .first()

@@ -95,10 +95,11 @@ export default defineConfig({
             "zy-readiness.spec.ts",
             "zz-experience.spec.ts",
             "zz-inspection.spec.ts",
+            "zz-insights.spec.ts",
             "zz-mobile.spec.ts",
             "zz-review.spec.ts",
           ],
-  timeout: genuine || reviewPilot ? 900000 : 240000,
+  timeout: genuine || reviewPilot || pilot ? 900000 : 240000,
   workers: 1,
   fullyParallel: false,
   use: {
