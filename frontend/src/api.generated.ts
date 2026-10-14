@@ -938,6 +938,7 @@ export interface components {
       };
       /** Review Readiness */
       review_readiness?: components["schemas"]["RecordingReadiness"][];
+      readiness_diagnostic?: components["schemas"]["Diagnostic"] | null;
     };
     /** Diagnostic */
     Diagnostic: {

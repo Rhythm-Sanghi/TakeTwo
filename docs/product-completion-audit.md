@@ -91,3 +91,21 @@ five-width accessibility and real Chromium 200% tab zoom.
 
 Stage outcomes, measurements, actual counts and remaining acceptance gates will
 be appended as execution completes. This initial audit does not mark later work done.
+
+## Readiness repair
+
+Core API results now update independently; aborted/obsolete refresh generations
+cannot overwrite newer state. Dataset requests own loading, authoritative zero,
+complete, partial/unknown, transport failure, HTTP failure and handoff-restricted
+states, a bounded wait and explicit Retry. Last successful inventory is labeled
+as such after errors; it cannot provide a current review-preparation action.
+Missing counts stay unknown. Additive `readiness_diagnostic` preserves recording
+inventory when immutable review parsing/DB inventory fails; review counts are
+omitted instead of fabricated. Startup corruption and handoff continue to fail closed.
+
+The five-take reproduction now retains all five successful recordings despite
+the unrelated reviews failure (previously zero displayed). Healthy counts remain
+unchanged; incomplete responses explain the mismatch and offer Retry. Executed:
+50 frontend tests, three new backend partial-failure/zero cases, 43 existing web/
+review tests and the new browser failure/recovery case passed. TypeScript, ESLint
+and production build passed. Full-system checks will run again after later stages.

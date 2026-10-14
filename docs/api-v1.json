@@ -2539,6 +2539,16 @@
             },
             "type": "array",
             "title": "Review Readiness"
+          },
+          "readiness_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,

@@ -5,6 +5,7 @@ import io
 import json
 import os
 import re
+import sqlite3
 import tempfile
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -631,7 +632,23 @@ def create_app(
     def dataset_summary():
         dataset = load(root)
         result = summary(dataset)
-        assertions = reviews()
+        try:
+            assertions = reviews()
+            inventory = app.state.review_workspace.inventory()
+        except (ValueError, OSError, sqlite3.Error) as exc:
+            # Recording inventory is authoritative independently of review storage.
+            # Omitted review counts mean unknown, never zero or implied approval.
+            result["readiness_diagnostic"] = Diagnostic(
+                code="review_evidence_unavailable",
+                message=(
+                    "Recording inventory loaded; review evidence could not be read "
+                    f"({type(exc).__name__})."
+                ),
+                recovery=(
+                    "Validate immutable review artifacts and local storage, then retry readiness."
+                ),
+            ).model_dump(mode="json")
+            return DatasetSummary.model_validate_json(canonical_json(result))
         result["inventory_counts"].update(
             submitted_independent_assertions=sum(r.independent for r in assertions),
             timing_reviews=sum(r.scope == "timing" for r in assertions),
@@ -659,9 +676,7 @@ def create_app(
                     continue  # A stale/missing artifact does not qualify as current processing.
         result["review_readiness"] = [
             item.model_dump(mode="json")
-            for item in review_readiness(
-                dataset, app.state.review_workspace.inventory(), processing
-            )
+            for item in review_readiness(dataset, inventory, processing)
         ]
         return DatasetSummary.model_validate_json(canonical_json(result))
 

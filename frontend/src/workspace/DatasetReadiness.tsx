@@ -1,5 +1,6 @@
 import type { components } from "../api.generated";
 import type { Recording, Report } from "../api";
+import type { DatasetState } from "./useDatasetSummary";
 
 export type Readiness = components["schemas"]["RecordingReadiness"];
 export type DatasetSummary = components["schemas"]["DatasetSummary"];
@@ -29,6 +30,8 @@ export function DatasetReadiness({
   onSelect,
   onReview,
   loading = false,
+  state,
+  onRetry,
 }: {
   report?: Report | null;
   summary: DatasetSummary | null;
@@ -37,7 +40,11 @@ export function DatasetReadiness({
   onSelect: (id: string) => void;
   onReview: (item: Readiness) => void;
   loading?: boolean;
+  state?: DatasetState;
+  onRetry?: () => void;
 }) {
+  const phase =
+    state?.phase ?? (loading ? "loading" : summary ? "ready" : "unknown");
   const current = summary?.review_readiness?.find(
     (r) => r.recording_id === selectedId,
   );
@@ -49,8 +56,29 @@ export function DatasetReadiness({
         evaluating delivery.
       </p>
       <h3>Next required action</h3>
-      {loading ? (
+      {phase === "loading" ? (
         <p role="status">Loading dataset inventory and review readiness…</p>
+      ) : phase !== "ready" && state ? (
+        <div>
+          <p role="alert">{state.message}</p>
+          {summary && (
+            <p className="meta">
+              {phase === "partial" || phase === "unknown"
+                ? "Available inventory is shown below; missing values are unknown."
+                : "Inventory below is from the last successful request. Current review readiness is not established."}
+            </p>
+          )}
+          {onRetry && (
+            <button onClick={onRetry}>Retry dataset readiness</button>
+          )}
+          <details>
+            <summary>Readiness request diagnostics</summary>
+            <p className="mono">
+              GET /api/v1/dataset ·{" "}
+              {state.diagnostic || "Incomplete authoritative response"}
+            </p>
+          </details>
+        </div>
       ) : !summary ? (
         <p>
           Dataset readiness unavailable. Reconnect / refresh to recover the
@@ -133,25 +161,31 @@ export function DatasetReadiness({
       <dl className="measurement-strip">
         <div>
           <dt>Recording inventory</dt>
-          <dd>{recordings.length} takes</dd>
           <dd>
-            {summary?.inventory_counts?.distinct_speaker_ids ?? "Unavailable"}{" "}
+            {summary
+              ? `${summary.recordings} takes`
+              : recordings.length
+                ? `${recordings.length} loaded takes`
+                : "Recording inventory unknown"}
+          </dd>
+          <dd>
+            {summary?.inventory_counts?.distinct_speaker_ids ?? "Unknown"}{" "}
             recorded speaker IDs ·{" "}
-            {summary?.inventory_counts?.connected_families ?? "Unavailable"}{" "}
+            {summary?.inventory_counts?.connected_families ?? "Unknown"}{" "}
             connected families
           </dd>
         </div>
         <div>
           <dt>Verified transcripts</dt>
           <dd>
-            {summary?.inventory_counts?.verified_transcripts ?? "Unavailable"}
+            {summary?.inventory_counts?.verified_transcripts ?? "Unknown"}
           </dd>
         </div>
         <div>
           <dt>Submitted review evidence</dt>
           <dd>
             {summary?.inventory_counts?.submitted_independent_assertions ??
-              "Unavailable"}{" "}
+              "Unknown"}{" "}
             assertions
           </dd>
           <dd>Inspect recording-specific review status.</dd>
@@ -179,7 +213,7 @@ export function DatasetReadiness({
             {inventoryLabels.map(([key, text]) => (
               <tr key={key}>
                 <th scope="row">{text}</th>
-                <td>{summary?.inventory_counts?.[key] ?? "Unavailable"}</td>
+                <td>{summary?.inventory_counts?.[key] ?? "Unknown"}</td>
               </tr>
             ))}
           </tbody>

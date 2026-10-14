@@ -24,7 +24,8 @@ import { Timeline } from "./Timeline";
 import { TokenOverlay } from "./TokenOverlay";
 import { PairCorrection, ReviewImport } from "./RecordingTools";
 import { DatasetReadiness } from "./DatasetReadiness";
-import type { DatasetSummary, Readiness } from "./DatasetReadiness";
+import { useDatasetSummary } from "./useDatasetSummary";
+import type { Readiness } from "./DatasetReadiness";
 import { ReviewWorkspace } from "./ReviewWorkspace";
 
 import { WorkspaceNavigation } from "./WorkspaceNavigation";
@@ -122,9 +123,8 @@ export function App() {
   const [page, setPage] = useState<Page>("Recording Library");
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [schemaVersion, setSchemaVersion] = useState(2);
-  const [datasetSummary, setDatasetSummary] = useState<DatasetSummary | null>(
-    null,
-  );
+  const { state: datasetState, reload: reloadDataset } = useDatasetSummary();
+  const datasetSummary = datasetState.summary;
   const [reviewTarget, setReviewTarget] = useState<Readiness | null>(null);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -210,35 +210,60 @@ export function App() {
       activeReport.dimensions.some((d) => d.score != null) ||
       activeReport.regions.some((r) => r.eligibility.state === "ELIGIBLE"));
 
+  const refreshGeneration = useRef(0);
+  const refreshRequest = useRef<AbortController | null>(null);
+  useEffect(
+    () => () => {
+      ++refreshGeneration.current;
+      refreshRequest.current?.abort();
+    },
+    [],
+  );
+  useEffect(() => {
+    if (datasetSummary) setSchemaVersion(datasetSummary.schema_version);
+  }, [datasetSummary]);
   const refresh = useCallback(async () => {
+    const generation = ++refreshGeneration.current;
+    refreshRequest.current?.abort();
+    const controller = new AbortController();
+    refreshRequest.current = controller;
+    const timer = setTimeout(() => controller.abort(), 15000);
+    const read = <T,>(path: string, receive: (value: T) => void) =>
+      api<T>(path, { signal: controller.signal }).then((value) => {
+        if (generation === refreshGeneration.current) receive(value);
+        return value;
+      });
     try {
-      const [r, p, j, h, pol, e, v, d] = await Promise.all([
-        api<Recording[]>("/recordings"),
-        api<Pair[]>("/pairs"),
-        api<Job[]>("/analyses"),
-        api<Health>("/health"),
-        api<Policy>("/rubrics/delivery-v0"),
-        api<Evaluation[]>("/evaluations"),
-        api<Review[]>("/reviews"),
-        api<DatasetSummary>("/dataset"),
+      const results = await Promise.allSettled([
+        read<Recording[]>("/recordings", (value) => {
+          setRecordings(value);
+          setLoading(false);
+        }),
+        read<Pair[]>("/pairs", setPairs),
+        read<Job[]>("/analyses", setJobs),
+        read<Health>("/health", setHealth),
+        read<Policy>("/rubrics/delivery-v0", setPolicy),
+        read<Evaluation[]>("/evaluations", setEvaluations),
+        read<Review[]>("/reviews", setReviews),
+        reloadDataset(),
       ]);
-      setRecordings(r);
-      setSchemaVersion(d.schema_version);
-      setDatasetSummary(d);
-      setPairs(p);
-      setJobs(j);
-      setHealth(h);
-      setPolicy(pol);
-      setEvaluations(e);
-      setReviews(v);
-      setError("");
-      return { recordings: r, pairs: p };
-    } catch (cause) {
-      setError((cause as Error).message);
+      if (generation !== refreshGeneration.current) return;
+      const failures = results.flatMap((result, index) =>
+        result.status === "rejected"
+          ? [
+              `${["Recordings", "Pairs", "Analyses", "Service", "Rubric", "Evaluations", "Review evidence", "Dataset"][index]}: ${result.reason instanceof Error ? result.reason.message : "Request failed. Retry refresh."}`,
+            ]
+          : [],
+      );
+      setError(failures.join(" "));
+      const [r, p] = results;
+      if (r.status === "fulfilled" && p.status === "fulfilled")
+        return { recordings: r.value, pairs: p.value };
     } finally {
-      setLoading(false);
+      clearTimeout(timer);
+      if (generation === refreshGeneration.current) setLoading(false);
     }
-  }, []);
+  }, [reloadDataset]);
   useEffect(() => {
     void refresh();
   }, [refresh]);
@@ -1142,7 +1167,9 @@ export function App() {
               <DatasetReadiness
                 report={comparisonReport}
                 summary={datasetSummary}
-                loading={loading}
+                loading={datasetState.phase === "loading"}
+                state={datasetState}
+                onRetry={() => void reloadDataset()}
                 recordings={recordings}
                 selectedId={selected?.id ?? ""}
                 onSelect={(id) => {

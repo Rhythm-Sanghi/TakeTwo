@@ -92,6 +92,7 @@ export default defineConfig({
             "workspace.spec.ts",
             "zoom.spec.ts",
             "zy-presentation.spec.ts",
+            "zy-readiness.spec.ts",
             "zz-experience.spec.ts",
             "zz-inspection.spec.ts",
             "zz-mobile.spec.ts",

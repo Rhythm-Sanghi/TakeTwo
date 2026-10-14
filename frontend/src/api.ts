@@ -15,14 +15,27 @@ export type ImportRequest = components["schemas"]["ImportRequest"];
 export type Evaluation = components["schemas"]["Evaluation"];
 export type Review = components["schemas"]["Review-Output"];
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/v1${path}`, init);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(
+    throw new ApiError(
       body?.error
         ? `${body.error.message} ${body.error.recovery}`
         : `Request failed (${response.status}).`,
+      response.status,
+      body?.error?.code ?? "request_failed",
     );
   }
   return response.json() as Promise<T>;

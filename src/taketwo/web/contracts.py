@@ -179,3 +179,4 @@ class DatasetSummary(Model):
     competition_dataset_complete: Literal[False] = False
     inventory_counts: dict[str, int] = Field(default_factory=dict)
     review_readiness: list[RecordingReadiness] = Field(default_factory=list)
+    readiness_diagnostic: Diagnostic | None = None
