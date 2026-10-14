@@ -28,7 +28,7 @@ from taketwo.analysis.contracts import AlignmentConfig, AlignmentResult, Diagnos
 from taketwo.analysis.limits import maximum_analysis_duration_s
 from taketwo.analysis.storage import read_artifact as read_analysis
 from taketwo.analysis.storage import recording_input, validate_identity
-from taketwo.comparison.contracts import Evaluation, Policy, Report, Review, Span
+from taketwo.comparison.contracts import ArtifactRef, Evaluation, Policy, Report, Review, Span
 from taketwo.comparison.engine import acoustic_gate
 from taketwo.comparison.reviews import reviewed_timing
 from taketwo.comparison.storage import bound_dataset, implementation_hash, read_artifact
@@ -42,6 +42,11 @@ from taketwo.dataset.schema import (
 )
 from taketwo.dataset.storage import load, managed_path, read_json, safe_path, unique_json
 from taketwo.dataset.workspace import find_recording, import_recording, initialize, summary
+from taketwo.exploratory.contracts import ExploratoryReport
+from taketwo.exploratory.engine import Source
+from taketwo.exploratory.engine import build as build_exploratory
+from taketwo.exploratory.storage import implementation_hash as exploratory_hash
+from taketwo.exploratory.storage import publish as publish_exploratory
 
 from .contracts import (
     AnalysisRequest,
@@ -530,6 +535,120 @@ def create_app(
     @app.get("/api/v1/analyses/{job_id}/report", response_model=Report)
     def get_report(job_id: str):
         return report(job_id)
+
+    def exploratory_result(job_id):
+        job, dataset = jobs.get(job_id), load(root)
+        pair = next((p for p in dataset.pairs if p.id == job.request.pair_id), None)
+        if job.request.pair_id and (pair is None or pair.reference_id != job.request.reference_id):
+            raise HTTPException(409, "Selected exploratory pair identity changed.")
+        members = [job.request.reference_id] + ([pair.participant_id] if pair else [])
+        sources, unavailable = [], {}
+        for rid in members:
+            paths = job.artifacts.get(rid, {})
+            if not paths.get("features"):
+                unavailable[rid] = (
+                    "No completed acoustic feature stage is available for this input."
+                )
+                continue
+            measured = analysis(job_id, rid, "features")
+            if not isinstance(measured, FeatureResult):
+                raise ValueError("Expected acoustic features for exploratory analysis.")
+            aligned = analysis(job_id, rid, "alignment") if paths.get("alignment") else None
+            if aligned is not None and not isinstance(aligned, AlignmentResult):
+                raise ValueError("Expected machine alignment for exploratory analysis.")
+            sources.append(
+                Source(
+                    find_recording(dataset, rid),
+                    measured,
+                    ArtifactRef(
+                        path=paths["features"],
+                        sha256=content_hash(measured.model_dump(mode="json")),
+                    ),
+                    aligned,
+                    ArtifactRef(
+                        path=paths["alignment"],
+                        sha256=content_hash(aligned.model_dump(mode="json")),
+                    )
+                    if aligned
+                    else None,
+                )
+            )
+        if not sources:
+            raise HTTPException(
+                409, "Exploratory measurements require a completed acoustic feature stage."
+            )
+        result = build_exploratory(
+            dataset,
+            sources,
+            reference_id=job.request.reference_id,
+            pair_id=job.request.pair_id,
+            job_id=job.id,
+            processing_state=job.state,
+            implementation_sha256=exploratory_hash(),
+            unavailable=unavailable,
+        )
+        publish_exploratory(root, result)
+        return result
+
+    @app.get("/api/v1/analyses/{job_id}/exploratory", response_model=ExploratoryReport)
+    def exploratory(job_id: str):
+        return exploratory_result(job_id)
+
+    @app.get("/api/v1/analyses/{job_id}/exploratory/export")
+    def export_exploratory(job_id: str, format: str = "json"):
+        result = exploratory_result(job_id)
+        if format == "json":
+            body = canonical_json(
+                {
+                    "sha256": content_hash(result.model_dump(mode="json")),
+                    "result": result.model_dump(mode="json"),
+                }
+            )
+            media = "application/json"
+        elif format == "csv":
+            stream = io.StringIO(newline="")
+            writer = csv.writer(stream)
+            writer.writerow(
+                [
+                    "candidate_id",
+                    "recording_id",
+                    "kind",
+                    "start_s",
+                    "end_s",
+                    "duration_s",
+                    "median_energy_dbfs",
+                    "energy_delta_db",
+                    "status",
+                    "method",
+                ]
+            )
+            for candidate in result.candidates:
+                writer.writerow(
+                    [
+                        candidate.id,
+                        candidate.recording_id,
+                        candidate.kind,
+                        candidate.start_s,
+                        candidate.end_s,
+                        candidate.duration_s,
+                        candidate.median_energy_dbfs,
+                        candidate.energy_delta_db,
+                        candidate.status,
+                        candidate.method,
+                    ]
+                )
+            body, media = stream.getvalue(), "text/csv"
+        else:
+            raise ValueError("Exploratory export supports json or csv.")
+        return Response(
+            body,
+            media_type=media,
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="taketwo-exploratory-{job_id}.{format}"'
+                )
+            },
+        )
 
     @app.get("/api/v1/analyses/{job_id}/alignments/{rid}", response_model=AlignmentResult)
     def alignment(job_id: str, rid: str):

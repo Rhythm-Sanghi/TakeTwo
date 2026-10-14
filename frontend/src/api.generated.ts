@@ -244,6 +244,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/analyses/{job_id}/exploratory": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Exploratory */
+    get: operations["exploratory_api_v1_analyses__job_id__exploratory_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analyses/{job_id}/exploratory/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export Exploratory */
+    get: operations["export_exploratory_api_v1_analyses__job_id__exploratory_export_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/analyses/{job_id}/alignments/{rid}": {
     parameters: {
       query?: never;
@@ -707,6 +741,116 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** AcousticCandidate */
+    AcousticCandidate: {
+      /** Id */
+      id: string;
+      /** Recording Id */
+      recording_id: string;
+      /** Feature Sha256 */
+      feature_sha256: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind:
+        | "leading_low_energy"
+        | "internal_low_energy"
+        | "trailing_low_energy"
+        | "recording_low_energy"
+        | "energy_change";
+      /** Start S */
+      start_s: number;
+      /** End S */
+      end_s: number;
+      /** Duration S */
+      duration_s: number;
+      /** Median Energy Dbfs */
+      median_energy_dbfs: number;
+      /** Energy Delta Db */
+      energy_delta_db?: number | null;
+      /**
+       * Status
+       * @default automatic_unverified
+       * @constant
+       */
+      status: "automatic_unverified";
+      /** Method */
+      method: string;
+      /** Threshold Dbfs */
+      threshold_dbfs: number | null;
+      /** Threshold Delta Db */
+      threshold_delta_db?: number | null;
+      /** Frame Window S */
+      frame_window_s: number;
+      /** Boundary Resolution S */
+      boundary_resolution_s: number;
+      /** Explanation */
+      explanation: string;
+      /** Limitation */
+      limitation: string;
+    };
+    /** AcousticSummary */
+    AcousticSummary: {
+      /** Recording Id */
+      recording_id: string;
+      /** Filename */
+      filename: string;
+      /**
+       * Role
+       * @enum {string}
+       */
+      role: "reference" | "participant";
+      /** Origin */
+      origin: string;
+      provenance: components["schemas"]["taketwo__analysis__contracts__Provenance"];
+      feature_artifact: components["schemas"]["ArtifactRef"];
+      alignment_artifact: components["schemas"]["ArtifactRef"] | null;
+      feature_config: components["schemas"]["FeatureConfig"];
+      /** Duration S */
+      duration_s: number;
+      /**
+       * Sample Rate Hz
+       * @default 16000
+       * @constant
+       */
+      sample_rate_hz: 16000;
+      /** Source Sample Rate Hz */
+      source_sample_rate_hz: number;
+      /** Rms */
+      rms: number;
+      /** Peak */
+      peak: number;
+      /** Clipping Fraction */
+      clipping_fraction: number;
+      /** Energy Baseline Dbfs */
+      energy_baseline_dbfs: number | null;
+      /** Energy Quantiles Dbfs */
+      energy_quantiles_dbfs: number[];
+      /** Active Energy Range Db */
+      active_energy_range_db: number | null;
+      /** Activity Support S */
+      activity_support_s: number;
+      /** Low Energy Support S */
+      low_energy_support_s: number;
+      /** Observed Support S */
+      observed_support_s: number;
+      /** Unobserved Tail S */
+      unobserved_tail_s: number;
+      /** Accepted Pitch Frames */
+      accepted_pitch_frames: number;
+      /** Pitch Frames */
+      pitch_frames: number;
+      /** Accepted Pitch Fraction */
+      accepted_pitch_fraction: number | null;
+      /** Pitch Baseline Hz */
+      pitch_baseline_hz: number | null;
+      /** Voicing Probability Quantiles */
+      voicing_probability_quantiles: number[];
+      /** Quality Flags */
+      quality_flags: string[];
+      automatic_alignment: components["schemas"]["AutomaticAlignment"] | null;
+    };
     /** ActivateReview */
     ActivateReview: {
       /** Access Token */
@@ -886,6 +1030,48 @@ export interface components {
       /** Clipping Fraction */
       clipping_fraction: number;
     };
+    /** AutomaticAlignment */
+    AutomaticAlignment: {
+      /** Status */
+      status: string;
+      /** Transcript Sha256 */
+      transcript_sha256: string;
+      /** Original Text Sha256 */
+      original_text_sha256: string;
+      /**
+       * Independently Verified
+       * @default false
+       * @constant
+       */
+      independently_verified: false;
+      /** Words */
+      words: components["schemas"]["Interval"][];
+      /** Token Count */
+      token_count: number;
+      /** Word Span S */
+      word_span_s: number | null;
+      /** Estimated Words Per Minute */
+      estimated_words_per_minute: number | null;
+      /** Rate Unavailable Reason */
+      rate_unavailable_reason: string | null;
+      /** Diagnostics */
+      diagnostics: string[];
+    };
+    /** AutomaticCorrespondence */
+    AutomaticCorrespondence: {
+      /** Token Index */
+      token_index: number;
+      /** Token */
+      token: string;
+      reference: components["schemas"]["Interval"];
+      participant: components["schemas"]["Interval"];
+      /**
+       * Status
+       * @default automatic_unverified
+       * @constant
+       */
+      status: "automatic_unverified";
+    };
     /** Body_upload_api_v1_recordings_post */
     Body_upload_api_v1_recordings_post: {
       /** Audio */
@@ -939,6 +1125,25 @@ export interface components {
       /** Review Readiness */
       review_readiness?: components["schemas"]["RecordingReadiness"][];
       readiness_diagnostic?: components["schemas"]["Diagnostic"] | null;
+    };
+    /** DescriptiveComparison */
+    DescriptiveComparison: {
+      /** Duration Delta S */
+      duration_delta_s: number;
+      /** Absolute Duration Difference S */
+      absolute_duration_difference_s: number;
+      /** Relative Duration Delta Percent */
+      relative_duration_delta_percent: number;
+      /** Rms Level Delta Db */
+      rms_level_delta_db: number | null;
+      /** Active Energy Range Delta Db */
+      active_energy_range_delta_db: number | null;
+      /** Interpretation */
+      interpretation: string;
+      /** Evidence Keys */
+      evidence_keys: string[];
+      /** Notes */
+      notes: string[];
     };
     /** Diagnostic */
     Diagnostic: {
@@ -1121,6 +1326,87 @@ export interface components {
        * @constant
        */
       causal_scope: "calculation_only";
+    };
+    /** ExploratoryConfig */
+    ExploratoryConfig: {
+      /**
+       * Method
+       * @default exploratory-v1
+       * @constant
+       */
+      method: "exploratory-v1";
+      /**
+       * Minimum Quiet S
+       * @default 0.15
+       * @constant
+       */
+      minimum_quiet_s: 0.15;
+      /**
+       * Energy Window S
+       * @default 0.5
+       * @constant
+       */
+      energy_window_s: 0.5;
+      /**
+       * Energy Step Db
+       * @default 6
+       * @constant
+       */
+      energy_step_db: 6;
+      /**
+       * Quantile Method
+       * @default linear
+       * @constant
+       */
+      quantile_method: "linear";
+    };
+    /** ExploratoryReport */
+    ExploratoryReport: {
+      /**
+       * Kind
+       * @default exploratory_analysis
+       * @constant
+       */
+      kind: "exploratory_analysis";
+      /**
+       * Schema Version
+       * @default 1
+       * @constant
+       */
+      schema_version: 1;
+      config: components["schemas"]["ExploratoryConfig"];
+      /** Implementation Sha256 */
+      implementation_sha256: string;
+      /** Dataset Version */
+      dataset_version: string;
+      /** Dataset Sha256 */
+      dataset_sha256: string;
+      /** Job Id */
+      job_id: string;
+      /** Processing State */
+      processing_state: string;
+      /** Reference Id */
+      reference_id: string;
+      /** Pair Id */
+      pair_id: string | null;
+      /**
+       * State
+       * @enum {string}
+       */
+      state: "available" | "partial";
+      /** Recordings */
+      recordings: components["schemas"]["AcousticSummary"][];
+      /** Unavailable Recordings */
+      unavailable_recordings: {
+        [key: string]: string;
+      };
+      comparison: components["schemas"]["DescriptiveComparison"] | null;
+      /** Candidates */
+      candidates: components["schemas"]["AcousticCandidate"][];
+      /** Automatic Correspondence */
+      automatic_correspondence: components["schemas"]["AutomaticCorrespondence"][];
+      /** Limitations */
+      limitations: string[];
     };
     /** FeatureConfig */
     FeatureConfig: {
@@ -3106,6 +3392,70 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Report"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  exploratory_api_v1_analyses__job_id__exploratory_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ExploratoryReport"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  export_exploratory_api_v1_analyses__job_id__exploratory_export_get: {
+    parameters: {
+      query?: {
+        format?: string;
+      };
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */

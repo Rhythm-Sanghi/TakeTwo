@@ -260,3 +260,33 @@ def test_readiness_rejects_jobs_when_supervisor_stopped(client):
     assert client.get("/api/v1/health").json()["ready"] is False
     response = client.post("/api/v1/analyses", json={"reference_id": recording.id})
     assert response.status_code == 503
+
+
+def test_exploratory_http_exports_preserve_formal_report(client):
+    client, root, recording = client
+    response = client.post("/api/v1/analyses", json={"reference_id": recording.id, "align": False})
+    assert response.status_code == 202
+    identifier = response.json()["id"]
+    wait_job(client, identifier)
+    base = f"/api/v1/analyses/{identifier}"
+    before = client.get(base + "/report").json()
+    response = client.get(base + "/exploratory")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["reference_id"] == recording.id and result["pair_id"] is None
+    assert result["recordings"][0]["duration_s"] == 2
+    assert result["comparison"] is None
+    assert "scores" not in result
+    exported = client.get(base + "/exploratory/export").json()
+    from taketwo.dataset.schema import content_hash
+
+    assert exported["sha256"] == content_hash(result)
+    assert exported["result"] == result
+    intervals = client.get(base + "/exploratory/export?format=csv")
+    assert intervals.status_code == 200
+    assert "recording_id,kind,start_s,end_s" in intervals.text
+    assert "automatic_unverified" in intervals.text
+    assert client.get(base + "/exploratory/export?format=html").status_code == 422
+    assert client.get("/api/v1/analyses/missing/exploratory").status_code == 404
+    assert client.get(base + "/report").json() == before
+    assert len(list((root / "derived/exploratory-v1").glob("exploratory-*.json"))) == 1

@@ -603,6 +603,92 @@
         }
       }
     },
+    "/api/v1/analyses/{job_id}/exploratory": {
+      "get": {
+        "summary": "Exploratory",
+        "operationId": "exploratory_api_v1_analyses__job_id__exploratory_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExploratoryReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{job_id}/exploratory/export": {
+      "get": {
+        "summary": "Export Exploratory",
+        "operationId": "export_exploratory_api_v1_analyses__job_id__exploratory_export_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "json",
+              "title": "Format"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyses/{job_id}/alignments/{rid}": {
       "get": {
         "summary": "Alignment",
@@ -1922,6 +2008,334 @@
   },
   "components": {
     "schemas": {
+      "AcousticCandidate": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Id"
+          },
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "feature_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Feature Sha256"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "leading_low_energy",
+              "internal_low_energy",
+              "trailing_low_energy",
+              "recording_low_energy",
+              "energy_change"
+            ],
+            "title": "Kind"
+          },
+          "start_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start S"
+          },
+          "end_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "End S"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "median_energy_dbfs": {
+            "type": "number",
+            "title": "Median Energy Dbfs"
+          },
+          "energy_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Delta Db"
+          },
+          "status": {
+            "type": "string",
+            "const": "automatic_unverified",
+            "title": "Status",
+            "default": "automatic_unverified"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "threshold_dbfs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Dbfs"
+          },
+          "threshold_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Delta Db"
+          },
+          "frame_window_s": {
+            "type": "number",
+            "title": "Frame Window S"
+          },
+          "boundary_resolution_s": {
+            "type": "number",
+            "title": "Boundary Resolution S"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "limitation": {
+            "type": "string",
+            "title": "Limitation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "recording_id",
+          "feature_sha256",
+          "kind",
+          "start_s",
+          "end_s",
+          "duration_s",
+          "median_energy_dbfs",
+          "method",
+          "threshold_dbfs",
+          "frame_window_s",
+          "boundary_resolution_s",
+          "explanation",
+          "limitation"
+        ],
+        "title": "AcousticCandidate"
+      },
+      "AcousticSummary": {
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Recording Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "reference",
+              "participant"
+            ],
+            "title": "Role"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/taketwo__analysis__contracts__Provenance"
+          },
+          "feature_artifact": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "alignment_artifact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feature_config": {
+            "$ref": "#/components/schemas/FeatureConfig"
+          },
+          "duration_s": {
+            "type": "number",
+            "title": "Duration S"
+          },
+          "sample_rate_hz": {
+            "type": "integer",
+            "const": 16000,
+            "title": "Sample Rate Hz",
+            "default": 16000
+          },
+          "source_sample_rate_hz": {
+            "type": "integer",
+            "title": "Source Sample Rate Hz"
+          },
+          "rms": {
+            "type": "number",
+            "title": "Rms"
+          },
+          "peak": {
+            "type": "number",
+            "title": "Peak"
+          },
+          "clipping_fraction": {
+            "type": "number",
+            "title": "Clipping Fraction"
+          },
+          "energy_baseline_dbfs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Baseline Dbfs"
+          },
+          "energy_quantiles_dbfs": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Energy Quantiles Dbfs"
+          },
+          "active_energy_range_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Energy Range Db"
+          },
+          "activity_support_s": {
+            "type": "number",
+            "title": "Activity Support S"
+          },
+          "low_energy_support_s": {
+            "type": "number",
+            "title": "Low Energy Support S"
+          },
+          "observed_support_s": {
+            "type": "number",
+            "title": "Observed Support S"
+          },
+          "unobserved_tail_s": {
+            "type": "number",
+            "title": "Unobserved Tail S"
+          },
+          "accepted_pitch_frames": {
+            "type": "integer",
+            "title": "Accepted Pitch Frames"
+          },
+          "pitch_frames": {
+            "type": "integer",
+            "title": "Pitch Frames"
+          },
+          "accepted_pitch_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Pitch Fraction"
+          },
+          "pitch_baseline_hz": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch Baseline Hz"
+          },
+          "voicing_probability_quantiles": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Voicing Probability Quantiles"
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Flags"
+          },
+          "automatic_alignment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutomaticAlignment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recording_id",
+          "filename",
+          "role",
+          "origin",
+          "provenance",
+          "feature_artifact",
+          "alignment_artifact",
+          "feature_config",
+          "duration_s",
+          "source_sample_rate_hz",
+          "rms",
+          "peak",
+          "clipping_fraction",
+          "energy_baseline_dbfs",
+          "energy_quantiles_dbfs",
+          "active_energy_range_db",
+          "activity_support_s",
+          "low_energy_support_s",
+          "observed_support_s",
+          "unobserved_tail_s",
+          "accepted_pitch_frames",
+          "pitch_frames",
+          "accepted_pitch_fraction",
+          "pitch_baseline_hz",
+          "voicing_probability_quantiles",
+          "quality_flags",
+          "automatic_alignment"
+        ],
+        "title": "AcousticSummary"
+      },
       "ActivateReview": {
         "properties": {
           "access_token": {
@@ -2427,6 +2841,128 @@
         ],
         "title": "AudioInfo"
       },
+      "AutomaticAlignment": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "transcript_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Transcript Sha256"
+          },
+          "original_text_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Original Text Sha256"
+          },
+          "independently_verified": {
+            "type": "boolean",
+            "const": false,
+            "title": "Independently Verified",
+            "default": false
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "type": "array",
+            "title": "Words"
+          },
+          "token_count": {
+            "type": "integer",
+            "title": "Token Count"
+          },
+          "word_span_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Span S"
+          },
+          "estimated_words_per_minute": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Words Per Minute"
+          },
+          "rate_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Unavailable Reason"
+          },
+          "diagnostics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "transcript_sha256",
+          "original_text_sha256",
+          "words",
+          "token_count",
+          "word_span_s",
+          "estimated_words_per_minute",
+          "rate_unavailable_reason",
+          "diagnostics"
+        ],
+        "title": "AutomaticAlignment"
+      },
+      "AutomaticCorrespondence": {
+        "properties": {
+          "token_index": {
+            "type": "integer",
+            "title": "Token Index"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "participant": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "status": {
+            "type": "string",
+            "const": "automatic_unverified",
+            "title": "Status",
+            "default": "automatic_unverified"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token_index",
+          "token",
+          "reference",
+          "participant"
+        ],
+        "title": "AutomaticCorrespondence"
+      },
       "Body_upload_api_v1_recordings_post": {
         "properties": {
           "audio": {
@@ -2565,6 +3101,75 @@
           "split"
         ],
         "title": "DatasetSummary"
+      },
+      "DescriptiveComparison": {
+        "properties": {
+          "duration_delta_s": {
+            "type": "number",
+            "title": "Duration Delta S"
+          },
+          "absolute_duration_difference_s": {
+            "type": "number",
+            "title": "Absolute Duration Difference S"
+          },
+          "relative_duration_delta_percent": {
+            "type": "number",
+            "title": "Relative Duration Delta Percent"
+          },
+          "rms_level_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rms Level Delta Db"
+          },
+          "active_energy_range_delta_db": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Energy Range Delta Db"
+          },
+          "interpretation": {
+            "type": "string",
+            "title": "Interpretation"
+          },
+          "evidence_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Keys"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "duration_delta_s",
+          "absolute_duration_difference_s",
+          "relative_duration_delta_percent",
+          "rms_level_delta_db",
+          "active_energy_range_delta_db",
+          "interpretation",
+          "evidence_keys",
+          "notes"
+        ],
+        "title": "DescriptiveComparison"
       },
       "Diagnostic": {
         "properties": {
@@ -3100,6 +3705,175 @@
           "suggested_review"
         ],
         "title": "Explanation"
+      },
+      "ExploratoryConfig": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "const": "exploratory-v1",
+            "title": "Method",
+            "default": "exploratory-v1"
+          },
+          "minimum_quiet_s": {
+            "type": "number",
+            "const": 0.15,
+            "title": "Minimum Quiet S",
+            "default": 0.15
+          },
+          "energy_window_s": {
+            "type": "number",
+            "const": 0.5,
+            "title": "Energy Window S",
+            "default": 0.5
+          },
+          "energy_step_db": {
+            "type": "number",
+            "const": 6.0,
+            "title": "Energy Step Db",
+            "default": 6.0
+          },
+          "quantile_method": {
+            "type": "string",
+            "const": "linear",
+            "title": "Quantile Method",
+            "default": "linear"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ExploratoryConfig"
+      },
+      "ExploratoryReport": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "exploratory_analysis",
+            "title": "Kind",
+            "default": "exploratory_analysis"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "config": {
+            "$ref": "#/components/schemas/ExploratoryConfig"
+          },
+          "implementation_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Implementation Sha256"
+          },
+          "dataset_version": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Dataset Version"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Dataset Sha256"
+          },
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "processing_state": {
+            "type": "string",
+            "title": "Processing State"
+          },
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$",
+            "title": "Reference Id"
+          },
+          "pair_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "partial"
+            ],
+            "title": "State"
+          },
+          "recordings": {
+            "items": {
+              "$ref": "#/components/schemas/AcousticSummary"
+            },
+            "type": "array",
+            "title": "Recordings"
+          },
+          "unavailable_recordings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Unavailable Recordings"
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DescriptiveComparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/AcousticCandidate"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "automatic_correspondence": {
+            "items": {
+              "$ref": "#/components/schemas/AutomaticCorrespondence"
+            },
+            "type": "array",
+            "title": "Automatic Correspondence"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "config",
+          "implementation_sha256",
+          "dataset_version",
+          "dataset_sha256",
+          "job_id",
+          "processing_state",
+          "reference_id",
+          "pair_id",
+          "state",
+          "recordings",
+          "unavailable_recordings",
+          "comparison",
+          "candidates",
+          "automatic_correspondence",
+          "limitations"
+        ],
+        "title": "ExploratoryReport"
       },
       "FeatureConfig": {
         "properties": {

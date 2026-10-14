@@ -10,6 +10,7 @@ from taketwo.analysis.contracts import AlignmentResult, FeatureResult
 from taketwo.comparison.cli import schema
 from taketwo.dataset.audio import sha256
 from taketwo.dataset.schema import Dataset
+from taketwo.exploratory.contracts import ExploratoryReport
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,6 +42,7 @@ def main():
             "features": FeatureResult.model_json_schema(),
         },
         "comparison-schema-v1.json": schema(),
+        "exploratory-schema-v1.json": ExploratoryReport.model_json_schema(),
         "api-v1.json": runpy.run_path(str(ROOT / "scripts/export_api.py"))["contract"](),
     }
     for name, contract in expected.items():
