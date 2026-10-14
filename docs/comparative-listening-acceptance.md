@@ -19,6 +19,9 @@ No rights, text, phrase or annotation approval is implied by this exercise.
    and item-specific limit. Explain why it was selected in your own words.
 2. Play the reference segment, then the participant segment. Each uses its own
    native clock; do not assume matching timestamps or time stretching.
+   Confirm that each starts at its displayed native timestamp and stops at its
+   displayed end boundary. Record either discrepancy rather than treating a play
+   event as successful acceptance.
 3. Replay either passage as needed. Confirm the bounding words or acoustic change
    are inspectable and that playback stops at the intended end.
 4. Inspect provisional transcript boundaries and waveform/energy evidence.
@@ -56,12 +59,13 @@ blank until an actual listener completes them; do not prefill a favourable resul
 | Additional evidence needed | |
 | Review category or categories | |
 
-Categories: **Useful measurable difference**; **Possible automatic alignment
-problem**; **Technically correct but uninformative**; **Insufficient evidence**;
-**Misleading or incorrect explanation**; **Playback/navigation problem**.
+Categories: **Useful comparison**; **Possible machine-alignment problem**;
+**Technically correct but not useful**; **Misleading explanation**;
+**Playback problem**; **Inconclusive**. Earlier worksheet categories remain valid
+historical notes; do not rewrite a completed review to fit the new labels.
 
 Store completed notes separately from independent annotations. Do not import these
 notes into review approval, score eligibility, calibration or accuracy metrics.
-Actual screen-reader listening acceptance (Narrator/NVDA) is also pending: repeat
-navigation and A/B actions with keyboard and speech output, recording focus,
-announcement and transport failures separately from automated axe results.
+Actual screen-reader listening acceptance (Narrator/NVDA) is also pending. Use the
+[separate spoken-accessibility worksheet](spoken-accessibility-acceptance.md) to
+record focus, announcements and transport failures separately from axe results.
