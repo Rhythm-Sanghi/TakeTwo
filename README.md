@@ -100,3 +100,5 @@ Current verification and owner actions are in the [stabilization audit](docs/sta
 Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.
 
 See the [mobile refinement audit](docs/mobile-refinement-audit.md) for compact navigation, task-first layouts, persistent track selection and executed responsive/print verification.
+
+See the [reference inspection and PDF repair audit](docs/reference-inspection-audit.md) for single-input states, report identity protection, searchable browser print output and verification evidence.

@@ -41,3 +41,5 @@ UI fixtures and automated tone reviews are software acceptance evidence, not hum
 speech findings, genuine reviewer approvals or accuracy measurements.
 
 The 14 October mobile refinement used Codex for collection placement, native workspace navigation, persistent audio-track switching, compact review/rubric/readiness flows, regression tests and isolated browser/PDF checks. Private recordings and scientific policies were preserved; automated acceptance supplies no independent human review.
+
+Codex assisted the reference-inspection and print repair: explicit single-input presentation, report/job identity binding, compact print layout, software-only race/state fixtures, native searchable-PDF verification and documentation. No scientific gates, genuine audio or reviewer drafts were changed.

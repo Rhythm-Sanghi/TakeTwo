@@ -13,7 +13,7 @@ Pitch baselines are diagnostic medians of accepted F0 frames; percent coverage,
 stored confidence mask, backend eligibility and score availability remain separate.
 The policy's 50% requirement applies per scored phrase, not to a new React score.
 
-**Print analysis summary** uses standard browser printing. A4 styles retain native
+**Print analysis summary** uses standard browser printing. Choose the browser's Save as PDF destination for searchable text; an external system printer may rasterize. Reference inspection prints identity, processing status, relevant use requirements, native waveform/plot and compact actual measurements, without comparison scores. Paired output retains the agreement/evidence tables. A4 styles retain native
 windows, recording/job/version identity, summaries, blockers and unavailable scores;
 controls, raw chart tables and unavailable correspondence help are omitted. Live
 tables and exports remain available. Synchronous print hooks snapshot the existing
@@ -92,3 +92,5 @@ Save state reflects server acknowledgement and unsaved edits. Completion badges
 appear only after backend validation of the saved draft or immutable submission.
 Remaining requirements use backend validation issues without a second rules engine.
 Operator key, revision and session provenance stay available in disclosures.
+
+Reference inspection is separate from delivery comparison. Completed reference processing leads with **Reference audio analysis complete** and selects an existing participant or prepares an import. Applicable reference rights/transcript requirements are secondary. Reports are bound to job ID/path, request/pair and actual input recording IDs; selection/history changes clear obsolete results synchronously. See [reference and print verification](reference-inspection-audit.md).

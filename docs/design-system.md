@@ -69,3 +69,5 @@ shared ruled measurement row for real evidence rather than decorative statistics
 Pair labels, role names and solid/dashed track signals remain legible without color.
 Review steps show the assigned scope and acknowledged save/validation state, never
 an inferred percentage or completion based on navigation.
+
+Outcome panels have a 1120 px maximum reading width; comparison charts retain working width. Reference inspection describes measurements and processing, with participant selection as the next action. It does not present comparison abstention as a failed reference analysis. Print layouts distinguish single-input evidence from paired reference agreement.
