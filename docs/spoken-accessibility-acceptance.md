@@ -36,10 +36,14 @@ Keep speech output audible to the reviewer; reading a DOM snapshot is not this t
 | Safe failure/retry | Error and recovery are spoken; stale source results do not remain active | |
 | Reference-only repeat | No nonexistent participant or paired differences are presented | |
 | Native 200% repeat | Focus, reading and controls work without a visual-only workaround | |
+| Dataset readiness | Selected recording/version and all six prerequisite statuses, missing evidence and next actions are spoken | |
+| Evaluation unavailable/retry | A failed request is announced as unavailable; recovery distinguishes a successful zero inventory | |
+| Dataset PDF export | Export name, print guidance, failure recovery and restored focus are understandable | |
 
 Record inaccessible controls, missing/duplicate announcements, unexpected focus moves,
 ambiguous wording and graph-dependent conclusions. Repeat failed steps after fixes.
-Classify each step **Pass**, **Fail**, **Inconclusive** or **Not performed**, with exact
+Classify each step **Passed**, **Failed**, **Inconclusive**, **Not performed** or
+**Blocked**, with exact
 spoken observations; leave all fields blank until an actual reviewer performs them.
 No automatic review, scientific approval, rights clearance or publication decision
 results from completing this worksheet.

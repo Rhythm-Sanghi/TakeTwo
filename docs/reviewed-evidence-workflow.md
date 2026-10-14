@@ -125,9 +125,19 @@ acceptance also remains pending. Never import this checklist as a scientific rev
     accuracy result; operational input errors exit 2. Preserve configurations, native
     evidence, failed cases and hashes. Do not claim generalization from a pilot.
 
-Collect additional speakers/families only with actual consent and appropriate scope.
-Use independent reviewers, retain acceptable as well as flawed examples, and define
-the held-out protocol before calibration. Report actual acquisition counts and missing
-labels; this plan invents no participants, consent, temporal boundaries or accuracy.
+For acquisition, first write the intended claim and population (for example, held-out
+speakers rather than repeated takes of this owner). Recruit authorized additional
+speakers and independent speech families with documented processing/distribution scope;
+keep a private consent ledger and avoid identifying public metadata. Collect matched
+reference/participant speech with acceptable as well as potentially flawed examples,
+including different recording conditions. Preserve originals and explicit transformations.
+Have two actual independent reviewers follow the transcript, timing and flaw workflow
+above, resolving disagreements transparently rather than promoting machine candidates.
+Assign whole connected speaker/source-family groups to calibration and held-out sets
+before tuning; exclude held-out groups from calibration and report actual split sizes,
+label coverage, subgroup failures and uncertainty. Determine acquisition size from the
+desired claims and precision of estimates before recruitment; five related practice
+takes cannot supply that evidence. Report actual acquisition counts and missing labels;
+this plan invents no participants, consent, temporal boundaries or accuracy.
 Public data, demonstration/video and final report submission need separate owner and
 rights approval. Everything above remains local unless explicitly authorized otherwise.
