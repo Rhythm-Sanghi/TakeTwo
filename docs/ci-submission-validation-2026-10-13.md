@@ -124,7 +124,7 @@ or null results rather than forcing groups into train/test.
 
 [Current report source](technical-report.md) replaces the submission-facing draft.
 [Archived source](technical-report-2026-10-12.md) and the existing historical PDF are
-preserved. A new current PDF was rendered and visually inspected on all six pages, with readable text and no clipping/overlap. It is ignored by Git and not approved for publication. [Demo plan](demo-script.md) provides an exact
+preserved. A new current PDF was rendered and visually inspected on all six pages, with readable text and no clipping/overlap. It is ignored by Git and not approved for publication. [Current submission checklist](submission-draft.md) (which supersedes the historical filming plan) provides an exact
 five-minute filming sequence with disclosed precomputed genuine outputs and honest
 abstention if reviews remain missing. No video is recorded/uploaded by this work.
 

@@ -56,4 +56,4 @@ one speaker group; the imported salutation remains unverified. Neither filenames
 software-fixture assertions nor green tests establish independent ground truth,
 publication consent or held-out accuracy. Spoken Narrator/NVDA acceptance and a
 clean second-machine replay remain INCOMPLETE. See [owner checklist](ACTION-REQUIRED.md)
-and [five-minute filming plan](demo-script.md).
+and [current submission checklist](submission-draft.md) (the former filming plan was consolidated after upload).

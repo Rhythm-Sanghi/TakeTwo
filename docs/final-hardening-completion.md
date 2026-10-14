@@ -3,7 +3,7 @@
 TakeTwo — Speech analysis workspace. Local software hardening completed from clean
 `master` `24dc8a7`, 14 October 2026. This is executed engineering evidence, not
 production certification, independent scientific validation or submission approval.
-Source audit: [final hardening audit](final-hardening-audit.md).
+Initial findings and preserved printer diagnostics are consolidated below.
 
 ## A. Audit
 
@@ -274,3 +274,23 @@ Starting HEAD `24dc8a7`, clean `master`. Focused local commits:
 This record, README/current-milestone links and final verification evidence are
 included in the final local closeout commit. Final working tree: **clean**, checked
 after committing. No push, deployment, publication, release tag or external submission.
+
+## Preserved printer-path diagnostics
+
+The two supplied baseline files declared Microsoft: Print To PDF, contained zero
+extractable text, zero fonts and no structure tree. Analysis pages had 417-3,710
+vector drawing objects each; dataset pages had 1,342 and 1,133. Only analysis chart
+pages contained raster images. Text was outlined as paths, not merely a missing OCR
+layer. The preserved Chromium paired summary had 2,260/2,015 PyMuPDF characters,
+four fonts per page and a structure tree; pypdf also extracted text. Unchanged
+Chromium workspace baselines had 16 paired / 8 reference pages with text.
+This establishes the observed output-path difference; native printer rerun and
+generalization to every Windows printer/version remain unavailable. Baseline
+execution counts, causes, failures and final outcomes are retained above.
+
+The original workspace print hid `.analysis-outcome` but left its preceding
+Verified Assessment heading. Broad print rules expanded technical appendices
+before waveforms, and the workspace action cleared `printScope`, leaving the
+generic footer. Hiding the Dataset selector also hid the selected recording name.
+These separate presentation causes motivated the deliberate print layouts and
+identity text; they did not establish the cause of Microsoft font outlining.

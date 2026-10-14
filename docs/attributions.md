@@ -18,28 +18,16 @@ Direct versions, purpose and license inventory are in [dependencies](dependencie
 
 Report PDF generation uses ReportLab and pypdf from the external document-tool runtime. These are authoring/inspection tools, not application runtime dependencies; report source and regeneration instructions are retained. System fonts avoid a downloadable application font dependency.
 
-## Human direction and AI assistance
+## Creator and development tools
 
-The user directed the project scope, identity, standards and phase decisions. OpenAI Codex was extensively used for implementation, testing, integration and documentation, including repository changes, architecture/scoring documentation, source-rights research, dataset/analysis/comparison/service/frontend implementation, generated signal tests, CPU/browser/recovery checks and this submission draft. No AI-generated speech, fabricated participant, permission, independent review or evaluation result is presented as genuine evidence. Generated tones/analytic arrays are explicitly software fixtures. The initial rubric is an engineering proposal and lacks independent human calibration. Human source selection, collection, consent, annotation, licensing and final submission decisions remain external work.
+Rhythm Sanghi created and directed TakeTwo: product direction/use cases, visual
+identity, scope and workflow decisions, genuine practice recordings and intended
+transcripts, review of analysis/report limitations, improvements and submission.
+OpenAI Codex assisted software implementation, integration, testing and documentation.
+ChatGPT supported planning, technical review and development guidance. Both tools
+belong in Devpost's Built With list.
 
-No paid inference API, CUDA dependency, cloud storage account or external analytics service is required for local processing. Public dataset/video hosting and release remain owner actions. Identify any additional tools used during recording/editing in the final video/report disclosure.
-
-The product stabilization pass used Codex for the import/pairing audit, versioned draft contracts, report persistence, progressive forms, launcher and regression/browser verification. The user supplied five private genuine practice recordings, their intended transcript and same-speaker assertion. No independent review, public-release permission or calibrated accuracy was inferred.
-
-ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Human participants supplied the genuine recordings. Independent human annotations are still required; passing AI-assisted software tests is not scientific validation. The intended Devpost Built With list includes both OpenAI Codex and ChatGPT.
-
-The 13 October stabilization pass used Codex for audit, exact-inventory ground-truth
-resolution, regression tests, responsive selector repair, documentation reconciliation
-and the local report draft. These AI-assisted changes do not supply human reviewer
-independence, acoustic accuracy, consent or publication approval.
-
-
-The subsequent product-experience pass used Codex for outcome-first frontend
-structure, scope-specific review navigation, bounded interval playback, interface
-state fixtures, browser/print verification and documentation. Route-only eligible
-UI fixtures and automated tone reviews are software acceptance evidence, not human
-speech findings, genuine reviewer approvals or accuracy measurements.
-
-The 14 October mobile refinement used Codex for collection placement, native workspace navigation, persistent audio-track switching, compact review/rubric/readiness flows, regression tests and isolated browser/PDF checks. Private recordings and scientific policies were preserved; automated acceptance supplies no independent human review.
-
-Codex assisted the reference-inspection and print repair: explicit single-input presentation, report/job identity binding, compact print layout, software-only race/state fixtures, native searchable-PDF verification and documentation. No scientific gates, genuine audio or reviewer drafts were changed.
+Generated signals are software fixtures, not human speech accuracy evidence. No
+AI-generated consent, independent annotation or listening result is presented as real.
+Human rights clearance, independent review, calibration and final submission remain
+separate. Add any actual recording/editing tools to the final video/report disclosure.

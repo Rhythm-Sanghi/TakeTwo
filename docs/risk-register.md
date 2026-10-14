@@ -30,7 +30,7 @@ Keep candidate rights and model terms as explicit acquisition decisions; no user
 
 Evidence-gated comparison, null confidence, review disagreements, native frame coverage, local clipping, provenance-separated evaluation and cached-artifact replay now have software tests. These mitigate implementation mistakes in K3/K6/K7/K9/K11/K13; they do not close real human-data or accuracy risks. No new runtime dependency or GPU requirement was introduced. Numerical thresholds and engineering severity bins remain uncalibrated. Strict review consensus may increase abstentions; acquire better evidence rather than bypassing it. Review imports are assertions, not authenticated proof of independent listening. See [Phase 3 validation](phase3-validation.md).
 
-Current phase numbering reserves Phase 4 for the service/frontend and Phase 5 for final corpus/held-out evaluation. Earlier owner phase references describe the historical plan; the [roadmap](implementation-roadmap.md) is authoritative. Human collection/review continues before and alongside later interface work.
+Current phase numbering reserves Phase 4 for the service/frontend and Phase 5 for final corpus/held-out evaluation. Earlier owner phase references describe the historical plan; the [requirements matrix](requirements-matrix.md) is authoritative. Human collection/review continues before and alongside later interface work.
 
 ## Phase 4 update
 

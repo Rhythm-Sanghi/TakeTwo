@@ -317,7 +317,7 @@ and six rendered pages reflect the reconciled verification counts above.
 
 The [operator checklist](operator-review-checklist.md) guides two actual people
 through browser transcript, timing and blinded flaw reviews, explicit revisions
-and versioning. The [five-minute demo](demo-script.md) distinguishes precomputed
+and versioning. The former five-minute demo plan (now consolidated in the [submission checklist](submission-draft.md)) distinguishes precomputed
 genuine output, unresolved demonstration drafts and scientific abstention. No
 review approvals, dataset release, video, upload or submission are manufactured.
 

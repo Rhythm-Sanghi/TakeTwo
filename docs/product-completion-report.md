@@ -15,7 +15,7 @@ genuine-copy counts are five recordings, four participants, one controlled refer
 one declared speaker ID, one connected family, zero verified transcripts and zero
 submitted independent reviews. Missing human review is not a code defect.
 Other findings include missing useful results, buried alignment, repeated serialization,
-low pitch coverage and intermittent Windows diagnostics. [Categorized audit](product-completion-audit.md).
+low pitch coverage and intermittent Windows diagnostics. Initial reproduction and provenance decisions are consolidated below.
 
 ## B. Exploratory analysis
 
@@ -173,3 +173,25 @@ review and record spoken behavior. Obtain owner approval for the public contrast
 dataset, technical draft, video and submission. Software fixtures and exploratory
 measurements substitute for none of these. Cold processing and intermittent Windows
 reset/permission diagnostics remain documented operational limitations.
+
+## Consolidated initial reproduction and provenance decisions
+
+At clean 01203ff, the initial baseline passed 322 Python, 43 frontend and 8 browser
+tests, plus lint/build/lock/package/schema/dependency checks. Fifteen protected
+hashes were captured. A reviews 503 concealed five successful recording responses;
+inventory_counts={} and review_readiness=[] reproduced indefinite unavailable
+counts. These controlled failures established independent-refresh/partial-evidence
+defects, not the cause of an unseen historical server response. Initial evidence
+remains private in local-data/completion-baseline-* and
+local-data/completion-readiness-reproduction.json.
+
+After the readiness repair, 50 frontend tests, three new partial-failure/zero backend
+cases, 43 existing web/review tests and the new browser recovery case passed.
+Later final counts remain distinct above. Exploration recovered the actual final
+two-pass activity-mask threshold: the descriptive energy median can differ from
+the median used in the last mask update. Stored masks and thresholds are checked;
+incorrect masks/stale identities fail closed without changing acoustic-v1.
+A software review began at 0.005914 s when a play callback overwrote explicit zero
+seek; seek-before-play and terminal-acknowledgment repair preserved listening gates.
+An already-reviewed fixture correctly required revision. Scientific gates, independent
+reviews, immutable artifacts and source/environment identities were retained.

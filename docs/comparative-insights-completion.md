@@ -5,7 +5,7 @@ not production certification or independently evaluated speech accuracy.
 
 ## A. Confirmed problems and investigation
 
-Starting revision `365ed29`, clean `master`. The [audit](comparative-insights-audit.md)
+Starting revision `365ed29`, clean `master`. The preserved initial reproduction evidence below
 records repetitive individual windows, unused provisional correspondence and raw-heavy
 printing as reproducible UX/analytic weaknesses. Missing stored acoustic/report files
 previously returned generic storage 503; they now return `artifact_missing` 404.
@@ -222,3 +222,15 @@ No causal speech-quality, pronunciation, emotion or confidence conclusions are m
 
 Codex assisted implementation, test design, interpretation and documentation under
 human direction. MIT copyright © 2026 Rhythm Sanghi remains unchanged.
+
+## Preserved initial reproduction evidence
+
+Before these repairs, revision 365ed29 passed 340 Python tests in 238.65 s
+(one upstream warning) and 55 frontend tests in 5.63 s. Five genuine historical
+GETs returned 200 in 2.37-9.56 s under concurrent baseline tests; the reported
+Not Found condition was not reproduced. The baseline energy-range delta was
+-0.407866 dB. These mixed-load timings are not a capacity benchmark. The five
+originals were found in Documents with matching hashes; relocation cause remains
+unknown. Seventeen original/review/historical-PDF hashes were preserved.
+Private baseline evidence remains in local-data/comparative-baseline*.json.
+The substantive defect/root-cause decisions and completed fixes are recorded above.

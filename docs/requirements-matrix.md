@@ -1,12 +1,12 @@
 # TakeTwo requirements matrix
 
-Speech analysis workspace. Dataset tooling and Phase 2 alignment/acoustic tooling are implemented. Genuine source acquisition and native CPU execution are documented in [pilot collection](pilot-collection.md) and [validation](phase2-validation.md). Independent human dataset/timing evidence and official deliverables remain incomplete. Phase 3 software evidence is in [validation](phase3-validation.md); independent detection accuracy remains unavailable. Phase numbers follow the current [roadmap](implementation-roadmap.md).
+Speech analysis workspace. Dataset tooling and Phase 2 alignment/acoustic tooling are implemented. Genuine source acquisition and native CPU execution are documented in [pilot collection](pilot-collection.md) and [validation](phase2-validation.md). Independent human dataset/timing evidence and official deliverables remain incomplete. Phase 3 software evidence is in [validation](phase3-validation.md); independent detection accuracy remains unavailable. Requirement IDs refer to the unchanged official statement; dated phase labels are historical.
 
 Authority: [official Track C specification](../requirments/Track%20C.pdf), all three pages, reviewed on 2026-10-11. Keep its existing path and bytes. SHA-256: `0e621d35e6bfdbb9d9e169b259ebf9d3d923d1efcbab38ba2a4331f6958fb280`.
 
 ## Official judging weights
 
-Current product stabilization and newly supplied private practice takes are tracked in [the issue audit](product-audit.md), [validation](product-validation.md) and [recording guide](recording-import-guide.md). Controlled-reference software support does not close R1a or independent scientific/publication gates. Prior reports retain their historical acquisition/evaluation status.
+Current product stabilization and newly supplied private practice takes are tracked in [consolidated stabilization evidence](product-validation.md), [validation](product-validation.md) and [recording guide](recording-import-guide.md). Controlled-reference software support does not close R1a or independent scientific/publication gates. Prior reports retain their historical acquisition/evaluation status.
 
 | Criterion (page 3) | Weight | Primary phases |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ These weights total 100%. They determine delivery priorities, not the acoustic r
 
 ## Required behavior and evidence
 
-Status **Planned** means specified here, not implemented or verified. IDs R1a-R4b follow the PDF's numbered requirements. C rows cover the challenge; T rows cover technical considerations. Numeric gates elsewhere are proposed TakeTwo gates, not official thresholds. See the [roadmap](implementation-roadmap.md) for evidence ownership and the [risk register](risk-register.md) for blockers.
+Status **Planned** means specified here, not implemented or verified. IDs R1a-R4b follow the PDF's numbered requirements. C rows cover the challenge; T rows cover technical considerations. Numeric gates elsewhere are proposed TakeTwo gates, not official thresholds. See the [requirements below](#required-behavior-and-evidence) for evidence ownership and the [risk register](risk-register.md) for blockers.
 
 | ID / source | Requirement | Component / phase | Acceptance criterion | Required evaluation evidence | Status |
 | --- | --- | --- | --- | --- | --- |

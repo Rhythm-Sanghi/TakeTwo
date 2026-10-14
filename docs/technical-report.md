@@ -2,7 +2,7 @@
 
 Speech analysis workspace
 
-Technical report | Track C | 15 October 2026 | Application release 9938bd8
+Technical report | Track C | 15 October 2026 | Public release faebbc9
 
 ## 1. Problem, scope and acceptance
 
@@ -10,15 +10,15 @@ TakeTwo compares reference and participant recordings of the same words, preserv
 
 The local Windows workstation implements provenance-aware imports, contrastive pairing, CPU forced alignment, FFT/MFCC/energy/pitch extraction, reviewed phrase correspondence, temporal regions, an explainable rubric and separate-label evaluation. Five functional areas cover recording import, analysis, evidence, human review, and dataset/evaluation. Workshop + Gridline + Studio Utility uses restrained colors, precise grids, system typography and functional controls.
 
-Current acceptance is partial. Five genuine private same-person practice takes and two archival JFK masters exist locally. None has independent transcript/timing/flaw ground truth suitable for claimed real detection accuracy. Public-release consent for the private takes is absent. Public paired dataset and video remain missing; successful processing and software tests do not close these gates.
+Current acceptance is partial. Five genuine private same-person practice takes and two archival JFK masters exist locally. None has independent transcript/timing/flaw ground truth suitable for claimed real detection accuracy. Public-release consent for the private takes is absent. The public paired dataset remains missing; successful processing and software tests do not close these gates.
 
-Public master is 9938bd8, verified against the fetched remote. Its Windows Actions run 38615636707 was in progress when this report was prepared. The earlier passing cd2abe9 run is historical evidence, not certification of this release. Final publication documentation and this PDF await owner approval.
+Public release faebbc9 matches the fetched remote and passed Windows Actions run 38617800894. The six-page report is publicly accessible. The supplied YouTube demonstration is 6:23 and accessible while signed out; its description links to the repository. Public paired dataset and independent scientific acceptance remain unresolved.
 
 Exploratory Speech Analysis provides descriptive summaries, measured energy/activity candidates, provisional same-text word differences and alignment-gap diagnostics. Comparative-insights-v1 groups compatible windows without discarding originals. Native A/B replay and searchable Summary/Full Evidence exports support inspection. A measured 2.890 s automatic gap had zero low-energy support: the app requests inspection rather than declaring silence. These observations do not approve text, timing, flaws or delivery scores.
 
 Official judging weights are Data Engineering & Stress Testing 30%, Causal Explainability & Temporal Grounding 25%, Feature Extraction 20%, Visualization & Dashboard 15%, and Reproducibility & Code Quality 10%. Deliverables include public code, public paired audio/text/alignment labels, an interactive prototype, a report of at most six pages and a 3-10 minute YouTube demonstration [1].
 
-OpenAI Codex extensively assisted implementation, tests, integration and documentation. ChatGPT assisted planning, architecture, interpretation and review. Humans supplied the actual recordings; independent human annotations remain separate requirements.
+Rhythm Sanghi created and directed TakeTwo: product goals, visual identity, workflows, scope, practice recordings and intended transcripts, result review and submission preparation. OpenAI Codex assisted implementation, integration, tests and documentation; ChatGPT supported planning and technical review. Independent human annotations remain separate requirements.
 
 <!-- pagebreak -->
 
@@ -94,6 +94,6 @@ The final local hardening pass executed 376 Python tests, 81 frontend tests, 18 
 
 The fresh five-recording genuine browser pilot took 237.640 s; reference/participant MFA stages took 116.671/91.219 s, feature extraction 15.297/11.375 s, comparison 1.328 s, and peak worker-tree commit was 2,081,546,240 bytes [6]. Cold comparison loading took 29.431 s on the measured host; individual 15 s evidence requests can still time out under contention. A reproduced Windows Proactor accept-socket failure led to Selector-loop startup; duplicate cold artifact reads were serialized without weakening identity validation. No general latency, clean-machine compatibility or scientific accuracy guarantee follows.
 
-Reproducibility binds audio/sample/text, data version, model/dictionary, config, policy, implementation, review and artifact hashes. Native 200% Chromium tab zoom passed locally; responsive/axe checks are separate from heard Narrator/NVDA acceptance, which remains open. Public paired dataset, eligible genuine-flaw demonstration, public YouTube video and final submission remain incomplete. MIT copyright (c) 2026 Rhythm Sanghi covers original code/documentation only; private data and external resources retain separate rights.
+Reproducibility binds audio/sample/text, data version, model/dictionary, config, policy, implementation, review and artifact hashes. Native 200% Chromium tab zoom passed locally; responsive/axe checks are separate from heard Narrator/NVDA acceptance, which remains open. Public paired dataset, independent genuine-flaw validation and final submission remain incomplete. The supplied YouTube video demonstrates the application, not independent scientific acceptance. MIT copyright (c) 2026 Rhythm Sanghi covers original code/documentation only; private data and external resources retain separate rights.
 
-References: [1] requirments/Track C.pdf, unchanged official statement and deliverables. [2] docs/pilot-collection.md; JFK Library JFKWHA-001/JFKWHA-190-002. [3] docs/scoring-policy.md. [4] docs/pitch-investigation.md; scripts/inspect_pitch.py. [5] docs/final-hardening-completion.md; github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38615636707 (pending at preparation). [6] docs/windows-hardening-evidence.md. MFA English US ARPA v3.0.0, CC BY 4.0; full notices: docs/attributions.md.
+References: [1] requirments/Track C.pdf, unchanged official statement and deliverables. [2] docs/pilot-collection.md; JFK Library JFKWHA-001/JFKWHA-190-002. [3] docs/scoring-policy.md. [4] docs/pitch-investigation.md; scripts/inspect_pitch.py. [5] docs/final-hardening-completion.md; github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38617800894 (passed). [6] docs/windows-hardening-evidence.md. MFA English US ARPA v3.0.0, CC BY 4.0; full notices: docs/attributions.md.

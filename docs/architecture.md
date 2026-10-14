@@ -76,7 +76,7 @@ The launcher binds loopback, restricts browser origins/hosts, validates media us
 
 ## Evaluation and reproducibility
 
-The evaluation CLI reads a frozen split manifest and uses exactly the production engine/config. Save per-recording outputs, failures, aggregate metrics, seed, environment lock hashes, CPU/OS and code commit. Compare independent annotations, not transformation recipes, to detections. Keep calibration/train data separate from validation and sealed test data. See [dataset](dataset-plan.md), [scoring](scoring-policy.md) and [roadmap](implementation-roadmap.md) for gates. Fixed CPU operations, seeds and thread settings support repeatability; exact hashes cover inputs, while cross-environment floats use a documented numeric tolerance and unchanged decision checks.
+The evaluation CLI reads a frozen split manifest and uses exactly the production engine/config. Save per-recording outputs, failures, aggregate metrics, seed, environment lock hashes, CPU/OS and code commit. Compare independent annotations, not transformation recipes, to detections. Keep calibration/train data separate from validation and sealed test data. See [dataset](dataset-plan.md), [scoring](scoring-policy.md) and [requirements](requirements-matrix.md) for gates. Fixed CPU operations, seeds and thread settings support repeatability; exact hashes cover inputs, while cross-environment floats use a documented numeric tolerance and unchanged decision checks.
 
 ## Primary technical references
 

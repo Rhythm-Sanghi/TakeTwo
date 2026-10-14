@@ -6,7 +6,7 @@ TakeTwo — Speech analysis workspace. Continued locally from `be55e68` on 2026-
 
 ## Repair scope
 
-The [issue inventory](product-audit.md) records reproduction, priority and root causes. Three legitimate import types are separate from reference selection; compact imports no longer ask for internal IDs or manufacture unknown rights. Genuine controlled references are accepted, with public-source publication coverage counted separately. Unlabeled intent is unspecified/null, not automatically acceptable. Schema v2 records those distinctions; existing v1 manifests remain readable, with explicit backed-up upgrade required for new draft metadata.
+The [consolidated issue inventory](#consolidated-original-issue-inventory) records reproduction, priority and root causes. Three legitimate import types are separate from reference selection; compact imports no longer ask for internal IDs or manufacture unknown rights. Genuine controlled references are accepted, with public-source publication coverage counted separately. Unlabeled intent is unspecified/null, not automatically acceptable. Schema v2 records those distinctions; existing v1 manifests remain readable, with explicit backed-up upgrade required for new draft metadata.
 
 Participant selection waits for real inventory/pair refresh. Corrections prepare a separate version, resetting text/review/intent and preserving original data. Explicit native excerpts preserve originals and require actual cut text. Review-file handoff reuses scientific CLI validation without granting approval. History timestamps are converted to UTC and names remain primary. New report snapshots retain exact dataset context after unrelated imports, while current used inputs, artifacts, pair, reviews and code are still checked. No scoring formula or synthetic detector output is introduced.
 
@@ -103,3 +103,30 @@ No push, deployment, publication or submission is authorized/performed. The prev
 - tests/test_import_workflows.py
 - tests/test_regressions.py
 - tests/test_splits_cli.py
+
+## Consolidated original issue inventory
+
+Historical 12 October baseline be55e68: 0 P0, 12 P1 and 3 P2 defects.
+The reproduction/root-cause tables are retained alongside actual verification;
+historical 30-second limits and skipped native zoom do not describe later releases.
+
+| ID / priority | Reproduction / actual behavior | Expected / root cause | State |
+| --- | --- | --- | --- |
+| U1 / P1 | Open empty import; only Public source reference exists | Human participant type always visible, with an explicit missing-reference explanation. Type and pair selection are combined in ImportForm | Fixed |
+| U2 / P1 | Import self-recorded reference through dataset API | Controlled local reference supported distinctly from public source. workspace rejects non-source references despite origin contract allowing self_recorded | Fixed |
+| U3 / P1 | Try ordinary local import | User must fill internal family/work/source/speaker IDs and public-rights fields. Frontend forwards full scientific ImportSpec without a local draft adapter | Fixed |
+| U4 / P1 | Import participant then inspect | UI clears pairId after import, so workspace defaults to reference-only. Async inventory refresh does not select returned pair | Fixed |
+| U5 / P1 | Need to correct an accidental reference choice | No supported immutable correction action; UI requires external manifest/version work | Fixed |
+| U6 / P1 | Open history | Offset timestamps are sliced then labeled UTC without conversion, and raw job IDs dominate labels | Fixed |
+| U7 / P1 | Import then run a >30 s recording | Only late API failure explains analysis limit; no useful excerpt creation path. Four actual pilot files exceed cap (reference 30.224 s, natural 30.590 s, near-perfect 31.760 s, slow 40.590 s; uneven 29.370 s) | Fixed |
+| U8 / P1 | Refresh after adding inputs/reviews | Active report effect depends only on job ID/path, allowing a stale displayed report after dataset change. Backend correctly rejects stale evidence | Fixed |
+| U9 / P2 | Fail feature request then choose another series | Timeline error can persist after a successful feature fetch; shared waveform/feature error state | Fixed |
+| U10 / P2 | Launch from script repeatedly | Launcher reinstalls/builds each time and omits port/prerequisite handling; no normal-start path | Fixed |
+| U11 / P1 | Attempt eligible review handoff in browser | Existing reviewer imports are CLI-only. UI needs an actual review-file handoff and explicit transcript-correction guidance without generating approval | Fixed |
+
+| ID / priority | Reproduction / root cause | Repair |
+| --- | --- | --- |
+| U12 / P1 | Unlabeled take defaulted to acceptable/severity 0 | V2 stores unspecified/null unless actual intended labels are supplied |
+| U13 / P2 | Unavailable MFA checkbox appeared checked while request used false | Checkbox reflects actual availability/request |
+| U14 / P1 | Unrelated import invalidated whole-dataset report digest | Checksummed snapshots retain exact context while validating used members/pair/reviews/artifacts/config/code |
+| U15 / P1 | Fieldset intrinsic width overflowed 320 px | Explicit min-width zero; actual browser overflow assertions pass |

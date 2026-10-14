@@ -18,7 +18,7 @@ Starting revision `5b638cb`, clean `master`, 14 October 2026.
 
 ## A — Problems and root causes
 
-The [baseline audit](comparative-refinement-audit.md) confirms reference-only
+The baseline evidence retained below confirms reference-only
 “Automatic comparison” wording, irrelevant paired zero counts, hidden selection
 reasons, no neutral listening prompts and one print mode that expands all diagnostic
 appendices. Historical reference/paired reports were six/ten pages. Their measurements
@@ -218,3 +218,15 @@ Warm restored requests in this task were roughly 0.1–0.6 s and the reference
 initial request roughly 3 s; these are not cold-load benchmarks or a latency repair.
 Prior mixed-load cold restoration exceeded the UI request budget. That performance
 limit remains open and safe retry remains available.
+
+## Preserved original print baselines
+
+The initial reference six-page PDF SHA-256 was
+777e51b03ef68d34ebe43cfa1d196e68f4868aa5049cf1b0e5c7665a80558c9a;
+the paired ten-page PDF SHA-256 was
+e6883d2b32ba567a9e1c37876fa24ac574b43d70c15ba174dcac77cb0db7da2b.
+Their 16 rendered pages and text inventory remain private under
+local-data/refinement-baseline/reports.json. Initial port 8884 was occupied;
+the baseline browser rerun used 8997 without stopping the unrelated service.
+The grouping inventory, selection weaknesses, exact initial test counts and final
+results are retained in this document; no baseline count is presented as current acceptance.
