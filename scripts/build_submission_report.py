@@ -26,7 +26,7 @@ def main():
     parser.add_argument(
         "--output", type=Path, default=ROOT / "output/pdf/taketwo-technical-report-current.pdf"
     )
-    parser.add_argument("--date", default="13 OCT 2026")
+    parser.add_argument("--date", default="15 OCT 2026")
     args = parser.parse_args()
     output = args.output
     if output.resolve() == (ROOT / "output/pdf/taketwo-technical-report.pdf").resolve():
@@ -85,7 +85,7 @@ def main():
         canvas.setFont("ReportSans", 8)
         canvas.setFillColor(colors.HexColor("#4D5B54"))
         canvas.drawString(42, height - 27, "TAKETWO / SPEECH ANALYSIS WORKSPACE")
-        canvas.drawString(42, 22, "TRACK C  |  TECHNICAL REPORT DRAFT  |  " + args.date)
+        canvas.drawString(42, 22, "TRACK C  |  TECHNICAL REPORT  |  " + args.date)
         canvas.drawRightString(width - 42, 22, str(doc.page))
         canvas.restoreState()
 
@@ -96,7 +96,7 @@ def main():
         rightMargin=42,
         topMargin=48,
         bottomMargin=46,
-        title="TakeTwo - Speech analysis workspace: technical report draft",
+        title="TakeTwo - Speech analysis workspace: technical report",
         author="TakeTwo project",
     )
     document.build(story, onFirstPage=frame, onLaterPages=frame)

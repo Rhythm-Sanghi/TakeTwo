@@ -1,18 +1,23 @@
 # Track C submission compliance
 
-Current status (2026-10-13): public master cd2abe9 passed [Windows Actions run 38357432224](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). Subsequent ground-truth and responsive repairs remain local. Five private practice takes have no independent approvals/public consent. See [stabilization evidence](stabilization-audit.md) and [CI history](ci-submission-validation.md). Dated phase evidence below remains historical.
+Current release pass: 15 October 2026. Application code is public at `9938bd8`;
+local and fetched remote HEAD matched. Its [Windows Actions run 38615636707](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38615636707)
+was still running at preparation. See [current release evidence](publication-readiness.md).
 
 ## Current official deliverables
 
-| Deliverable | Status | Exact evidence / remaining action |
+| Deliverable | Status | Evidence / remaining action |
 | --- | --- | --- |
-| Public GitHub code/documentation | VERIFIED: public baseline; INCOMPLETE: later release | master cd2abe9 passed run 38357432224. Subsequent local repairs require authorized push and their own Actions verification |
-| Public paired dataset/text/alignment labels | Blocked by human action | Five private unreviewed practice takes and JFK candidates exist; no approved release corpus/download URL |
-| Interactive prototype | Incomplete: human acceptance | Five functional areas and genuine automatic processing verified; independent eligible pair/region demonstration and spoken accessibility remain open |
-| Technical document <=6 pages | Incomplete: owner approval | Current six-page PDF rendered and visually inspected locally; ignored by Git, source updated, historical source/PDF preserved |
-| YouTube demonstration 3-10 minutes | Blocked by human action | Exact five-minute script prepared; no approved public footage, upload or URL |
+| Public GitHub code/documentation | Application public; new release documents await approval | `master` 9938bd8; verify final exact-SHA CI after authorized publication |
+| Public paired audio/text/alignment labels | Unresolved mandatory requirement | No approved, independently reviewed corpus or public URL; five private takes remain excluded |
+| Interactive prototype | Local software verified; human acceptance partial | Five workspace areas, genuine processing, native replay and exports; listening and spoken accessibility remain pending |
+| Technical document <=6 pages | Current source/PDF prepared for owner review | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf); historical PDF retained; publication awaits approval |
+| YouTube demonstration 3-10 minutes | Unresolved mandatory requirement | Script exists; no supplied video/URL or verified public playback |
+| Devpost submission | Manual owner action | [Fields and checklist](submission-draft.md); no receipt |
 
-The organizer deadline is October 15, 2026 at 00:15 IST, verified in [current evidence](ci-submission-validation.md). No software-fixture metric closes scientific acceptance.
+The deadline and portal must be checked by the owner against current organizer rules.
+No software-fixture metric closes scientific acceptance. The matrix below is retained
+as dated historical evidence; its old publication statuses do not describe this release.
 
 This is the historical Phase 5 readiness snapshot. Current product repairs and the later user-supplied private practice takes are recorded in [product validation](product-validation.md) and [the recording guide](recording-import-guide.md). No newly supplied take is automatically a verified/public competition example; official scientific/public deliverable gates remain open.
 

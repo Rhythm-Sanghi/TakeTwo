@@ -55,5 +55,6 @@ include = [
   "/AGENTS.md", "/README.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
   "/.gitattributes", "/.gitignore", "/requirments/Track C.pdf",
   "/output/pdf/taketwo-technical-report.pdf",
+  "/output/pdf/taketwo-technical-report-2026-10-15.pdf",
 ]
 exclude = ["**/__pycache__", "**/*.py[cod]", "**/*.tsbuildinfo"]

@@ -2,21 +2,7 @@
 
 Speech analysis workspace
 
-Technical report draft | Track C | 14 October 2026 | Public cd2abe9 baseline plus local product completion
-
-Local implementation update, 14 October: Exploratory Speech Analysis now supplies
-versioned descriptive recording/pair summaries, frame-derived low-energy/energy-change
-candidates, native replay, provisional word inspection and JSON/CSV/selectable-text
-print reports. A compact cache avoids repeated summary serialization while validating
-source identity. Independent readiness requests preserve partial inventory and explicit
-errors. These observations never become human labels, delivery scores or evaluation
-ground truth. Acoustic-v1 and delivery-v0 are unchanged; the genuine pitch limitation
-persists. Comparative-insights-v1 now groups compatible windows, compares complete
-indexed supplied-text word positions, diagnoses gaps against independent activity
-and orders inspection transparently; it never approves review or scores. See the
-comparative methods/audit for current evidence.
-Historical PDF reports are preserved. A dated six-page owner-review PDF is generated
-separately; publication and independent scientific acceptance remain owner actions.
+Technical report | Track C | 15 October 2026 | Application release 9938bd8
 
 ## 1. Problem, scope and acceptance
 
@@ -26,7 +12,9 @@ The local Windows workstation implements provenance-aware imports, contrastive p
 
 Current acceptance is partial. Five genuine private same-person practice takes and two archival JFK masters exist locally. None has independent transcript/timing/flaw ground truth suitable for claimed real detection accuracy. Public-release consent for the private takes is absent. Public paired dataset and video remain missing; successful processing and software tests do not close these gates.
 
-Public master at cd2abe9 passed GitHub Windows Actions run 38357432224. The earlier failed startup/build-order run and its reproductions remain historical evidence. Subsequent local stabilization corrects reviewer-dependent ground truth and narrow-screen controls. Those new changes and this report require owner authorization before publication and their own exact-commit hosted verification; successful baseline CI does not certify later changes.
+Public master is 9938bd8, verified against the fetched remote. Its Windows Actions run 38615636707 was in progress when this report was prepared. The earlier passing cd2abe9 run is historical evidence, not certification of this release. Final publication documentation and this PDF await owner approval.
+
+Exploratory Speech Analysis provides descriptive summaries, measured energy/activity candidates, provisional same-text word differences and alignment-gap diagnostics. Comparative-insights-v1 groups compatible windows without discarding originals. Native A/B replay and searchable Summary/Full Evidence exports support inspection. A measured 2.890 s automatic gap had zero low-energy support: the app requests inspection rather than declaring silence. These observations do not approve text, timing, flaws or delivery scores.
 
 Official judging weights are Data Engineering & Stress Testing 30%, Causal Explainability & Temporal Grounding 25%, Feature Extraction 20%, Visualization & Dashboard 15%, and Reproducibility & Code Quality 10%. Deliverables include public code, public paired audio/text/alignment labels, an interactive prototype, a report of at most six pages and a 3-10 minute YouTube demonstration [1].
 
@@ -102,10 +90,10 @@ Ground truth uses exact-inventory-v1. Semantic listening agreement alone cannot 
 
 Evaluation retains category/severity counts, FP/FN identities, matched median/p90 boundary errors, clean-span false flags/minute, defined-only severity Spearman and seeded family bootstrap (1000 resamples, seed 17). Current genuine reviewed recordings/families: zero; real detection and timing metrics remain unavailable. A one-family pilot cannot establish held-out generalization.
 
-Historical stabilization: 316 Python tests passed, zero failures/skips, one existing Starlette/httpx warning. Regressions cover ground-truth permutations, multiple reviewers/labels, fresh-process replay, tamper rejection, revisions, adjudication, threshold edges and private diagnostic handling. The isolated generated browser suite passed four tests, including five-area responsive captures and actual 200% tab zoom. A fresh same-host Windows clone passed documented setup, 70 comparison and 21 frontend tests. Earlier failures and final checks remain in the audit [5]. Public baseline CI is green; later work is local. Product completion subsequently passed 340 Python, 55 frontend and 10 browser tests, including candidate replay/export and review playback synchronization. These checks do not establish human accuracy.
+The final local hardening pass executed 376 Python tests, 81 frontend tests, 18 generated browser tests and 3 private genuine-pilot tests, with zero failures/skips in the final runs [5]. Type/build/lint, lock, repository, package/history and dependency audits passed. Earlier failed attempts remain documented. Generated-signal tests verify software; genuine browser processing does not establish listening acceptance or detection accuracy.
 
-Current genuine 17.3 s source: MFA 3.3.9 aligned 19 words/115 phones; alignment stage 166.937 s, extraction 10.141 s, comparison 0.390 s, peak worker commit 1,887,477,760 bytes. All four genuine browser tests passed in a short temporary workspace using the original 180 s alignment config; full measured workflow 261.548 s. Earlier longer-workspace attempts timed out or raised a permission error; their cause remains unproven. Historical 45 s controlled-pair and private 30 s pair jobs took 314.813/287.469 s [6]. All remain bounded by 600 s/4 GiB; no speed gain or accuracy is claimed.
+The fresh five-recording genuine browser pilot took 237.640 s; reference/participant MFA stages took 116.671/91.219 s, feature extraction 15.297/11.375 s, comparison 1.328 s, and peak worker-tree commit was 2,081,546,240 bytes [6]. Cold comparison loading took 29.431 s on the measured host; individual 15 s evidence requests can still time out under contention. A reproduced Windows Proactor accept-socket failure led to Selector-loop startup; duplicate cold artifact reads were serialized without weakening identity validation. No general latency, clean-machine compatibility or scientific accuracy guarantee follows.
 
 Reproducibility binds audio/sample/text, data version, model/dictionary, config, policy, implementation, review and artifact hashes. Native 200% Chromium tab zoom passed locally; responsive/axe checks are separate from heard Narrator/NVDA acceptance, which remains open. Public paired dataset, eligible genuine-flaw demonstration, public YouTube video and final submission remain incomplete. MIT copyright (c) 2026 Rhythm Sanghi covers original code/documentation only; private data and external resources retain separate rights.
 
-References: [1] requirments/Track C.pdf, unchanged official statement; organizer rules confirm October 15, 2026 at 00:15 IST. [2] docs/pilot-collection.md; JFK Library JFKWHA-001/JFKWHA-190-002. [3] docs/scoring-policy.md. [4] docs/pitch-investigation.md; scripts/inspect_pitch.py. [5] docs/stabilization-audit.md; github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224. [6] docs/final-repair-audit.md. MFA English US ARPA v3.0.0, CC BY 4.0; full notices: docs/attributions.md.
+References: [1] requirments/Track C.pdf, unchanged official statement and deliverables. [2] docs/pilot-collection.md; JFK Library JFKWHA-001/JFKWHA-190-002. [3] docs/scoring-policy.md. [4] docs/pitch-investigation.md; scripts/inspect_pitch.py. [5] docs/final-hardening-completion.md; github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38615636707 (pending at preparation). [6] docs/windows-hardening-evidence.md. MFA English US ARPA v3.0.0, CC BY 4.0; full notices: docs/attributions.md.

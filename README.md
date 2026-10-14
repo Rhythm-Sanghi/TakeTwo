@@ -1,152 +1,115 @@
 # TakeTwo
 
+**Compare speech. Understand the difference.**
+
 Speech analysis workspace
 
-Current local hardening and remaining human/scientific gates are recorded in
-[final hardening completion](docs/final-hardening-completion.md). Searchable exports
-use the documented [report workflow](docs/report-export-guide.md); independent
-reviews follow the [reviewed-evidence workflow](docs/reviewed-evidence-workflow.md).
+TakeTwo is a local Windows workstation for comparing reference and participant recordings of the same words. It connects measured acoustic differences to native audio intervals so a listener can inspect what changed and decide whether it matters. Automatic observations remain separate from reviewed delivery assessments.
 
-TakeTwo compares reference and participant recordings of the same words, preserves native audio timing, and exposes measured acoustic evidence and an explainable delivery-agreement rubric. The Workshop + Gridline + Studio Utility interface uses restrained surfaces, precise grids, functional controls and explicit unavailable states. Permanent standards are in [AGENTS.md](AGENTS.md).
-
-Successful acoustic processing now produces **Exploratory Speech Analysis**: duration,
-RMS/peak/clipping, measured energy distribution and variation, observable activity,
-accepted pitch coverage, timestamped acoustic candidates and replay. Reference-only
-inspection works without a participant or independent reviews. Machine-aligned words
-and supported automatic word correspondence remain explicitly unverified.
-
-**Comparative insights** group compatible windows and surface provisional local
-word-duration/gap differences with native A/B replay. The genuine practice pair's
-53 raw windows form 44 groups; every original window remains exportable. A 2.890 s
-machine alignment gap contains no low-energy support under the activity rule, so
-TakeTwo offers inspection instead of claiming a pause. See the
-[matching, grouping and inspection-order methods](docs/comparative-insights.md).
-
-**Verified Assessment** remains separate. Reviewed text, rights, temporal correspondence,
-quality and coverage gates still control delivery findings and scores. Automatic
-observations never become human labels or approvals through display or export.
-
-A genuine local practice pair measured 30.224375 s versus 29.370 s: the participant
-recording was 0.854375 s shorter (2.8268%), and its overall digital RMS level was
-0.04385 dB higher. These measurements establish neither faster speech nor a delivery
-flaw. Private audio remains local. See the [user guide](docs/user-guide.md),
-[methods and versioned report contract](docs/exploratory-analysis.md), and
-[completion audit](docs/product-completion-audit.md).
+For judges: [start locally](#three-minute-quick-start), read the [current technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf), and check [submission readiness](docs/publication-readiness.md). Application code is public on `master` at [`9938bd8`](https://github.com/Rhythm-Sanghi/TakeTwo/commit/9938bd89321de3d265931e5a4dd1a232bf7349a6). Its full [Windows CI run](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38615636707) passed. This verifies that application commit; new publication-document commits need their own CI. No public paired dataset or demonstration video is available yet.
 
 ![TakeTwo exploratory results from generated software signals](docs/images/taketwo-exploratory-software.png)
 
-Screenshot: actual local processing of generated software signals, not human speech
-or independently reviewed results. Genuine recordings and their screenshots remain private.
+Actual application screenshot using generated software signals. It demonstrates the interface and processing pipeline, not human speech accuracy. Private recordings and their screenshots are excluded from this repository.
 
-## Quick start on Windows
+## Main capabilities
 
-Requires Windows 11, Python 3.11 with uv, and Node.js 24/npm. From the repository root in PowerShell, install/build once:
+- Import WAV/FLAC recordings and supplied transcripts; retain originals and provenance.
+- Inspect duration, digital RMS/peak/clipping, energy, activity and supported pitch.
+- Compare native timelines, grouped acoustic observations and provisional word gaps; inspect alignment anomalies and replay reference/participant intervals with A/B controls.
+- Export concise Analysis Summaries, searchable Full Evidence Reports and JSON/CSV.
+- Collect independent transcript, timing and flaw reviews in Human Review Workspace.
+- Inspect dataset prerequisites, review agreement, evaluation availability and exclusions.
+
+## Three-minute quick start
+
+This is the short startup path **after prerequisites are installed**. Downloads and first-time installation can take longer than three minutes. MFA is separate. In PowerShell:
 
 ```powershell
+git clone https://github.com/Rhythm-Sanghi/TakeTwo.git
+cd TakeTwo
 .\scripts\start-local.ps1 -Setup
 ```
 
-Normal startup reuses installed dependencies and the built interface:
+Open [the local workspace](http://127.0.0.1:8765). Stop with **Ctrl+C** in the terminal. Next time, run `.\scripts\start-local.ps1` without `-Setup`. Use `-Port 8876` if the default port is occupied. No recordings are seeded.
+
+Without MFA, import, native playback and acoustic analysis work; word alignment and assessments explicitly abstain. The repository has no ready-to-run human corpus. Generated signals are test fixtures only.
+
+## Full setup requirements
+
+Use Windows 11, Python **3.11**, **uv**, and Node.js **24** with npm. CPU processing needs no CUDA, cloud account or paid inference API. See [Windows setup](docs/windows-setup.md) for prerequisite installation, missing-dependency recovery and manual commands. Normal startup reuses the locked Python environment and built frontend.
+
+For forced alignment, install the separate locked **MFA 3.3.9 / CPU Kaldi** environment and checksummed English US ARPA **v3.0.0** model/dictionary using [the exact alignment setup](docs/analysis-engine.md#native-windows-mfa-setup). Then check and launch:
 
 ```powershell
-.\scripts\start-local.ps1
+uv run taketwo-analysis check --config .\local-data\alignment-config.json
+.\scripts\start-local.ps1 -AlignmentConfig .\local-data\alignment-config.json
 ```
 
-Open `http://127.0.0.1:8765`. Stop with Ctrl+C. The default workspace is `%LOCALAPPDATA%/TakeTwo/workspace`; no recordings are seeded. Use `-Workspace .\local-data\practice-v2` for a separate private practice workspace or `-Port 8876` if another service owns the default port. Setup does not install MFA automatically. Missing prerequisites/builds and port conflicts have explicit messages. See [Windows setup](docs/windows-setup.md) for installation and manual commands.
+Model installation needs network access; analysis does not download models. The default private workspace is `%LOCALAPPDATA%\TakeTwo\workspace`. Choose `-Workspace .\local-data\judge-session` for a separate workspace. Imports and processing use loopback HTTP and managed local files; keep workspace data, operator keys, consents and exports out of public uploads. The Python wheel supplies the API/CLI, not a prebuilt frontend: launch from a built checkout.
 
-For native CPU alignment, install the locked MFA environment and checksummed English US ARPA model/dictionary using [alignment setup](docs/analysis-engine.md). Then launch with `-AlignmentConfig .\local-data\alignment-config.json` or set `TAKETWO_ALIGNMENT_CONFIG`. Without configured resources, actual acoustic inspection works with alignment/scoring abstention. No CUDA, cloud account or paid inference API is required.
+## Reproduce a genuine analysis
 
-## First recording to report
+1. Supply your own permitted short reference WAV/FLAC and its actual spoken text in **Recording Library**. Confirm local processing permission and record known rights.
+2. Add a separate participant take with the intended same-text relationship. Supplied words remain unverified until independent review.
+3. In **Analysis Workspace**, run analysis. Inspect measured energy and timing, alignment diagnostics and native A/B playback. An automatic gap is not necessarily silence.
+4. Export **Analysis Summary / save PDF**, **Full Evidence Report / save PDF**, or scientific JSON/CSV. Retain input, config and artifact hashes for replay.
+5. Use [independent review instructions](docs/reviewed-evidence-workflow.md) before requesting verified assessments or evaluation. No software test grants approval.
 
-1. In **Recording Library**, choose a public-source reference or a self-recorded controlled practice reference, select WAV/FLAC, and supply the actual spoken words.
-2. Confirm local processing permission. Advanced source, speaker, rights and channel information stays available in disclosures; unknown rights are not filled with invented values.
-3. Click **Add participant**, choose a separate take and confirm the intended same-text relationship. The app creates and selects its pair; text remains unverified.
-4. Open **Analysis Workspace** and run analysis. Read measured differences and automatic observations first; select **Inspect interval** or **Replay interval** to use the recording's native timestamps. Listen and inspect before considering the separate Verified Assessment.
-5. Open **Technical details · scores, coverage and scientific exports** for the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
+Analysis supports at most **45 seconds per member** by default; imports support 100 MiB / 600 seconds. Longer takes remain playable and can be explicitly excerpted with exact excerpt text and original offsets. See the [recording guide](docs/recording-import-guide.md), [user guide](docs/user-guide.md) and [reproduction commands](docs/reproducibility.md).
 
-Exploratory results have complete JSON and interval CSV exports. **Export Analysis
-Summary / save PDF** prints a concise measured overview, three selected inspection
-items with reasons/listening questions, native timestamps and verification status.
-**Export Full Evidence Report / save PDF** additionally preserves all raw windows,
-groups, provisional words, anomalies, methods and provenance in searchable appendices.
-The historical six-page hackathon report stays separate.
-Use the [human listening checklist](docs/comparative-listening-acceptance.md) to
-evaluate usefulness; automatic playback checks do not constitute listening acceptance.
+## Demonstration video
 
-Use **Review Workspace** for browser transcript checks, assisted word/phrase timing, blinded flaw annotation, saved drafts and immutable review exports. A local operator key controls sequential reviewer handoff and separate adjudication; general analysis/peer APIs close during handoff. Read [review workflow and privacy limits](docs/review-workspace.md) before assigning independent reviewers. Typed identities and playback events do not authenticate people or establish scientific eligibility. [Review implementation evidence](docs/review-workspace-validation.md) lists actual checks and outstanding human acceptance.
+No actual YouTube URL has been supplied or verified. The owner must record and review a **3-10 minute** demonstration, approve audible/visible private material, upload it and verify public playback/duration. [Demo script](docs/demo-script.md).
 
-WAV/FLAC storage supports 100 MiB/600 s; analysis supports up to 45 s per member by default. Longer originals remain playable. Explicit selection-to-excerpt saving preserves originals and requires the exact excerpt text; each take has its own cut times. Read the concise [recording guide and five-WAV pilot steps](docs/recording-import-guide.md).
+## Technical report
 
-## Implemented scope and current status
+The [current six-page report](output/pdf/taketwo-technical-report-2026-10-15.pdf) and [editable source](docs/technical-report.md) describe the implemented pipeline and remaining scientific gates. The earlier [report](output/pdf/taketwo-technical-report.pdf) and [source](docs/technical-report-2026-10-12.md) are historical evidence. Rebuild with `scripts/build_submission_report.py` in a separate ReportLab authoring environment; report tools are not application dependencies.
 
-Dataset ingestion/provenance, canonical audio/text, contrastive pairing, controlled transformations/time maps, connected-group splits, CPU MFA, FFT/MFCC/RMS/energy/pYIN extraction, reviewed correspondence, explainable detection/scoring, independent-label evaluation, SQLite history and the five-area web workspace are implemented. Supervised serial workers provide cancellation, timeout, Windows crash containment/recovery, exact-request retry, bounded memory and integrity-checked caches.
+## Dataset access and rights
 
-Product stabilization repairs recording-type selection, controlled references, progressive import, pair selection/correction, explicit metadata migration, reviewer-file handoff, excerpt recovery, history timestamps and bound-report persistence. [Issue inventory](docs/product-audit.md) and [executed verification](docs/product-validation.md) distinguish repaired software from remaining acceptance gates.
+**The required public paired dataset is missing.** Five genuine private same-speaker practice takes and archival candidates were processed locally; they are not bundled or independently verified ground truth. There is no approved corpus/download URL. Two archival masters share one speaker; acquisition is not paired-dataset completion.
 
-The user supplied five genuine private practice WAV takes and their intended transcript, all by one person. They are controlled local recordings, not public-speaker references, independently reviewed labels or a releasable corpus. Two previously acquired JFK masters and one draft archive excerpt remain documented separately. Independent transcript/timing/flaw reviews, public consent, calibration, real detection accuracy and held-out validation remain open. Prior [Phase 4B](docs/phase4b-validation.md) and [Phase 5](docs/phase5-validation.md) reports are historical evidence, including the absence of these newly supplied takes at that time.
+Release requires item-specific redistribution permission, exact reviewed transcripts, independent temporal/flaw labels, provenance and checksums. See the [publication guide](docs/dataset-publication.md) and [remaining owner actions](docs/ACTION-REQUIRED.md). The MIT code license grants no audio rights.
 
-## Architecture and engineering guides
+## Architecture and stack
 
-Python 3.11/FastAPI/Uvicorn/Pydantic; NumPy/SciPy/librosa/soundfile; isolated CPU MFA/Kaldi; SQLite lifecycle history; immutable managed audio/JSON artifacts; React/strict TypeScript/Vite/uPlot. Python/npm/native environment/model resources are locked. scikit-learn is transitive through librosa; no classifier is trained. No broker, ORM, GPU framework or new runtime dependency is required.
+Python 3.11, FastAPI/Uvicorn/Pydantic, NumPy/SciPy/librosa/soundfile, isolated CPU MFA/Kaldi, SQLite and immutable local artifacts; React, strict TypeScript, Vite and uPlot. FFT/MFCC/RMS/energy/pYIN features feed descriptive comparisons and a separate gated rubric. Serial supervised workers provide timeout, cancellation, crash containment and integrity-checked caches. No trained classifier is shipped.
 
-- [Architecture and workflow](docs/architecture.md), [backend API](docs/backend-api.md), [frontend interaction guide](docs/frontend-workspace.md)
-- [Dataset tools](docs/dataset-engineering.md), [dataset plan](docs/dataset-plan.md), [current schema v2](docs/dataset-schema-v2.json), [preserved legacy schema v1](docs/dataset-schema-v1.json)
-- [Analysis engine](docs/analysis-engine.md), [comparison/review/evaluation CLI](docs/comparison-engine.md), [scoring formulas](docs/scoring-policy.md)
-- [Design system](docs/design-system.md), [requirements and official weights](docs/requirements-matrix.md), [roadmap](docs/implementation-roadmap.md), [risks](docs/risk-register.md)
-- [Source acquisition](docs/pilot-collection.md), [human review kit](docs/human-pilot-kit.md), [annotation worksheet](docs/annotation-worksheet.md), [Review Workspace](docs/review-workspace.md)
-- [Dependency purpose/licenses](docs/dependencies.md), [reproduction commands](docs/reproducibility.md)
+[Architecture](docs/architecture.md), [API](docs/backend-api.md), [comparison methods](docs/comparative-insights.md), [scoring policy](docs/scoring-policy.md), [design system](docs/design-system.md), [permanent standards](AGENTS.md).
 
-## Verification
+## Testing and reproducibility
+
+Locks pin Python/npm/native environment and model resources. Reports bind input, text, config, implementation, model, review and artifact hashes. The previous local hardening pass executed **376 backend, 81 frontend, 18 generated browser and 3 private genuine-pilot tests**, all passing within their stated scope. [Exact evidence and failures](docs/final-hardening-completion.md). [This release pass](docs/publication-readiness.md) records fresh checks and hosted CI status.
 
 ```powershell
 uv sync --locked
 npm --prefix frontend ci
 npm --prefix frontend run build
 uv run pytest -q
-uv run ruff check src tests scripts
-uv run ruff format --check src tests scripts
+npm --prefix frontend test -- --maxWorkers=1
 npm --prefix frontend run typecheck
-npm --prefix frontend run lint
-npm --prefix frontend run test
-npm --prefix frontend run build
-uv run python scripts/make_browser_fixtures.py
-npm --prefix frontend exec -- playwright install chromium
-npm --prefix frontend run e2e
 uv run python scripts/check_repository.py
-uv run python scripts/audit_release.py
+uv build --no-sources
+uv run python scripts/audit_release.py --packages
 ```
 
-The browser suite uses actual local HTTP/audio processing; generated tones are explicit software fixtures. Optional `TAKETWO_REAL_SMOKE=1` requires the documented local archival source/config; `TAKETWO_PILOT_SMOKE=1` requires the user's private five files. The processing/review integration tests use actual backend routes. A separate explicitly labeled UI-state test intercepts report responses to exercise loading, partial, eligible findings and eligible-zero presentation; it never changes stored scientific artifacts or establishes speech accuracy. See the validation report for checks actually run, failed attempts and environment-blocked tests.
+[Browser testing](docs/browser-testing.md) distinguishes generated software fixtures from opt-in external/private recordings. Private pilot inputs are excluded from CI and Git. Automated results do not establish audible usefulness or scientific accuracy.
 
-## Limitations and submission materials
+## Known scientific limitations
 
-Acoustic agreement is not persuasion, emotion or speaking ability. `delivery-v0` remains experimental and uncalibrated. Scores/regions/confidence stay unavailable when rights, text, timing, quality, pitch or coverage gates fail; no weights are redistributed. Automatic alignment can fit wrong words. Cross-speaker generalization and clean second-environment reproduction are unmeasured. Windows is required for current web supervision. Automated accessibility checks do not establish spoken screen-reader compatibility or production readiness.
+Delivery-v0 is experimental and uncalibrated. Missing rights, verified text, timing, quality or coverage withhold conclusions; unavailable weights are never redistributed. Automatic alignment can fit wrong words. Accepted pitch coverage on the private takes was insufficient; thresholds were retained. Precision/recall/F1, calibrated confidence, cross-speaker generalization and held-out accuracy are unavailable.
 
-The [submission package](docs/submission-draft.md) includes [compliance](docs/submission-compliance.md), the [six-page historical report draft](output/pdf/taketwo-technical-report.pdf), its [archived source](docs/technical-report-2026-10-12.md), and the [current editable report](docs/technical-report.md), [demo script](docs/demo-script.md), [dataset publication guide](docs/dataset-publication.md), [attributions](docs/attributions.md) and [manual action list](docs/ACTION-REQUIRED.md). Report regeneration uses external ReportLab tools via `scripts/build_submission_report.py`, without adding application dependencies. Reconcile drafts with current evidence before release.
+Human listening and spoken screen-reader acceptance remain pending. Cold evidence requests can time out under contention. Windows supervision and same-host replay are tested; clean second-machine reproduction is unverified. Acoustic association does not establish persuasion, emotion, speaking ability or a psychological cause.
 
-Public code is verified on `master` at `cd2abe9`: [Windows Actions run 38357432224 passed](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). The earlier failed build-order run remains historical evidence. The subsequent [stabilization audit](docs/stabilization-audit.md) corrects ground-truth selection and narrow-screen controls locally; these changes have not been pushed. Public paired dataset, final report approval, video and submission remain owner actions. Private audio, models, consent records, databases and runtime evidence stay outside releases.
+## AI assistance disclosure
 
-See the [product experience audit](docs/product-experience-audit.md) for the outcome-first redesign, verified user journeys, screenshots, accessibility evidence and remaining human acceptance limits.
+**OpenAI Codex** assisted implementation, integration, testing and documentation under human direction. **ChatGPT** assisted planning, problem interpretation, architecture and technical review. Both belong in Devpost's **Built With** list. Human recordings, consent, independent annotation, listening and final submission remain human tasks. [Attributions](docs/attributions.md), [Devpost draft](docs/submission-draft.md).
 
-## AI assistance
+## License
 
-OpenAI Codex was extensively used for implementation, testing, integration and documentation under human direction. ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Human participants supplied the genuine private recordings. Generated signals verify software only. Human consent, transcript/timing/flaw review, scientific judgments and final publication remain separate. Detailed third-party notices and honest tool disclosure are in [attributions](docs/attributions.md).
+Original TakeTwo code and documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Recordings, consent/review records, models and third-party materials retain separate rights. [Dependency notices](docs/dependencies.md).
 
-The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](docs/duration-validation.md).
+## Detailed documentation
 
-## License and data rights
-
-Original TakeTwo code and project documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Private recordings, datasets, consent/reviewer records, external model files and third-party materials retain separate rights. See [attributions](docs/attributions.md); this license grants no private-data publication permission.
-
-Current verification and owner actions are in the [stabilization audit](docs/stabilization-audit.md). The [earlier repair audit](docs/final-repair-audit.md) preserves historical evidence. Windows CI is configured in `.github/workflows/ci.yml`; [CI and submission verification](docs/ci-submission-validation.md) distinguishes the successful public baseline from subsequent local work.
-
-Portable generated browser tests and opt-in private fixture preparation are documented in [browser testing](docs/browser-testing.md). The [pitch investigation](docs/pitch-investigation.md) records measured abstention and controlled confidence probes without changing acoustic-v1 or delivery-v0.
-
-See the [mobile refinement audit](docs/mobile-refinement-audit.md) for compact navigation, task-first layouts, persistent track selection and executed responsive/print verification.
-
-See the [reference inspection and PDF repair audit](docs/reference-inspection-audit.md) for single-input states, report identity protection, searchable browser print output and verification evidence.
-
-The [final product acceptance review](docs/final-product-acceptance.md) records current
-summary/evidence PDF checks and separate engineering, product, scientific and publication
-decisions. Actual listening and [spoken screen-reader acceptance](docs/spoken-accessibility-acceptance.md)
-remain owner checks.
+[Submission compliance](docs/submission-compliance.md), [final hardening evidence](docs/final-hardening-completion.md), [Windows measurements](docs/windows-hardening-evidence.md), [listening acceptance](docs/comparative-listening-acceptance.md), [spoken accessibility](docs/spoken-accessibility-acceptance.md), [report exports](docs/report-export-guide.md), [dataset engineering](docs/dataset-engineering.md). Earlier phase and repair audits remain dated historical records.

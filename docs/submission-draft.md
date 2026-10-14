@@ -1,35 +1,37 @@
-# Submission description and final checklist
+# Devpost submission handoff
 
-TakeTwo — Speech analysis workspace. Draft for owner review; not posted to Devpost or any third party. Official artifacts and current gates are in [compliance](submission-compliance.md); all manual actions are in [ACTION-REQUIRED](ACTION-REQUIRED.md).
+TakeTwo - Speech analysis workspace. Prepared 15 October 2026; not submitted.
 
-## Devpost description draft
+## Fields to enter
 
-TakeTwo is a local speech-analysis workstation for comparing reference and participant performances of the same transcript. It preserves native audio timing and links delivery deviations to measured acoustic differences, explicit tolerances and reproducible rubric calculations. Its Workshop + Gridline + Studio Utility interface provides recording import, audio transport, waveform/feature inspection, evidence, history, dataset inventory and report export.
+| Field | Prepared value / owner action |
+| --- | --- |
+| Project name | TakeTwo |
+| Tagline | Compare speech. Understand the difference. |
+| GitHub | https://github.com/Rhythm-Sanghi/TakeTwo |
+| Technical report | Publish the reviewed `output/pdf/taketwo-technical-report-2026-10-15.pdf`, then link that exact public file |
+| YouTube | Missing; supply a real publicly accessible 3-10 minute video and verify playback/duration |
+| Public paired dataset | Missing; release only an approved rights-cleared, independently labeled corpus; verify download/checksums |
+| Built With | Python, FastAPI, NumPy, SciPy, librosa, soundfile, Montreal Forced Aligner, Kaldi, SQLite, React, TypeScript, Vite, uPlot, **OpenAI Codex**, **ChatGPT** |
+| Submission receipt | Missing; save the actual portal confirmation after manual submission |
 
-The implementation combines a provenance-aware contrastive dataset pipeline, native CPU Montreal Forced Aligner, FFT/MFCC/RMS/energy/pYIN extraction and reviewed word/phrase correspondence. Pacing, pause behavior, energy excursion and pitch excursion form the initial equal-weight delivery-agreement rubric. Scores and detection confidence are unavailable when evidence is insufficient. The software does not infer persuasion, emotion or a psychological cause from an acoustic difference.
+## Project story
 
-Current evidence includes genuine archival reference processing and automated signal, contract, browser and Windows crash-recovery tests. The two acquired masters share JFK; the one imported excerpt is unverified. Five genuine private same-person practice takes and their intended transcript are now available; independent transcript/timing/flaw reviews and public-release consent remain absent, so genuine contrastive detection accuracy, rubric calibration and held-out results remain unavailable. Public dataset and video delivery are incomplete. Replace this status only with newly executed, inspectable evidence before submission.
+TakeTwo helps listeners compare two performances of the same words without losing their native audio timing. Instead of a single unexplained judgment, the workspace shows measured energy, timing and supported pitch observations, explains why an interval deserves inspection, and offers native A/B replay.
 
-Technology: Python 3.11, FastAPI/Uvicorn/Pydantic, NumPy/SciPy/librosa/soundfile, CPU MFA/Kaldi, SQLite, local managed files, React/TypeScript/Vite/uPlot; pytest, Vitest/Testing Library, Playwright/axe, Ruff/ESLint/Prettier. No CUDA or paid inference API. Exact versions/resources are locked. OpenAI Codex was extensively used for implementation, testing, integration and documentation. ChatGPT assisted architecture planning, problem interpretation, technical review and development instructions. Humans supplied the genuine recordings; human consent, recording, annotation and final judgments remain separate. See [full attribution/tool disclosure](attributions.md).
+We built a local CPU pipeline with provenance-aware imports, Montreal Forced Aligner, FFT/MFCC/RMS/energy/pYIN features, immutable analysis artifacts and a React workspace. Comparative insights group related windows and expose provisional word differences and alignment diagnostics. Concise summaries and full evidence reports preserve measurements and verification status. Human Review Workspace collects separate transcript, timing and flaw reviews; Dataset & Evaluation shows missing prerequisites and withheld metrics.
 
-## Submission artifact checklist
+Five genuine private practice recordings were processed locally. Their text/timing/flaws have not been independently verified and they have no public redistribution approval. The public paired dataset requirement remains unmet. Experimental rubric scores abstain when evidence is insufficient; there is no claimed held-out accuracy, calibrated confidence or cross-speaker generalization. Accepted pitch coverage was inadequate on these takes, and production thresholds were preserved. Actual listening and spoken accessibility acceptance remain pending.
 
-| Artifact / action | Current state | Completion evidence required |
-| --- | --- | --- |
-| README/setup/architecture/contracts | Public cd2abe9 baseline has successful CI; subsequent stabilization local | Owner-reviewed exact public release commit; signed-out setup/download check |
-| Final compliance matrix | Prepared with open gates | Reconcile with actual submitted artifacts; retain incomplete rows |
-| Code license and notices | Owner selected MIT, copyright (c) 2026 Rhythm Sanghi | Root LICENSE added; private data and third-party resources retain separate rights |
-| Custom contrastive dataset | Blocked | Permitted audio, exact text, reviewed labels, spectrum, frozen groups, validation and public checksum audit |
-| Independent scientific evaluation | Blocked | Real counts, replayable reports, independent labels, failures/abstentions and held-out prerequisites |
-| Manual accessibility | Partial: automated native tab zoom verified | Actual heard screen-reader and independent keyboard acceptance log |
-| Clean second-environment reproduction | Incomplete | Actual setup/replay hashes and decision comparison |
-| Technical report, maximum six pages | Current source reconciled; new local owner-review PDF, historical PDF retained | Final evidence reconciliation, page-count/content/visual audit |
-| YouTube, 3–10 minutes | Script prepared; video absent | Actual recording, owner-approved upload, signed-out playback/duration |
-| GitHub code/documentation link | Public master cd2abe9; run 38357432224 passed; new stabilization local | Publish only after authorization, then verify that exact new commit |
-| Public dataset link in README | Absent | Actual permitted public GitHub/Google Drive download and checksums |
-| Devpost fields/attachments | Draft only | Owner verifies portal/rules/deadline/timezone and uploads actual artifacts |
-| Submission receipt | Absent | Actual owner submission confirmation |
+OpenAI Codex assisted implementation, tests, integration and documentation under human direction. ChatGPT assisted planning, architecture, interpretation and technical review. These tools did not supply consent, independent human labels or listening evidence.
 
-No placeholder URL, generated metric or software test result completes an external/scientific gate. Final owner review must compare the public README, PDF and video against the same actual release/data/config versions. Three prior repair commits were published with owner authorization. This new pass commits locally; a new push, any dataset/report/video publication and submission require their respective owner authorization.
+## Final owner checklist
 
-Devpost Built With: Python, FastAPI, NumPy, SciPy, librosa, soundfile, Montreal Forced Aligner, Kaldi, SQLite, React, TypeScript, Vite, uPlot, OpenAI Codex, ChatGPT. Verification tools: pytest, Vitest, Playwright, axe, Ruff, ESLint, Prettier. These tool names do not imply independent human review.
+1. Check the current portal and organizer deadline; do not assume that prepared files constitute an entry.
+2. Approve the exact README/source/report publication handoff; after push, verify remote HEAD and its own Actions run.
+3. Supply and verify an approved YouTube video. Demonstration permissions are separate from dataset redistribution rights; do not expose private audio, paths, identities or operator keys by implication.
+4. Complete the [dataset release requirements](dataset-publication.md), or explicitly disclose the unmet mandatory requirement. Do not substitute software fixtures, automatic timestamps or invented approvals.
+5. Enter the fields above, attach actual public links, keep both AI tools in Built With, compare claims against the published release and submit manually if the portal permits it.
+6. Retain the actual submission receipt. No upload or submission was performed by this release pass.
+
+[Release evidence](publication-readiness.md), [compliance](submission-compliance.md), [demo script](demo-script.md), [attributions](attributions.md).

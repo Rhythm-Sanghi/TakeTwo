@@ -4,6 +4,29 @@ Human reviews use the [Review Workspace](review-workspace.md). With the service 
 
 Requires Windows 11, Python 3.11 with uv, and Node.js 24 LTS / npm (the executed environment used Node 24.15.0). CPU processing requires no CUDA. The backend and frontend use committed locks. Existing MFA/environment/model setup remains in [analysis engine](analysis-engine.md); it is installed separately and never downloaded by an analysis request.
 
+## Install prerequisites first
+
+Install Python 3.11 from [Python's Windows downloads](https://www.python.org/downloads/windows/),
+uv using [Astral's installation instructions](https://docs.astral.sh/uv/getting-started/installation/),
+and Node.js 24 with npm from [Node.js downloads](https://nodejs.org/en/download).
+Install Git if cloning with the README command, or download/extract the GitHub source archive.
+Open a new PowerShell terminal after installation and check:
+
+```powershell
+uv --version
+uv python install 3.11
+node --version
+npm --version
+```
+
+Node should report version 24; the project requires Python 3.11. Setup downloads locked
+dependencies and builds the interface. If a command is missing, finish its installation
+and reopen the terminal. If PowerShell blocks the launcher, use the manual commands
+below rather than changing machine-wide execution policy. Model configuration remains
+a separate step; the quick-start time estimate does not include those downloads.
+
+## Launch and recover
+
 From the repository root in PowerShell:
 
 First-time setup: `./scripts/start-local.ps1 -Setup`. Normal startup: `./scripts/start-local.ps1`. The normal path reuses the installed locked environment and existing build; it does not reinstall packages. Use `-Workspace .\local-data\practice-v2`, `-AlignmentConfig .\local-data\alignment-config.json` and/or `-Port 8876` as needed. Missing uv/npm/build and occupied ports produce explicit recovery messages. The equivalent manual first-time commands remain below.

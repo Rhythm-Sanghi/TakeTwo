@@ -13,7 +13,7 @@ caught-deviation/spectrum demonstration.
 | 0:00-0:20 | Header and five workspace areas | Purpose: same-text delivery agreement with native acoustic evidence, not persuasion or a human cause; local CPU execution |
 | 0:20-1:00 | Provenance inventory, permitted source playback and paired takes | Show actual public-source family, rights and exact text. State reviewed versus draft status. Five private technology takes are one unreviewed practice family, not the public-speaker baseline |
 | 1:00-1:25 | Recording Library import and Run analysis | Real WAV/FLAC/text import, pair selection, validation and named stages. Record the full uncached process separately; never animate invented progress |
-| 1:25-2:00 | Previously computed genuine alignment/features | On-screen label: Previously computed genuine output - not generated live. Show the actual job ID/elapsed time from its artifact, 16 kHz native timeline, words/phones, RMS/FFT/MFCC and pitch withholding reason. Current measured private pair: 287.469 s; 71 words/274 phones per member, subject to video permission |
+| 1:25-2:00 | Previously computed genuine alignment/features | On-screen label: Previously computed genuine output - not generated live. Show the actual job ID/elapsed time from its artifact, 16 kHz native timeline, words/phones, RMS/FFT/MFCC and pitch withholding reason. Historical private pair: 287.469 s; current fresh pilot: 237.640 s. Use the actual presented job telemetry, subject to video permission |
 | 2:00-2:30 | Waveform and native transport | Play/seek/zoom using actual audio and numeric selection. Show each member's native clock and correspondence only if reviewed timing permits it |
 | 2:30-3:20 | Human Review Workspace | Operator hands off a permitted recording; reviewer plays audio, edits a draft transcript/boundary and creates an interval/anchor label. Save/reopen. Explain two independent real reviewers and immutable submissions. A filmed operator demonstration remains an unresolved draft; never submit it as independent approval |
 | 3:20-4:00 | Rubric and Evidence | If an actual eligible report exists, seek a computed region and explain both measurements, delta, tolerance, excess and penalty. Otherwise show null scores and missing reasons; zero regions during abstention is not perfect delivery |
@@ -31,7 +31,6 @@ caught-deviation/spectrum demonstration.
 7. Review final 3-10 minute duration, source/model notices, accurate Codex/ChatGPT disclosure, audio intelligibility, privacy and public links. Owner approves the exact video/report before upload.
 8. After authorized YouTube upload, verify signed-out playback/duration, description links and source notices. Save the real URL/access date. Add only verified dataset/video links to README and submit manually before the organizer deadline.
 
-Public source baseline cd2abe9 on master passed Actions run 38357432224. Subsequent
-stabilization and the current report remain local until authorized. See [current evidence](stabilization-audit.md).
+Application code at 9938bd8 is public. Its exact-commit CI status and new report publication handoff are recorded in [release evidence](publication-readiness.md).
 No genuine independent approval, public paired dataset, caught-deviation video,
 YouTube URL or submission receipt has been manufactured.

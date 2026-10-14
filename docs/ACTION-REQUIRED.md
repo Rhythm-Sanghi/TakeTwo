@@ -1,6 +1,13 @@
 # Actions requiring people
 
-TakeTwo — Speech analysis workspace. Five private same-speaker practice takes and an intended transcript exist; follow [the recording guide](recording-import-guide.md). Independent reviews, public-release consent and a public-speaker competition corpus remain missing. The [organizer rules](https://multimodal-ai-hackathon-2026-7.devpost.com/rules) confirm October 15, 2026 at 00:15 IST; finish on October 14. Public master at cd2abe9 has [successful Windows CI](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38357432224). Subsequent stabilization/report work remains local; see [current audit](stabilization-audit.md). Datasets and video remain unpublished.
+TakeTwo - Speech analysis workspace. Current publication and submission tasks are in
+[release readiness](publication-readiness.md) and the [Devpost checklist](submission-draft.md).
+Application code at 9938bd8 is already public. The new README/report handoff awaits owner
+approval. Dataset rights, independent labels, video and submission receipt remain absent.
+
+The detailed steps below preserve the earlier acquisition/review plan. References to
+unpublished stabilization and the old cd2abe9 public baseline are historical; they do
+not supersede the current release record. Never publish private recordings by implication.
 
 1. **Choose and verify source excerpts.** Existing source IDs: `jfkwha-001` and `jfkwha-190-002`, both JFK, one connected speaker group. Existing candidate recording `r-478a9405c1b10a75fda31972` in `local-data/pilot-v2` is an unverified salutation. Use the [rights ledger](pilot-collection.md). For the smallest honest pilot, select one substantive 15–25 s public-source passage first; add a second source speaker before claiming generalization or split independence. Two people must listen independently and agree every word/repetition/cut edge. There is currently **no verified transcript segment to supply**. Preserve both checks as `transcript-review-A.md` / `transcript-review-B.md`; save the agreed text as `transcript-verified.txt`. Do not relabel the [draft script](recording-session.md) as verified without this work.
 2. **Obtain permission and record.** Complete the [blank consent/provenance form](consent-provenance-form.md) privately per speaker. Under ignored `local-data/collection/<family>/`, save `reference.wav`, `reference.json`, the verified transcript, and `speaker-<id>-natural.wav`, `speaker-<id>-near-perfect.wav`, `speaker-<id>-mild.wav`, `speaker-<id>-moderate.wav`, `speaker-<id>-severe.wav`, each with a same-stem `.json` ImportSpec. Use [session instructions](recording-session.md); every file is a genuine separate take. Skip any take that cannot be collected; never create stand-ins. Metadata fields follow [dataset engineering](dataset-engineering.md). Rights and two-reviewer assertions must reflect actual records.
