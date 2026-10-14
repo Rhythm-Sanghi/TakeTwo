@@ -106,12 +106,22 @@ export function ComparativeInsights({
           const gapMode =
             item.category === "gap_difference" || Boolean(anomaly);
           const leftStart = paired
-            ? paired.reference.start_s -
-              (gapMode ? (paired.reference_gap_before_s ?? 0) : 0)
+            ? ((anomaly
+                ? reference?.automatic_alignment?.words.find(
+                    (w) => w.token_index === anomaly.before_token_index,
+                  )?.start_s
+                : undefined) ??
+              paired.reference.start_s -
+                (gapMode ? (paired.reference_gap_before_s ?? 0) : 0))
             : 0;
           const rightStart = paired
-            ? paired.participant.start_s -
-              (gapMode ? (paired.participant_gap_before_s ?? 0) : 0)
+            ? ((anomaly
+                ? participant?.automatic_alignment?.words.find(
+                    (w) => w.token_index === anomaly.before_token_index,
+                  )?.start_s
+                : undefined) ??
+              paired.participant.start_s -
+                (gapMode ? (paired.participant_gap_before_s ?? 0) : 0))
             : 0;
           const recording = e.recordings.find(
             (r) =>

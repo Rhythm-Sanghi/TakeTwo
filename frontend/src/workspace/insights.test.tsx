@@ -57,6 +57,56 @@ const fixture = {
     "No reviewed phrase partition; comparison withheld",
 } as unknown as ComparativeReport;
 
+it("includes both surrounding words when replaying a paired alignment anomaly", () => {
+  const seek = vi.fn();
+  const report = {
+    ...fixture,
+    exploratory: {
+      ...fixture.exploratory,
+      recordings: fixture.exploratory.recordings.map((r, i) => ({
+        ...r,
+        automatic_alignment: {
+          words: [
+            {
+              token_index: 0,
+              start_s: i === 0 ? 9.2 : 8,
+              end_s: i === 0 ? 9.8 : 11,
+            },
+          ],
+        },
+      })),
+    },
+    anomalies: [
+      {
+        id: "anomaly",
+        recording_id: "part",
+        before_token_index: 0,
+        before_word: { label: "previous", start_s: 8, end_s: 11 },
+        after_word: { label: "example", start_s: 13, end_s: 13.8 },
+        gap: { start_s: 11, end_s: 13 },
+        context: { start_s: 8, end_s: 13.8 },
+        measurement: { low_energy_s: 0, observed_s: 2, complete: true },
+        reason: "Generated presentation anomaly",
+      },
+    ],
+    inspection_order: [
+      {
+        id: "item",
+        category: "alignment_anomaly",
+        evidence_id: "anomaly",
+        order_reason: "Inspectable gap context",
+      },
+    ],
+  } as unknown as ComparativeReport;
+  render(<ComparativeInsights report={report} onSeek={seek} />);
+  fireEvent.click(screen.getByRole("button", { name: "Listen to reference" }));
+  expect(seek).toHaveBeenLastCalledWith("ref", 9.2, 10.5, true);
+  fireEvent.click(
+    screen.getByRole("button", { name: "Listen to participant" }),
+  );
+  expect(seek).toHaveBeenLastCalledWith("part", 8, 13.8, true);
+});
+
 it("plays corresponding native gap intervals independently and returns to full recordings", () => {
   const seek = vi.fn();
   render(<ComparativeInsights report={fixture} onSeek={seek} />);
