@@ -109,3 +109,63 @@ unchanged; incomplete responses explain the mismatch and offer Retry. Executed:
 50 frontend tests, three new backend partial-failure/zero cases, 43 existing web/
 review tests and the new browser failure/recovery case passed. TypeScript, ESLint
 and production build passed. Full-system checks will run again after later stages.
+
+## Exploratory implementation and completion findings
+
+PC4–PC6 now have a separate exploratory-v1 engine/API, immutable compact artifacts,
+descriptive pair summaries, deterministic native acoustic candidates, provisional
+words/correspondence/rates, independent response identity checks, native replay,
+JSON/CSV and dedicated selectable-text print output. Source hashes, dataset/config,
+implementation and candidate thresholds bind every result. Automatic candidates
+never enter Review, Label, Region, scoring or evaluation artifacts.
+
+The initial exploratory implementation exposed a provenance error: the final
+descriptive energy baseline is not always the median used in the last activity-mask
+update. Exact two-pass threshold reconstruction now verifies the stored mask and
+exports the threshold actually used; acoustic-v1 remains unchanged. Silence/short/
+noise/clipping/energy-step and partial/non-OOV automatic-rate cases cover this.
+Incorrect masks and stale source identities fail closed.
+
+HTTP profiling identified repeated feature serialization. Existing stat-keyed
+validated artifacts now supply cached digests; a per-app 16-entry compact summary
+cache still checks current audio/environment, dataset, selection and stage identity.
+Publication/size/integrity checks precede cache promotion. Genuine-copy repeat
+requests measured about 0.12–0.23 s versus 3.01–8.67 s before this change under mixed
+local load, not an isolated universal benchmark or faster MFA claim.
+
+A review regression was reproduced on a software recording: listened support
+started at 0.005914 s after a play callback overwrote an explicit zero seek. Native
+seek now completes before playback and the established cursor is retained. Saving
+also waits for terminal listening acknowledgment. Backend coverage, identity,
+consensus and submission gates are unchanged. A repeat against an already-reviewed
+fixture correctly required revision; fresh fixtures are used for acceptance.
+
+Genuine reference/uneven output is 30.224375/29.370 s, −0.854375 s, −2.826775%,
+RMS 0.04110913/0.04131717 and +0.04384731 dB. Fifty-three acoustic windows and 71
+automatic correspondences are unverified, not flaws or accuracy metrics. Pitch
+probes reproduce 0.284–0.617% accepted coverage; no replacement or score unlock is
+justified. See [pitch investigation](pitch-investigation.md).
+
+Five-width genuine-copy layouts passed axe and overflow checks. The four-page
+genuine exploratory PDF has selectable measurements, energy plots, all candidate
+rows, provisional words, provenance and actual missing assessment requirements.
+All four pages were rendered/inspected. A separate dated technical draft has six
+inspected pages; historical PDFs remain untouched. Public screenshots are software-only.
+
+All fifteen preservation hashes match. Five acquisition WAVs were located directly
+in Documents rather than speech-01; each matches its baseline and managed original.
+Their movement cause is unknown. This work did not delete, rewrite or relocate them.
+
+WinError 10054 remains observable during abrupt browser-request cancellation.
+No data loss was established in these runs and no universal fix is claimed. Earlier
+permission failures remain unproven. Human screen-reader acceptance, independent
+evidence, F0 accuracy, calibration, held-out speech evaluation and publication rights
+remain external acceptance work. See the [completion report](product-completion-report.md)
+for final checks, commits, reproduction and remaining actions.
+
+Final execution: 340 Python tests passed; 49 affected backend regressions passed
+after the last cache ordering refinement; 55 frontend tests and all 10 browser
+tests passed, with no failed/skipped cases in those successful runs. Native zoom,
+five-width axe/overflow, builds, schemas/links, lint/format, dependency audits and
+release preflight passed. The existing Starlette/httpx warning and Windows reset
+diagnostics are retained. This is engineering evidence, not scientific acceptance.

@@ -41,3 +41,21 @@ a comparable before/after benchmark. No performance improvement is claimed.
 The previous window/range probes remain historical evidence; this recheck did not
 repeat them or establish genuine F0 accuracy. Close the implementation-defect
 hypothesis with the existing limitation and abstention, not a changed threshold.
+
+## Product completion recheck — 14 October 2026
+
+Repeated all five genuine takes, four known-frequency controls, reference gain
+control and the complete window/range probe matrix on the authorized isolated copy.
+Private evidence: `local-data/completion-pitch.json`. Accepted real fractions again
+range from 0.283912% to 0.616827%; reference is 0.596619%, uneven is 0.511771%.
+The reference gain control remains unchanged. No >10-semitone adjacent jump or
+pYIN warning was observed. Controls again accept 0/0/100/100% at 80/120/200/400 Hz.
+The 2,048-sample window accepts 60.069444%/100% at 80/120 Hz, but only 1.362126%
+on the real reference; range-only probes do not improve its accepted coverage.
+
+This repeats a configuration limitation, not real-speech F0 accuracy. There is no
+permissible independently checked F0 corpus in this workspace. No experimental
+extractor or relaxed score gate is justified. Acoustic-v1, delivery-v0, null F0
+and scientific abstention remain unchanged. A future separately versioned study
+needs independently checked F0, octave-error/coverage measures, register/noise
+controls and a held-out protocol before replacing any scientific policy.

@@ -66,7 +66,8 @@ The browser results view puts recording identity, measured summaries and automat
 observations before the native listening tools and separate Verified Assessment.
 Candidate inspect/replay actions use their own recording clocks. First-eight display
 limits do not truncate exports. Provisional words have seek controls. Deterministic
-energy-distribution plots use the actual three percentiles, with a −120 to 0 dBFS axis.
+energy-distribution plots use the actual three percentiles, with an axis spanning
+at least −120 to 0 dBFS and expanding to include out-of-range measurements.
 
 CSV includes feature hashes, thresholds, frame/hop resolution and limitations.
 The dedicated native print scope contains selectable measurements, energy plots,

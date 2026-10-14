@@ -39,3 +39,6 @@ tmp/
 /output/pdf/taketwo-mobile-analysis-summary.pdf
 /output/pdf/taketwo-reference-inspection.pdf
 /output/pdf/taketwo-participant-comparison.pdf
+
+# Dated completion report is a local owner-review artifact, not a release.
+/output/pdf/taketwo-technical-report-2026-10-14.pdf

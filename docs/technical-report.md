@@ -2,7 +2,18 @@
 
 Speech analysis workspace
 
-Technical report draft | Track C | 13 October 2026 | Public cd2abe9 baseline plus local stabilization
+Technical report draft | Track C | 14 October 2026 | Public cd2abe9 baseline plus local product completion
+
+Local implementation update, 14 October: Exploratory Speech Analysis now supplies
+versioned descriptive recording/pair summaries, frame-derived low-energy/energy-change
+candidates, native replay, provisional word inspection and JSON/CSV/selectable-text
+print reports. A compact cache avoids repeated summary serialization while validating
+source identity. Independent readiness requests preserve partial inventory and explicit
+errors. These observations never become human labels, delivery scores or evaluation
+ground truth. Acoustic-v1 and delivery-v0 are unchanged; the genuine pitch limitation
+persists. See the product completion audit and exploratory methods for current evidence.
+Historical PDF reports are preserved. A dated six-page owner-review PDF is generated
+separately; publication and independent scientific acceptance remain owner actions.
 
 ## 1. Problem, scope and acceptance
 
@@ -44,7 +55,7 @@ Windows Job Objects contain one disposable CPU worker, with single-thread numeri
 
 Native CPU MFA 3.3.9 uses the isolated locked Windows environment and checksummed English US ARPA model/dictionary v3.0.0. Each recording aligns independently against canonical words. OOV words and invalid/partial intervals are explicit failures or review states; there is no evenly spaced fallback. Automatic alignment can fit wrong words and never verifies a transcript.
 
-Energy uses 400-sample Hann frames, hop 160: RMS=sqrt(mean(x^2)); E=20*log10(max(RMS,1e-6)) dBFS. STFT uses a 512-point real FFT; P=abs(FFT(w*x))^2/sum(w^2). One-sided total power doubles interior bins and divides by 512. MFCCs use 40 Slaney mel bands over 0-8000 Hz, natural-log floor 1e-10 and 13 orthonormal DCT-II coefficients. Centroid/MFCCs aid inspection, not validated vocal-clarity scoring.
+Energy uses complete 400-sample unweighted RMS frames, hop 160: RMS=sqrt(mean(x^2)); E=20*log10(max(RMS,1e-6)) dBFS. STFT uses periodic Hann weighting and a 512-point real FFT; P=abs(FFT(w*x))^2/sum(w^2). One-sided total power doubles interior bins and divides by 512. MFCCs use 40 Slaney mel bands over 0-8000 Hz, natural-log floor 1e-10 and 13 orthonormal DCT-II coefficients. Centroid/MFCCs aid inspection, not validated vocal-clarity scoring.
 
 pYIN uses 1024-sample frames, hop 160, 60-500 Hz, center=False and finite voiced F0 with probability >=0.8. Frame centers and complete-window support are preserved; pitch and spectral arrays are not joined by index. Relative pitch is 12*log2(F0/median(valid F0)); relative energy subtracts the active-energy median. No per-recording variance normalization erases dynamics. Gain/register fixtures support these transformations; arbitrary speaker/microphone invariance is unmeasured.
 
@@ -88,7 +99,7 @@ Ground truth uses exact-inventory-v1. Semantic listening agreement alone cannot 
 
 Evaluation retains category/severity counts, FP/FN identities, matched median/p90 boundary errors, clean-span false flags/minute, defined-only severity Spearman and seeded family bootstrap (1000 resamples, seed 17). Current genuine reviewed recordings/families: zero; real detection and timing metrics remain unavailable. A one-family pilot cannot establish held-out generalization.
 
-Local stabilization: 316 Python tests passed, zero failures/skips, one existing Starlette/httpx warning. Regressions cover ground-truth permutations, multiple reviewers/labels, fresh-process replay, tamper rejection, revisions, adjudication, threshold edges and private diagnostic handling. The isolated generated browser suite passed four tests, including five-area responsive captures and actual 200% tab zoom. A fresh same-host Windows clone passed documented setup, 70 comparison and 21 frontend tests. Earlier failures and final checks remain in the audit [5]. Public baseline CI is green; later work is local. These checks do not establish human accuracy.
+Historical stabilization: 316 Python tests passed, zero failures/skips, one existing Starlette/httpx warning. Regressions cover ground-truth permutations, multiple reviewers/labels, fresh-process replay, tamper rejection, revisions, adjudication, threshold edges and private diagnostic handling. The isolated generated browser suite passed four tests, including five-area responsive captures and actual 200% tab zoom. A fresh same-host Windows clone passed documented setup, 70 comparison and 21 frontend tests. Earlier failures and final checks remain in the audit [5]. Public baseline CI is green; later work is local. Product completion subsequently passed 340 Python, 55 frontend and 10 browser tests, including candidate replay/export and review playback synchronization. These checks do not establish human accuracy.
 
 Current genuine 17.3 s source: MFA 3.3.9 aligned 19 words/115 phones; alignment stage 166.937 s, extraction 10.141 s, comparison 0.390 s, peak worker commit 1,887,477,760 bytes. All four genuine browser tests passed in a short temporary workspace using the original 180 s alignment config; full measured workflow 261.548 s. Earlier longer-workspace attempts timed out or raised a permission error; their cause remains unproven. Historical 45 s controlled-pair and private 30 s pair jobs took 314.813/287.469 s [6]. All remain bounded by 600 s/4 GiB; no speed gain or accuracy is claimed.
 

@@ -1,5 +1,15 @@
 # Local backend API v1
 
+## Exploratory result additions
+
+`GET /api/v1/analyses/{job_id}/exploratory` returns the separately versioned
+[Exploratory Speech Analysis contract](exploratory-schema-v1.json). At least one
+completed acoustic feature stage is required (otherwise HTTP 409). Missing members
+produce a partial result; integrity/provenance failures do not produce replacement
+measurements. `/exploratory/export?format=json|csv` exports checksum-bound reports
+or native automatic-event rows. General-API handoff restrictions apply unchanged.
+See [methods and cache boundaries](exploratory-analysis.md).
+
 ## Dataset presentation additions
 
 `GET /api/v1/dataset` retains existing fields and adds default-empty `inventory_counts`

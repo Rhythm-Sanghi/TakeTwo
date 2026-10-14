@@ -4,6 +4,28 @@ Speech analysis workspace
 
 TakeTwo compares reference and participant recordings of the same words, preserves native audio timing, and exposes measured acoustic evidence and an explainable delivery-agreement rubric. The Workshop + Gridline + Studio Utility interface uses restrained surfaces, precise grids, functional controls and explicit unavailable states. Permanent standards are in [AGENTS.md](AGENTS.md).
 
+Successful acoustic processing now produces **Exploratory Speech Analysis**: duration,
+RMS/peak/clipping, measured energy distribution and variation, observable activity,
+accepted pitch coverage, timestamped acoustic candidates and replay. Reference-only
+inspection works without a participant or independent reviews. Machine-aligned words
+and supported automatic word correspondence remain explicitly unverified.
+
+**Verified Assessment** remains separate. Reviewed text, rights, temporal correspondence,
+quality and coverage gates still control delivery findings and scores. Automatic
+observations never become human labels or approvals through display or export.
+
+A genuine local practice pair measured 30.224375 s versus 29.370 s: the participant
+recording was 0.854375 s shorter (2.8268%), and its overall digital RMS level was
+0.04385 dB higher. These measurements establish neither faster speech nor a delivery
+flaw. Private audio remains local. See the [user guide](docs/user-guide.md),
+[methods and versioned report contract](docs/exploratory-analysis.md), and
+[completion audit](docs/product-completion-audit.md).
+
+![TakeTwo exploratory results from generated software signals](docs/images/taketwo-exploratory-software.png)
+
+Screenshot: actual local processing of generated software signals, not human speech
+or independently reviewed results. Genuine recordings and their screenshots remain private.
+
 ## Quick start on Windows
 
 Requires Windows 11, Python 3.11 with uv, and Node.js 24/npm. From the repository root in PowerShell, install/build once:
@@ -27,8 +49,13 @@ For native CPU alignment, install the locked MFA environment and checksummed Eng
 1. In **Recording Library**, choose a public-source reference or a self-recorded controlled practice reference, select WAV/FLAC, and supply the actual spoken words.
 2. Confirm local processing permission. Advanced source, speaker, rights and channel information stays available in disclosures; unknown rights are not filled with invented values.
 3. Click **Add participant**, choose a separate take and confirm the intended same-text relationship. The app creates and selects its pair; text remains unverified.
-4. Open **Analysis Workspace** and run analysis. Read the processing and assessment states first, then findings and the next required action. Listen to either native track and explore the supporting evidence.
+4. Open **Analysis Workspace** and run analysis. Read measured differences and automatic observations first; select **Inspect interval** or **Replay interval** to use the recording's native timestamps. Listen and inspect before considering the separate Verified Assessment.
 5. Open **Technical details · scores, coverage and scientific exports** for the validated JSON/CSV report. Independent reviews are required for eligible scores; successful processing alone is not scientific validation.
+
+Exploratory results have their own JSON and interval CSV exports. **Print exploratory
+report / save PDF** produces selectable text, measured energy plots, native candidate
+tables, provisional words, methods, provenance and missing assessment requirements.
+The historical six-page hackathon report stays separate.
 
 Use **Review Workspace** for browser transcript checks, assisted word/phrase timing, blinded flaw annotation, saved drafts and immutable review exports. A local operator key controls sequential reviewer handoff and separate adjudication; general analysis/peer APIs close during handoff. Read [review workflow and privacy limits](docs/review-workspace.md) before assigning independent reviewers. Typed identities and playback events do not authenticate people or establish scientific eligibility. [Review implementation evidence](docs/review-workspace-validation.md) lists actual checks and outstanding human acceptance.
 
