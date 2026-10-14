@@ -164,6 +164,7 @@ class RecordingReadiness(Model):
     job_id: str | None = None
     pair_id: Identifier | None = None
     review_status: dict[str, str] = Field(default_factory=dict)
+    review_agreement: dict[str, bool] = Field(default_factory=dict)
 
 
 class DatasetSummary(Model):

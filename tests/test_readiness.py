@@ -4,7 +4,9 @@ import sqlite3
 
 from fastapi.testclient import TestClient
 
+from taketwo.dataset.storage import load
 from taketwo.web.app import create_app
+from taketwo.web.readiness import review_readiness
 
 
 def test_review_database_failure_preserves_recording_inventory(imported, monkeypatch):
@@ -45,3 +47,45 @@ def test_empty_readiness_has_authoritative_zeros_and_no_failure(tmp_path):
         assert result["recordings"] == 0
         assert result["inventory_counts"]["submitted_independent_assertions"] == 0
         assert result["readiness_diagnostic"] is None
+
+
+def test_readiness_agreement_is_structured_and_does_not_clear_rights(imported):
+    root, recording = imported
+    dataset = load(root)
+    inventory = {
+        "disagreements": [{"recording_id": recording.id, "scope": "transcript", "issue": None}]
+    }
+    hint = review_readiness(dataset, inventory, {})[0]
+    assert hint.review_agreement == {"transcript": True, "timing": False, "flaws": False}
+    assert hint.next_action == "rights"
+    assert recording.provenance.rights.status == "pending"
+    assert recording.transcript.status == "unverified"
+
+
+def test_insufficient_review_agreement_cannot_promote_a_version(imported):
+    root, recording = imported
+    dataset = load(root)
+    # Isolated generated-signal metadata, never an actual permission declaration.
+    rights = recording.provenance.rights.model_copy(
+        update={"status": "cleared", "permits_adaptation": True, "permits_redistribution": True}
+    )
+    member = recording.model_copy(
+        update={"provenance": recording.provenance.model_copy(update={"rights": rights})}
+    )
+    dataset = dataset.model_copy(update={"recordings": [member]})
+    inventory = {
+        "disagreements": [
+            {
+                "recording_id": recording.id,
+                "scope": "transcript",
+                "issue": "At least two independent reviewers required",
+            }
+        ]
+    }
+    hint = review_readiness(dataset, inventory, {})[0]
+    assert hint.review_agreement["transcript"] is False
+    assert hint.next_action == "transcript"
+    inventory["disagreements"][0]["issue"] = None
+    hint = review_readiness(dataset, inventory, {})[0]
+    assert hint.next_action == "reviewed_version"
+    assert member.transcript.status == "unverified"

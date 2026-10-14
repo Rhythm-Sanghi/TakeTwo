@@ -14,7 +14,7 @@ overly technical ordinary workspace print were reproduced separately.
 ## B. PDF verification
 
 Stage 1 dual-extractor verification passes. Dedicated paired/reference summary/evidence
-outputs remain 2/13/2/7 pages; current deliberate workspace views are 4/3 pages.
+outputs remain 2/13/2/7 pages; current deliberate workspace views are 4/2 pages.
 Text accessibility is separate from PDF/UA and genuine spoken acceptance.
 All seven outputs retain embedded fonts, Unicode mappings, appropriate footers,
 page counters and bounded text. Complete comparative JSON/CSV inventories and source
@@ -38,8 +38,14 @@ state replaces the empty heading; print mode/title restore after cancel or failu
 
 ## D. Dataset readiness
 
-Selected recording/version identity is preserved in print. Detailed prerequisite
-guidance and exact workflow verification follow in Stage 2.
+Selected recording/version identity is preserved in print. Six prerequisite rows show
+actual status, missing evidence, purpose, next action and legitimate location. Optional
+structured stored review agreement preserves Unknown when absent. A declaration or
+agreement is not legal clearance, authenticated independence or scientific validation.
+The connected speaker/family limit is explicit. Exact supported import/version/evaluation
+commands and a read-only Review-file preflight are documented. A controlled 503 exposed
+a false zero-run evaluation message; failure now says unavailable, successful zero
+remains authoritative, and cached runs are labeled as previously loaded.
 
 ## E. Human review
 

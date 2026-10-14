@@ -136,6 +136,9 @@ export function App() {
   const [health, setHealth] = useState<Health | null>(null);
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  const [evaluationState, setEvaluationState] = useState<
+    "loading" | "ready" | "unavailable"
+  >("loading");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [participantFor, setParticipantFor] = useState("");
@@ -270,6 +273,7 @@ export function App() {
   }, [datasetSummary]);
   const refresh = useCallback(async () => {
     const generation = ++refreshGeneration.current;
+    setEvaluationState("loading");
     refreshRequest.current?.abort();
     const controller = new AbortController();
     refreshRequest.current = controller;
@@ -294,6 +298,9 @@ export function App() {
         reloadDataset(),
       ]);
       if (generation !== refreshGeneration.current) return;
+      setEvaluationState(
+        results[5].status === "fulfilled" ? "ready" : "unavailable",
+      );
       const failures = results.flatMap((result, index) =>
         result.status === "rejected"
           ? [
@@ -1527,6 +1534,21 @@ export function App() {
               </details>
               <section className="panel">
                 <h2>Persisted evaluation runs</h2>
+                {evaluationState === "loading" && (
+                  <p role="status">Loading persisted evaluation runs…</p>
+                )}
+                {evaluationState === "unavailable" && (
+                  <p role="alert">
+                    Evaluation inventory is unavailable. Reconnect / refresh to
+                    retry; no zero-run count or accuracy result is established.
+                  </p>
+                )}
+                {evaluationState !== "ready" && evaluations.length > 0 && (
+                  <p className="meta">
+                    Previously loaded runs are shown below; the current
+                    evaluation inventory is not established.
+                  </p>
+                )}
                 {evaluations.length > 0 && (
                   <p className="notice">
                     Stored runs preserve their original policy and metrics.
@@ -1536,7 +1558,7 @@ export function App() {
                     evidence; keep the original artifacts.
                   </p>
                 )}
-                {!evaluations.length ? (
+                {!evaluations.length && evaluationState === "ready" ? (
                   <p>
                     No evaluation results exist. Detection accuracy is
                     unavailable until independent labels and valid splits are

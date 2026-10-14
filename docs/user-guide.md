@@ -70,6 +70,11 @@ the [review guide](review-workspace.md). Automatic candidates are never copied i
 reviewer annotations. Rights, consensus, coverage and scoring rules stay authoritative.
 
 Dataset and Evaluation distinguishes successful inventory counts from review evidence.
+Six prerequisite rows show stored rights, transcript, timing, flaw inventories,
+reviewed-version processing and evaluation requirements with their next action/location.
+The [reviewed evidence workflow](reviewed-evidence-workflow.md) supplies the ordered
+procedure and exact validated commands. Its read-only reviewer-file preflight imports
+nothing. Actual reviewers and permission evidence are still required.
 Zero means an authoritative zero; Unknown means the backend did not supply the value.
 Loading, partial data, request errors and reviewer-handoff restrictions have separate
 messages. Retry dataset readiness reloads that request. A prior inventory is labeled

@@ -472,6 +472,38 @@ table button {
   max-height: 260px;
   overflow: auto;
 }
+.readiness-requirements {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+.readiness-requirements > li {
+  border-top: 1px solid #d1d5cf;
+  padding-top: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.readiness-requirements h4 {
+  margin: 0 0 6px;
+}
+.readiness-status {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: normal;
+  color: #4d5b54;
+}
+.workflow-commands {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+@media (max-width: 800px) {
+  .readiness-requirements {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .feature-chart {
   margin: 12px 0;
   min-width: 0;
@@ -1452,5 +1484,18 @@ footer {
   }
   body:not([data-print-scope="exploratory"]) main > h1 {
     margin: 4pt 0;
+  }
+  .readiness-requirements {
+    display: block;
+    break-inside: auto;
+  }
+  .readiness-requirements > li {
+    break-inside: avoid;
+    margin-bottom: 8pt;
+  }
+  body[data-report-mode="dataset"] .readiness-inventory::details-content,
+  body[data-report-mode="dataset"] .readiness-caveats::details-content {
+    content-visibility: visible !important;
+    display: block !important;
   }
 }

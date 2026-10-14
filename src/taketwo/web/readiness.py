@@ -81,6 +81,7 @@ def review_readiness(dataset, inventory, processing):
                 job_id=job_id,
                 pair_id=pair.id if pair else None,
                 review_status=status,
+                review_agreement=agreement,
             )
         )
     return result

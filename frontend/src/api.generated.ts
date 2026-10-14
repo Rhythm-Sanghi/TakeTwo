@@ -2390,6 +2390,10 @@ export interface components {
       review_status?: {
         [key: string]: string;
       };
+      /** Review Agreement */
+      review_agreement?: {
+        [key: string]: boolean;
+      };
     };
     /** Region */
     Region: {

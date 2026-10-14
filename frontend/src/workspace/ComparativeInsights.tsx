@@ -101,6 +101,18 @@ export function ComparativeInsights({
         . Coverage is not timing or pitch accuracy; pitch eligibility remains
         separately gated.
       </p>
+      <details className="print-controls pitch-guidance">
+        <summary>What accepted pitch coverage means</summary>
+        <p>
+          Coverage counts frames with finite voiced F0 accepted by the stored
+          confidence rule. It does not measure pitch accuracy. Insufficient
+          accepted frames withhold pitch scoring; the existing reviewed-region
+          coverage and independent evidence gates still apply. Duration, digital
+          RMS, within-recording energy and provisional native timing remain
+          inspectable with their own limitations. No confidence threshold is
+          lowered to fill a missing contour.
+        </p>
+      </details>
       <h3>
         {e.pair_id
           ? "Differences worth inspecting"

@@ -1,5 +1,56 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+
+test("evaluation inventory failure is unavailable, then recovers to an authoritative empty state", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/evaluations", (route) =>
+    route.fulfill({
+      status: 503,
+      json: {
+        error: {
+          code: "software_failure_probe",
+          message: "Evaluation store unavailable.",
+          recovery: "Retry refresh.",
+        },
+      },
+    }),
+  );
+  await page.goto("/");
+  await navigateWorkspace(page, "Dataset and Evaluation");
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Evaluation inventory is unavailable" }),
+  ).toBeVisible();
+  await expect(page.getByText(/No evaluation results exist/)).not.toBeVisible();
+  await page.unroute("**/api/v1/evaluations");
+  await page
+    .getByRole("button", { name: "Refresh workspace", exact: true })
+    .click();
+  await expect(page.getByText(/No evaluation results exist/)).toBeVisible();
+  await expect(page.locator(".readiness-requirements > li")).toHaveCount(6);
+  await page.evaluate(() => {
+    window.print = () => {
+      throw new Error("Software print failure probe");
+    };
+  });
+  await page
+    .getByRole("button", {
+      name: "Export Dataset Readiness / save PDF",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Browser printing could not open" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => document.body.dataset.reportMode),
+  ).toBeUndefined();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
 import { navigateWorkspace } from "./navigation";
 
 test("readiness recovers independently from request, access and partial-data failures", async ({

@@ -131,6 +131,11 @@ The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1â€
 
 ## Comparative presentation and printing
 
+RecordingReadiness adds optional `review_agreement`, a scope-to-boolean map derived
+from the existing consensus result. It separates structured stored agreement from
+free-text diagnostics; it does not authenticate reviewers, import evidence or change
+scientific eligibility. Missing fields display Unknown.
+
 The comparative-insights-v1 schema and full SHA-256 JSON/CSV exports are unchanged.
 `order_reason` explains the actual measurement and inspection threshold before the
 deterministic support/category/duration policy; ordering is not validated confidence
