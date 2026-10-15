@@ -119,7 +119,9 @@ Cleanup baseline: fetched local/remote `master` at
 219 tracked files and indexed references, Python symbols and document links.
 The final public tree has 195 files: 25 redundant files removed and this consolidated
 verification document added. No helper script was proven unused; all 15 remain.
-Root `AGENTS.md` remains the permanent engineering/product standard.
+At that baseline, root `AGENTS.md` was retained. It is now an optional, ignored
+local development file, excluded from public sources and packages; checkout
+verification does not require it.
 
 | Executed check | Result |
 | --- | --- |

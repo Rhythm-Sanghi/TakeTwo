@@ -1,4 +1,5 @@
 # Local runtime data is private by default; approved dataset releases are separate.
+/AGENTS.md
 .venv/
 venv/
 __pycache__/

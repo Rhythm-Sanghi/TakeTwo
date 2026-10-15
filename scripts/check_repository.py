@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    documents = [ROOT / "README.md", ROOT / "AGENTS.md", *sorted((ROOT / "docs").glob("*.md"))]
+    documents = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))]
     links = 0
     for path in documents:
         text = path.read_text(encoding="utf-8")

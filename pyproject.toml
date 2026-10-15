@@ -52,7 +52,7 @@ include = [
   "/src", "/tests", "/scripts", "/docs", "/environments", "/.github",
   "/frontend/src", "/frontend/tests", "/frontend/*.ts", "/frontend/*.js",
   "/frontend/*.json", "/frontend/index.html",
-  "/AGENTS.md", "/README.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
+  "/README.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
   "/.gitattributes", "/.gitignore", "/requirments/Track C.pdf",
   "/output/pdf/taketwo-technical-report-2026-10-15.pdf",
 ]
