@@ -3,7 +3,9 @@
 Speech analysis workspace. Requirement IDs and acceptance criteria below map the
 unchanged official statement to implementation and evidence. Software checks and
 genuine processing have executed; independent scientific validation and the
-required public paired dataset remain incomplete. See [verification](verification.md)
+full required public paired corpus remain incomplete. A preliminary five-recording
+single-speaker pilot is now public, with four automatic, unreviewed alignments;
+public availability does not supply independent ground truth. See [verification](verification.md)
 and [submission readiness](submission.md#deliverables-and-current-evidence) for results and deliverables.
 
 Authority: [official Track C specification](../requirments/Track%20C.pdf), all three pages, reviewed on 2026-10-11. Keep its existing path and bytes. SHA-256: `0e621d35e6bfdbb9d9e169b259ebf9d3d923d1efcbab38ba2a4331f6958fb280`.
@@ -48,10 +50,10 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 
 | ID / source p2 | Deliverable | Component / phase | Acceptance criterion | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public baseline exists; see [exact release evidence](submission.md#deliverables-and-current-evidence) | Public code exists; local cleanup requires authorization and exact-commit CI |
-| D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Unmet: no approved public dataset |
+| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Pilot code tag uses `6c35e65`, passed [Windows CI](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38683403376); later documentation commits need their own CI | Public code/documentation available |
+| D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | [TakeTwo Pilot Dataset v1](https://github.com/Rhythm-Sanghi/TakeTwo/releases/tag/pilot-dataset-v1); [anonymous download/checksum evidence](dataset-publication.md#published-pilot-dataset-v1) | Partial: five genuine takes, author-approved CC BY 4.0 intended passage and four automatic alignments public. No independently reviewed transcript/flaw truth or public-speaker baseline; full requirement incomplete |
 | D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
-| D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf), page/content checks | Six-page report retained; see verification |
+| D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf), page/content checks | Six-page historical snapshot retained; dataset-publication status superseded by D2 and submission documentation |
 | D5 | 3-10 minute YouTube demonstration | Submission video / 6 | Shows collection, spectrum stress tests and specific caught deviations | [Owner-supplied demonstration](https://youtu.be/DfFTmNTAB6E) | Prior access/duration check; full narration/permissions require owner review |
 
 These engineering documents are working specifications, not the six-page submission report. Implementation alone does not establish scientific or public-deliverable acceptance.

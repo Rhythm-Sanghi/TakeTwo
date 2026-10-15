@@ -6,11 +6,13 @@ Speech analysis workspace
 
 TakeTwo is a local Windows workstation for comparing recordings of the same words. It connects acoustic and timing differences to each recording's native audio intervals, with evidence inspection, A/B playback and exports.
 
-[Watch the demonstration](https://youtu.be/DfFTmNTAB6E) · [Technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf)
+[Watch the demonstration](https://youtu.be/DfFTmNTAB6E) · [Technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf) · **Pilot dataset:** [TakeTwo Pilot Dataset v1](https://github.com/Rhythm-Sanghi/TakeTwo/releases/tag/pilot-dataset-v1)
+
+The [pilot ZIP](https://github.com/Rhythm-Sanghi/TakeTwo/releases/download/pilot-dataset-v1/taketwo-pilot-v1.zip) contains five genuine recordings by Rhythm Sanghi, his original intended passage and four automatic, unreviewed MFA alignments. Audio and passage are CC BY 4.0. Independent transcript review and human-verified flaw timestamps are unavailable; this single-speaker pilot does not establish full Track C dataset compliance. See [contents, checksums and limitations](docs/dataset-publication.md#published-pilot-dataset-v1).
 
 ![TakeTwo speech analysis workspace](docs/images/taketwo-exploratory-software.png)
 
-Actual application screenshot using generated software signals. Private speech recordings are excluded from the repository.
+Actual application screenshot using generated software signals. Pilot audio is distributed as a GitHub Release asset; original recordings remain outside the Git source tree.
 
 ## Features
 
@@ -58,13 +60,13 @@ Supplied text and automatic timestamps remain unverified. The [user guide](docs/
 
 ## Technical report and documentation
 
-The current six-page report is linked above; its [editable source](docs/technical-report.md) retains the dated submission evidence. See [architecture](docs/architecture.md) for component boundaries and method references, [reproducibility](docs/reproducibility.md) for verification commands, and [submission](docs/submission.md) for current deliverables and remaining owner actions.
+The current six-page report is linked above; its [editable source](docs/technical-report.md) retains the dated submission evidence. Its dataset-publication statements predate the pilot release; the verified status is documented above. See [architecture](docs/architecture.md) for component boundaries and method references, [reproducibility](docs/reproducibility.md) for verification commands, and [submission](docs/submission.md) for current deliverables and remaining owner actions.
 
 ## Scientific limitations
 
 TakeTwo is a research prototype. Delivery-v0 is uncalibrated; independent speech annotations, held-out accuracy and cross-speaker generalization are unavailable. Automatic alignment can fit incorrect words. Pitch support was insufficient on the private practice takes, so affected scores abstain. Cold evidence requests can time out under contention. Human listening, spoken accessibility and clean second-machine acceptance remain pending.
 
-**The required public paired dataset is not available.** Five private practice takes are not redistribution-approved ground truth. Acoustic differences do not establish persuasion, emotion or psychological causes.
+**Full Track C dataset requirements remain incomplete.** Five genuine practice takes and four automatic alignments are public in the pilot. They do not supply an effective-public-speaker baseline, an independently reviewed contrastive spectrum or human-verified temporal flaw labels. Acoustic differences do not establish persuasion, emotion or psychological causes.
 
 ## Creator and AI assistance
 
@@ -74,4 +76,4 @@ OpenAI Codex assisted implementation, integration, testing and documentation. Ch
 
 ## License
 
-Original code and documentation: [MIT](LICENSE), copyright (c) 2026 Rhythm Sanghi. Recordings, consent/review records, models and third-party materials retain separate rights. See [licenses and attribution](docs/attributions.md).
+Original code and documentation: [MIT](LICENSE), copyright (c) 2026 Rhythm Sanghi. The five pilot recordings and original passage are separately licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), copyright (c) 2026 Rhythm Sanghi. Consent/review records, models and third-party materials retain separate rights. See [licenses and attribution](docs/attributions.md).

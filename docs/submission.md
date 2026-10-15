@@ -7,10 +7,10 @@ receipt has been supplied; portal submission status is unverified.
 
 | Deliverable | Link / verified scope / remaining action |
 | --- | --- |
-| Public code and documentation | [TakeTwo repository](https://github.com/Rhythm-Sanghi/TakeTwo). Baseline `cd99918` passed [Windows CI](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38680335494). This new local consolidation needs owner-authorized publication and its own exact-commit CI. |
-| Public paired dataset, text and alignment labels | **Unmet mandatory requirement.** No rights-cleared independently annotated public release or verified download URL exists. Five private same-speaker practice takes are not ground truth. Follow [publication requirements](dataset-publication.md). |
+| Public code and documentation | [TakeTwo repository](https://github.com/Rhythm-Sanghi/TakeTwo). Code baseline `6c35e65` passed [Windows CI](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38683403376); the pilot tag identifies that code. Subsequent documentation commits require their own exact-commit CI. |
+| Public paired dataset, text and alignment labels | [TakeTwo Pilot Dataset v1](https://github.com/Rhythm-Sanghi/TakeTwo/releases/tag/pilot-dataset-v1), [verified ZIP](https://github.com/Rhythm-Sanghi/TakeTwo/releases/download/pilot-dataset-v1/taketwo-pilot-v1.zip): five genuine same-speaker recordings, original intended passage and four automatic, unreviewed alignments. Public pilot available; **full Track C corpus requirement remains incomplete**. No independent transcript/timing/flaw ground truth. See [contents, rights and checksum verification](dataset-publication.md#published-pilot-dataset-v1). |
 | Functional interactive prototype | Local import, CPU alignment/features, native playback, review and exports have scoped software/genuine-processing evidence. Actual usefulness, spoken accessibility and independent speech accuracy remain open. |
-| Technical report, at most six pages | [Current PDF](../output/pdf/taketwo-technical-report-2026-10-15.pdf), [public report link](https://github.com/Rhythm-Sanghi/TakeTwo/blob/master/output/pdf/taketwo-technical-report-2026-10-15.pdf), [editable source](technical-report.md). The existing PDF/source remain a dated snapshot with historical evidence citations resolved in verification. |
+| Technical report, at most six pages | [Current PDF](../output/pdf/taketwo-technical-report-2026-10-15.pdf), [public report link](https://github.com/Rhythm-Sanghi/TakeTwo/blob/master/output/pdf/taketwo-technical-report-2026-10-15.pdf), [editable source](technical-report.md). Dated snapshot predating pilot publication; its no-public-dataset statements are superseded by the verified pilot status above. Historical evidence citations are resolved in verification. |
 | YouTube demonstration, 3–10 minutes | [Owner-supplied demonstration](https://youtu.be/DfFTmNTAB6E). Prior publication checks recorded signed-out playback, 6:23 duration and the repository description link. Full narration/recording permission review remains an owner task; video permission does not grant dataset rights. |
 
 The unchanged [Track C statement](../requirments/Track%20C.pdf) and
@@ -30,7 +30,7 @@ waived and acoustic association is not psychological causation. See
 | Tagline | Compare speech. Understand the difference. |
 | Repository / demonstration / report | Use the actual links above; verify access after final publication |
 | Built With | Python, FastAPI, NumPy, SciPy, librosa, soundfile, Montreal Forced Aligner, Kaldi, SQLite, React, TypeScript, Vite, uPlot, **OpenAI Codex**, **ChatGPT** |
-| Public dataset | Missing; do not invent a URL or supply private unapproved recordings |
+| Public dataset | Use the published pilot release/ZIP above, accurately labeled single-speaker and preliminary; independent ground truth and full corpus acceptance remain unavailable |
 | Submission receipt | Not supplied; preserve the actual portal confirmation when available |
 
 Rhythm Sanghi directed the product goals, visual identity, interface/workflows and
@@ -59,9 +59,11 @@ README disclosure. See [licenses and attribution](attributions.md).
    acceptance. A green automated suite supplies none of those human results.
 5. Verify the live [organizer rules and portal](https://multimodal-ai-hackathon-2026-7.devpost.com/rules),
    deadline/state and actual public downloads before submission. Enter real links and
-   both AI Built With tags, disclose the unmet dataset requirement and retain a real
+   both AI Built With tags, distinguish the public pilot from unmet full-corpus requirements and retain a real
    submission receipt. Prepared files are not a submitted entry.
 
-Signed consents, identity mappings, recordings, models, operator keys, reviewer records
-and databases remain outside the public release. MIT covers original code/documentation,
-not recording/model redistribution. No external upload or portal submission occurs here.
+Only the five approved recordings, original intended passage and documented pilot
+metadata/automatic exports were published as a release asset. Signed consents, identity
+mappings, models, operator keys, reviewer records and databases remain private.
+The pilot audio and passage are CC BY 4.0, copyright (c) 2026 Rhythm Sanghi; MIT
+covers original code/documentation separately. No portal submission is claimed.

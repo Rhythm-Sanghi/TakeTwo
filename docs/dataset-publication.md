@@ -1,6 +1,46 @@
 # Dataset publication guide
 
-TakeTwo — Speech analysis workspace. **No releasable paired dataset or public dataset URL exists.** Two acquired masters share JFK, one draft source is imported, and human mirrors/reviews are absent. This guide prepares a future owner-approved release; it does not authorize one.
+TakeTwo — Speech analysis workspace. A genuine single-speaker pilot is public.
+The complete independently reviewed Track C corpus remains incomplete. The pilot
+below is separate from the full-corpus publication gate in the rest of this guide.
+
+## Published pilot dataset v1
+
+[TakeTwo Pilot Dataset v1](https://github.com/Rhythm-Sanghi/TakeTwo/releases/tag/pilot-dataset-v1)
+was published on 15 October 2026 after owner approval of the exact ZIP and release
+notes. [Download the ZIP](https://github.com/Rhythm-Sanghi/TakeTwo/releases/download/pilot-dataset-v1/taketwo-pilot-v1.zip).
+Creator, speaker and original passage author: **Rhythm Sanghi**. Copyright (c) 2026
+Rhythm Sanghi; the five recordings and complete passage are licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), separately from the code's MIT license.
+
+| Published contents | Evidence status |
+| --- | --- |
+| Five original 48 kHz mono PCM16 WAVs | One reference plus natural, slow, uneven and intended near-perfect participant takes; genuine self-recorded human speech, copied byte-for-byte |
+| Original 71-word intended passage | Authorship/redistribution rights confirmed by its author; not independently reviewed against the recordings; identical spoken words, omissions and repetitions remain unverified |
+| Four MFA 3.3.9 alignment exports | Reference, natural, slow and uneven only; automatically generated word boundaries, not independently reviewed ground truth. No near-perfect alignment is included |
+| Manifest, dataset card, rights and checksums | 14 files total, including five WAVs, one transcript and four alignment JSON files; no private workspace, logs, models, database, consent or reviewer records |
+
+Archive size: **12,882,263 bytes**. SHA-256:
+`117f9fb59d7fe5575aaccdbf38c4baa5b6cff1c9331d72d14983ede75bd4a70e`.
+Release asset ID 642808587 remained unchanged at publication; GitHub's digest and
+the anonymously downloaded bytes matched the approved archive. The release page
+and direct download returned HTTP 200 without authentication. Fresh extraction,
+all 13 payload checksums, manifest/transcript/alignment references, and full decoding
+of all five WAVs passed. Originals remain unchanged and ignored by Git; no binary
+recordings were committed. No unrelated personal metadata or authorization record
+is included. The release's dataset card supplies import/reproduction instructions.
+
+All five takes share one speaker and one connected family. Delivery names describe
+recording intention, not verified severity. The reference is a controlled practice
+take, not an effective-public-speaker baseline. No human-verified timing/flaw labels,
+held-out speaker results, calibration or validated precision/recall/F1 are supplied.
+Automatic timestamps do not verify text or flaw regions. Full Track C dataset
+requirements remain incomplete. No split, human annotation or metric was invented.
+
+This is a preliminary portable pilot package, not a managed workspace that passes
+the strict corpus publication validator. That validator remains unchanged; its
+independent review, provenance, spectrum and split requirements are not waived.
+The full-corpus workflow below applies to a future independently reviewed corpus.
 
 ## Release gate
 
@@ -39,7 +79,10 @@ Generate checksums from the final staged bytes; do not hash an earlier draft. In
 
 After owner authorization/publication, download as a signed-out reader into a new directory. Verify every checksum, paired inventory, transcript identity and label bounds; run `uv run taketwo-dataset validate <download-directory>/workspace --publication --reproduce` and the documented analysis/comparison replay against those downloaded managed paths. Record URL, access date, exact archive hash, downloader commands and results. A sharing screen or logged-in preview is insufficient. Preserve prior versions. No private consent record is uploaded to demonstrate release permission.
 
-Current blocker: no human corpus/labels or publication approval. The release checklist must stay open. [Attributions](attributions.md) record current sources/resources; they are not a blanket license for future media.
+Full-corpus blockers: effective-public-speaker baselines, independently reviewed
+contrastive spectrum and temporal labels remain missing. The pilot's owner approval
+and public availability do not close that checklist. [Attributions](attributions.md)
+record current sources/resources; they are not a blanket license for future media.
 
 
 ## Release contents and provenance
@@ -52,7 +95,8 @@ original, human take and synthetic lineage in paths and metadata. Keep signed co
 identity mappings and unapproved media private. A redacted permission summary is public
 only when its release is itself permitted. Public availability is not permission.
 
-Publish only after the complete rights/review gate, then verify download hashes and link
-the approved dataset from README as Track C requires. No public dataset URL or completed
-human review is supplied by this documentation. Substantive public sources, same-text
-spectrum and independent temporal labels remain mandatory acceptance requirements.
+Publish a full reviewed corpus only after the complete rights/review gate, then
+verify download hashes and link it from README as Track C requires. The published
+pilot above provides real audio and automatic evidence, not completed human review.
+Substantive public sources, a reviewed same-text spectrum and independent temporal
+labels remain mandatory acceptance requirements.
