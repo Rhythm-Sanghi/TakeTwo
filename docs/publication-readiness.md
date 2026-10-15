@@ -1,50 +1,30 @@
 # Submission readiness
 
-TakeTwo - Speech analysis workspace. Checked 15 October 2026.
+TakeTwo — Speech analysis workspace. Repository cleanup reviewed 15 October 2026.
 
-## Public release and links
+## Deliverables
 
-- [GitHub repository](https://github.com/Rhythm-Sanghi/TakeTwo): public `master` at `faebbc996b742e88a71101bda5322a2b5142a477`; fetched local/remote refs matched.
-- [Windows CI for that exact release](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38617800894): **completed successfully**, including backend/frontend tests, builds, audits and generated browser E2E. New cleanup commits need their own hosted run.
-- [TakeTwo demonstration](https://youtu.be/DfFTmNTAB6E): supplied by the owner; signed-out page access/playback and **6:23** duration verified. Sampled footage shows the actual TakeTwo UI; description links to the correct repository. This is a limited browser check, not full narration, permission or scientific acceptance review.
-- [Current technical report](../output/pdf/taketwo-technical-report-2026-10-15.pdf): publicly downloadable six-page searchable PDF. A minimal creator-attribution correction is prepared locally; the approved previous bytes remain in Git history. [Source](technical-report.md).
-- Public paired dataset: **unmet requirement**. No approved redistribution-ready independently annotated corpus or URL exists. Five private takes, models, consents and reviewer evidence remain excluded.
-- Devpost: [field-ready checklist](submission-draft.md); no submitted-entry receipt supplied.
+| Deliverable | Evidence and remaining requirement |
+| --- | --- |
+| Code | [Public repository](https://github.com/Rhythm-Sanghi/TakeTwo). Cleanup started from fetched `master` / `origin/master` at `0cdb837522de2957b147c48ce8d83f9b0b2c032a`. Local cleanup requires owner authorization before push and its own exact-commit Actions result. |
+| Technical report | [Current six-page PDF](../output/pdf/taketwo-technical-report-2026-10-15.pdf) and [editable source](technical-report.md), retained unchanged. Older report/source remain traceable in Git history through [verification](verification.md). |
+| Demonstration | [Owner-supplied YouTube demonstration](https://youtu.be/DfFTmNTAB6E). The previous publication pass recorded signed-out playback, 6:23 duration and the correct repository description link. This cleanup does not repeat that access check or establish narration quality/recording rights. |
+| Public paired dataset | **Unmet.** No approved redistribution-ready independently annotated corpus or verified download URL exists. Five private practice takes are not ground truth. Follow [publication requirements](dataset-publication.md). |
+| Submission | [Prepared Devpost fields](submission-draft.md); no submission receipt supplied. Verify the live organizer portal and rules before submitting. |
 
-The [current organizer rules](https://multimodal-ai-hackathon-2026-7.devpost.com/rules) state
-**15 October 2026, 12:15 PM IST**. This supersedes earlier midnight statements.
-AI tools must appear in Built With and their contribution must be disclosed in README.
-The required entries are **OpenAI Codex** and **ChatGPT**.
+The previous publication record links successful [Windows run 38617800894](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38617800894) to `faebbc9`. That historical result does not certify this cleanup or later commits. Current local checks and historical failure evidence are in [verification](verification.md).
 
 ## Run and reproduce
 
 Use `.\scripts\start-local.ps1 -Setup` once, then `.\scripts\start-local.ps1`.
-Open `http://127.0.0.1:8765`; stop with Ctrl+C. [Windows prerequisites](windows-setup.md)
-and separate [MFA/model configuration](analysis-engine.md) remain necessary.
-Without MFA, actual acoustic inspection/playback work and alignment explicitly abstains.
-The code license grants no recording/video redistribution permission.
+Open `http://127.0.0.1:8765`; stop with Ctrl+C. Follow [Windows setup](windows-setup.md) and the separate [MFA/model configuration](analysis-engine.md). Without MFA, acoustic inspection/playback work and alignment explicitly abstains. Use [reproduction commands](reproducibility.md) for verification and dataset processing.
 
-## Verification scope
+## Owner checklist
 
-| Evidence | Executed result |
-| --- | --- |
-| Application hardening | 376 backend, 81 frontend, 18 generated browser and 3 private genuine-pilot tests passed; [exact counts, failures and limits](final-hardening-completion.md) |
-| Previous publication pass | 31 relevant backend and 81 frontend tests passed; typecheck/build/lint/lock, normal and setup launch smoke, 72 Markdown/359 local links/6 schemas passed |
-| Previous publication privacy | 226 files and 707 reachable history blobs; zero blocking candidate/history/package findings; 38 protected hashes matched |
-| Previous report | Six rendered pages and dual text extraction; downloaded public bytes matched SHA-256 9cf5aab50f8f6811267a03c157ed3848f30b4309f54b409d2de9dc4c83a3287b |
-| Current cleanup | 31 relevant backend tests passed (26.63 s, one existing upstream warning); frontend typecheck/build; Ruff lint/format (79 files); uv lock (49 packages); 65 Markdown/306 local links/6 schemas; startup and corrected six-page dual-extractor PDF checks passed |
-| Cleanup privacy/package checks | 219 candidate files / 707 pre-commit reachable blobs, zero blocking findings; package inventory excludes all seven removed files; all 38 protected hashes unchanged |
+1. Review the concrete local cleanup, authorize push when satisfied, then verify remote HEAD and the Actions run for that exact commit.
+2. Review the complete video for narration, claims, permissions and private information. Video permission does not grant dataset redistribution rights.
+3. Obtain item-specific rights clearance and two actual independent transcript/timing/flaw reviews before a corpus release. Follow [reviewed version/import/evaluation](reviewed-evidence-workflow.md) and [publication validation/checksums](dataset-publication.md). Retain unresolved or unavailable results honestly.
+4. Complete actual [listening acceptance](comparative-listening-acceptance.md), [spoken screen-reader acceptance](spoken-accessibility-acceptance.md) and clean second-machine setup/replay.
+5. Verify the actual portal deadline/state, enter real deliverable links, include **OpenAI Codex** and **ChatGPT** in Built With and retain the actual submission receipt. Prepared files are not a submitted entry.
 
-Original phase records retain useful experimental/defect evidence. Redundant initial
-planning files are consolidated into their completed validation documents, with links
-repaired. No application source, test coverage, scripts, locks or scientific policy
-was removed. `AGENTS.md` remains an active maintenance file; the official statement
-stays at its existing path to preserve source/package checks and references.
-
-## Remaining owner actions
-
-1. Approve the concrete cleanup and corrected report before publishing; confirm final remote SHA and its own Actions result.
-2. Review the full video's narration, visible/audible recording permission, claims and privacy. Access/duration checks do not establish those approvals.
-3. Resolve the mandatory dataset requirement through [rights, independent review and release validation](dataset-publication.md), or disclose that it remains unmet.
-4. Complete actual listening, spoken accessibility and clean-machine review before claiming acceptance.
-5. Enter actual GitHub/video/report links and AI Built With tags in Devpost; verify the portal state/deadline and preserve the real submission receipt.
+Rhythm Sanghi created and directed TakeTwo. Codex assisted implementation/testing/documentation; ChatGPT assisted planning/review. Private recordings, consent signatures, identity mappings, operator keys and reviewer records stay outside public releases. MIT covers original code/documentation and grants no recording or model redistribution permission.

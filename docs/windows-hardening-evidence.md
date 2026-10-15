@@ -126,7 +126,7 @@ crash/retry test first exceeded its unchanged 60 s budget under concurrent load;
 a subsequent run completed processing but exceeded its 3 s cold-report request
 budget. These failures are retained, not counted as passes or hidden by relaxing
 timeouts. Final regression results will be recorded in the
-[completion record](final-hardening-completion.md).
+[completion record](verification.md).
 The unchanged crash/retry test subsequently passed alone (104.04 s); the focused
 reset/concurrent-cache regressions passed together (two tests, 9.13 s).
 

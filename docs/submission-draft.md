@@ -9,7 +9,7 @@ TakeTwo - Speech analysis workspace. Prepared 15 October 2026; not submitted.
 | Project name | TakeTwo |
 | Tagline | Compare speech. Understand the difference. |
 | GitHub | https://github.com/Rhythm-Sanghi/TakeTwo |
-| Technical report | [Current public six-page report](https://github.com/Rhythm-Sanghi/TakeTwo/blob/master/output/pdf/taketwo-technical-report-2026-10-15.pdf); attribution correction prepared locally |
+| Technical report | [Current public six-page report](https://github.com/Rhythm-Sanghi/TakeTwo/blob/master/output/pdf/taketwo-technical-report-2026-10-15.pdf); current checked-in report |
 | YouTube | [TakeTwo demonstration](https://youtu.be/DfFTmNTAB6E); signed-out access/playback and 6:23 duration verified; correct GitHub description link; full narration/permissions remain owner review |
 | Public paired dataset | Missing; release only an approved rights-cleared, independently labeled corpus; verify download/checksums |
 | Built With | Python, FastAPI, NumPy, SciPy, librosa, soundfile, Montreal Forced Aligner, Kaldi, SQLite, React, TypeScript, Vite, uPlot, **OpenAI Codex**, **ChatGPT** |
@@ -29,7 +29,7 @@ OpenAI Codex assisted implementation, tests, integration and documentation under
 
 ## Final owner checklist
 
-1. The [organizer rules](https://multimodal-ai-hackathon-2026-7.devpost.com/rules) were rechecked on 15 October: deadline **15 October 2026, 12:15 PM IST**. Verify the actual portal state and submission confirmation; prepared files are not an entry.
+1. Verify the live [organizer rules](https://multimodal-ai-hackathon-2026-7.devpost.com/rules), deadline and portal state before submission. Prior checks are historical; prepared files are not an entry.
 2. Approve the reviewed cleanup/creator-attribution changes; after push, verify remote HEAD and its own Actions run. Public faebbc9 already passed run 38617800894.
 3. Confirm the full 6:23 video has clear narration, accurate claims, recording permissions and no private paths/keys/identities. Signed-out playback and the repository link were verified; full audible content and consent were not. Video permission is separate from dataset redistribution.
 4. Complete the [dataset release requirements](dataset-publication.md), or explicitly disclose the unmet mandatory requirement. Do not substitute software fixtures, automatic timestamps or invented approvals.

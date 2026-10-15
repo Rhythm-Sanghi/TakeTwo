@@ -84,7 +84,7 @@ The stabilization native smoke passed in a fresh short temporary workspace with
 the original 180-second alignment config; earlier longer-workspace attempts timed
 out or raised a permission error. This is a reproducible test setup to try, not a
 proven path-length fix. Preserve original data/drafts and their hashes; do not
-migrate them silently. See [full execution evidence](stabilization-audit.md).
+migrate them silently. See [full execution evidence](verification.md).
 
 The [recording guide](recording-import-guide.md) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
 
@@ -116,6 +116,6 @@ Generated oscillator fixtures are software tests only. E2E creates a fresh ignor
 
 Graceful stop: Ctrl+C in the service terminal. Phase 4B Windows kernel leases release even after hard termination, and kill-on-close Job Objects terminate CPU/MFA descendants. Restart marks unfinished history failed/interrupted and cleans only managed job temporary directories after stopping surviving named trees. It never requeues interrupted work or deletes originals/complete artifacts. Use **Retry this analysis** for a new job; active identical requests still deduplicate. Worker aggregate commit is limited to 4 GiB, with one serial worker and one-thread numerical pools.
 
-Migration from older versions: unknown pre-Phase-4B or CLI lock files are deliberately not deleted automatically. If startup reports a legacy lease, verify all old service/worker/MFA and CLI processes for that exact workspace are stopped. Preserve the workspace, then inspect/remove only its stale `.service.lock` / `.dataset.lock`; never remove a live lock. New crash recovery does not change the scientific CLI lock convention. Windows hard-process interruption is tested; OS power-loss/filesystem recovery and a packaged installer remain unverified. See [Phase 4B evidence](phase4b-validation.md).
+Migration from older versions: unknown pre-Phase-4B or CLI lock files are deliberately not deleted automatically. If startup reports a legacy lease, verify all old service/worker/MFA and CLI processes for that exact workspace are stopped. Preserve the workspace, then inspect/remove only its stale `.service.lock` / `.dataset.lock`; never remove a live lock. New crash recovery does not change the scientific CLI lock convention. Windows hard-process interruption is tested; OS power-loss/filesystem recovery and a packaged installer remain unverified. See [Phase 4B evidence](verification.md).
 
 The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).

@@ -1,6 +1,6 @@
 # Human recording session package
 
-TakeTwo — Speech analysis workspace. This package is ready for a human session; it contains no consent, approval or human performance. Use [ACTION-REQUIRED](ACTION-REQUIRED.md) for the ordered handoff.
+TakeTwo — Speech analysis workspace. This package is ready for a human session; it contains no consent, approval or human performance. Use [owner checklist](publication-readiness.md#owner-checklist) for the ordered handoff.
 
 ## Source and text
 

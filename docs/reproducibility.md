@@ -33,7 +33,7 @@ Generated oscillator/browser fixtures establish software behavior only. Stop the
 
 Prepare `dataset-annotations.json` as a nonempty array of actual dataset Annotation records from both reviewers, using the participant/pair IDs and text hash from the first inventory export. Follow [dataset fields](dataset-engineering.md): positive-width native intervals, reviewer, listening rationale, review status and uncertainty. Reviewed acceptable spans use severity 0; flaws use 1/2/3. Publication checks these manifest annotations separately from comparison Review artifacts. Missing-pause anchors belong only to comparison flaw reviews; never invent silence intervals for manifest labels. Complete annotations before comparison so report dataset hashes stay current. Pause the command sequence after export to fill these records from real listening.
 
-Create all filenames described in [ACTION-REQUIRED](ACTION-REQUIRED.md), per [ImportSpec](dataset-engineering.md), before running this sequence. This is a parameterized operator recipe, not a claim that these collected files exist. Substitute the actual family directory once. Check `$LASTEXITCODE` after every native command; stop on operational failure before consuming output.
+Prepare the files specified by the [collection kit](human-pilot-kit.md) and [annotation worksheet](annotation-worksheet.md), per [ImportSpec](dataset-engineering.md), before running this sequence. This is a parameterized operator recipe, not a claim that these collected files exist. Substitute the actual family directory once. Check `$LASTEXITCODE` after every native command; stop on operational failure before consuming output.
 
 ```powershell
 $collection = '.\local-data\collection\<actual-family>'
@@ -78,15 +78,15 @@ Preserve `delivery-v0` and its policy hash. For a future held-out study create a
 
 Save code/lock/model/config/data/review/report hashes, commands, exit codes, hardware, OS, seeds, exclusions and full FP/FN lists. Repeat on a clean second environment; investigate any decision difference. Same-Windows exact feature replay is established; cross-environment tolerance is proposed, not measured. Refer to [scoring evaluation](scoring-policy.md) for denominators and uncertainty.
 
-## Current technical-report draft
+## Technical-report source and regeneration
 
 Evaluation uses [exact-inventory-v1](comparison-engine.md): supply all original
 flaw reviews and same-author revisions, not only a preferred review. Reconstruct
 canonical labels from exact numerical agreement; unresolved temporal differences
 withhold metrics. Preserve historical first-review evaluations without relabeling
-them as current-policy results. The [stabilization audit](stabilization-audit.md)
+them as current-policy results. The [stabilization audit](verification.md)
 records public baseline CI separately from subsequent local verification.
 
-Use a separate ReportLab document-tool environment on Windows; do not add authoring packages to TakeTwo runtime dependencies. Run `python scripts/build_submission_report.py --date "13 OCT 2026"`. It renders current `docs/technical-report.md` to the Git-ignored owner-review file `output/pdf/taketwo-technical-report-current.pdf`, enforces six pages and rejects the historical PDF destination. Render/inspect every page before delivery. The archived source and historical PDF stay unchanged. A later public report release requires explicit owner approval; do not force-add this draft.
+Use a separate ReportLab document-tool environment on Windows; do not add authoring packages to TakeTwo runtime dependencies. Run `python scripts/build_submission_report.py --date "15 OCT 2026"`. It renders unchanged `docs/technical-report.md` to the Git-ignored owner-review file `output/pdf/taketwo-technical-report-current.pdf` and enforces six pages. Render and inspect every page before publication. The current approved report is `output/pdf/taketwo-technical-report-2026-10-15.pdf`; do not overwrite it during verification. The legacy historical destination remains protected by the renderer; older PDF/source bytes and the original reference [5] are accessible through the pinned historical sources in [verification](verification.md). Regeneration need not reproduce PDF metadata bytes; compare all source paragraphs, page count and visible layout. A new report requires owner content/publication approval.
 
 Source archives use an explicit Hatch manifest; after building, `scripts/audit_release.py --packages` also rejects unsafe wheel/sdist members. The wheel is API/CLI only; frontend source is preserved in the sdist for `npm ci`/build. LF checkouts are enforced by Git attributes. Old artifacts with differing byte-based source hashes require explicit recomputation; preserve originals rather than rewriting provenance.

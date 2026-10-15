@@ -1,12 +1,14 @@
 # TakeTwo requirements matrix
 
-Speech analysis workspace. Dataset tooling and Phase 2 alignment/acoustic tooling are implemented. Genuine source acquisition and native CPU execution are documented in [pilot collection](pilot-collection.md) and [validation](phase2-validation.md). Independent human dataset/timing evidence and official deliverables remain incomplete. Phase 3 software evidence is in [validation](phase3-validation.md); independent detection accuracy remains unavailable. Requirement IDs refer to the unchanged official statement; dated phase labels are historical.
+Speech analysis workspace. Requirement IDs and acceptance criteria below map the
+unchanged official statement to implementation and evidence. Software checks and
+genuine processing have executed; independent scientific validation and the
+required public paired dataset remain incomplete. See [verification](verification.md)
+and [submission readiness](publication-readiness.md) for results and deliverables.
 
 Authority: [official Track C specification](../requirments/Track%20C.pdf), all three pages, reviewed on 2026-10-11. Keep its existing path and bytes. SHA-256: `0e621d35e6bfdbb9d9e169b259ebf9d3d923d1efcbab38ba2a4331f6958fb280`.
 
 ## Official judging weights
-
-Current product stabilization and newly supplied private practice takes are tracked in [consolidated stabilization evidence](product-validation.md), [validation](product-validation.md) and [recording guide](recording-import-guide.md). Controlled-reference software support does not close R1a or independent scientific/publication gates. Prior reports retain their historical acquisition/evaluation status.
 
 | Criterion (page 3) | Weight | Primary phases |
 | --- | --- | --- |
@@ -46,24 +48,18 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 
 | ID / source p2 | Deliverable | Component / phase | Acceptance criterion | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public master cd2abe9 passed Actions run 38357432224; later stabilization remains local | VERIFIED public baseline; later release incomplete |
-| D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Planned |
+| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public baseline exists; see [exact release evidence](publication-readiness.md) | Public code exists; local cleanup requires authorization and exact-commit CI |
+| D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Unmet: no approved public dataset |
 | D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
-| D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | PDF page count and visual/content review | Planned |
-| D5 | 3-10 minute YouTube demonstration | Submission video / 6 | Shows collection, spectrum stress tests and specific caught deviations | Public video link, duration and chapter checklist | Planned |
+| D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf), page/content checks | Six-page report retained; see verification |
+| D5 | 3-10 minute YouTube demonstration | Submission video / 6 | Shows collection, spectrum stress tests and specific caught deviations | [Owner-supplied demonstration](https://youtu.be/DfFTmNTAB6E) | Prior access/duration check; full narration/permissions require owner review |
 
-These engineering documents are working specifications, not the six-page submission report. No official deliverable is marked complete merely because Phase 0 is complete.
+These engineering documents are working specifications, not the six-page submission report. Implementation alone does not establish scientific or public-deliverable acceptance.
 
-## Phase 4 integration evidence
+## Acceptance evidence
 
-The [Human Review Workspace](review-workspace.md) adds real browser authoring of the existing hash-bound transcript, timing/phrase and blinded-flaw evidence contracts, with separate adjudication history and existing consensus/eligibility. This supports R1 labeling, R2 timing validation, R3 temporal evidence, R4 interaction and reproducibility; it does not itself complete any human dataset/accuracy gate. Acceptance evidence and remaining human/manual accessibility actions are in [review validation](review-workspace-validation.md). Official judging weights and all original acceptance criteria remain unchanged.
-
-Current submission readiness is reconciled requirement by requirement in the [Phase 5 final compliance audit](submission-compliance.md). It supersedes historical readiness labels below without changing official criteria or weights. The six-page report draft and manual/public release gates are tracked there; no complete dataset or submission is claimed.
-
-[Phase 4 validation](phase4-validation.md) records the real local service/workspace, actual browser audio import/alignment/extraction/playback/export, typed contracts, software tests and remaining acceptance gates. Local success does not complete public dataset/report/video deliverables or establish independent detection accuracy.
-
-[Phase 4B validation](phase4b-validation.md) adds verified Windows process-crash recovery, bounded workers, retry, cache reuse and all-workspace narrow/accessibility checks. The [human pilot kit](human-pilot-kit.md) supplies recording and review procedures. R1/R2 accuracy/R3 real detection and D2 remain blocked by absent participant recordings and independent annotations; no metric or calibration claim closes those gates.
-
-Current repair status (2026-10-13): five genuine private practice recordings remain outside Git and lack independent ground truth/public consent. Structured semantic flaw agreement, maximum-cardinality evaluation and journaled review publication are covered by software regressions; they do not close R1–R3 human-data gates. MIT licenses original code/documentation only. See [final repair audit](final-repair-audit.md).
-
-Current hosted-verification and deliverable status is in [CI/submission verification](ci-submission-validation.md). The three audited repair commits are public; new changes remain local. Historical phase readiness is not current remote status.
+The [verification record](verification.md) consolidates actual engineering results,
+failed attempts and historical sources. [Submission readiness](publication-readiness.md)
+tracks public links and remaining owner actions. The [review workflow](review-workspace.md)
+and [human pilot kit](human-pilot-kit.md) support independent evidence collection.
+Software execution does not close scientific or publication gates.

@@ -1,6 +1,6 @@
 # TakeTwo design system
 
-Product name: **TakeTwo**. Description: **Speech analysis workspace**. Status: Phase 0 specification, now implemented by the Phase 4 React workspace. See [interaction guide](frontend-workspace.md) and [actual verification](phase4-validation.md); human-pair/manual accessibility acceptance remains open.
+Product name: **TakeTwo**. Description: **Speech analysis workspace**. Implemented by the React workspace. See [interaction guide](frontend-workspace.md) and [actual verification](verification.md); human-pair/manual accessibility acceptance remains open.
 
 ## Workshop + Gridline + Studio Utility
 

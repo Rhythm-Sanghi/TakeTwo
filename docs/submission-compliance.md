@@ -1,55 +1,34 @@
 # Track C submission compliance
 
-Current release: 15 October 2026. Public `master` at `faebbc9` passed
-[Windows Actions run 38617800894](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38617800894).
-The [organizer rules](https://multimodal-ai-hackathon-2026-7.devpost.com/rules) now state
-**15 October 2026, 12:15 PM IST**. Older dates below are historical snapshots.
+TakeTwo — Speech analysis workspace.
 
-## Current official deliverables
+The unchanged [official Track C statement](../requirments/Track%20C.pdf) defines the
+requirements and judging criteria. The [requirements matrix](requirements-matrix.md)
+preserves every requirement ID, acceptance criterion and required evidence. Use
+[submission readiness](publication-readiness.md) for current deliverable links and
+owner actions, and [verification](verification.md) for executed results and failures.
 
-| Deliverable | Status | Evidence / remaining action |
-| --- | --- | --- |
-| GitHub code/documentation | Public; exact release CI passed | `master` faebbc9; new cleanup awaits approval and its own CI |
-| Public paired audio/text/alignment labels | Unmet mandatory requirement | No rights-cleared independently annotated release or public URL |
-| Interactive prototype | Local software verified; human acceptance partial | Genuine processing, replay, exports and five workspace areas; listening/spoken accessibility pending |
-| Technical document <=6 pages | Public, six pages, extractable text | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf); minimal creator correction prepared locally |
-| YouTube demonstration 3-10 minutes | Supplied; access/duration checked | [6:23 demo](https://youtu.be/DfFTmNTAB6E); signed-out playback, sampled TakeTwo footage and correct GitHub link; full narration/rights remain owner review |
-| Devpost | Manual owner action | [Submission fields](submission-draft.md); no supplied receipt |
+## Acceptance boundaries
 
-The matrix below is retained as dated scientific/implementation evidence; its old
-publication/video/deadline states do not supersede this current table.
+| Requirement | Current evidence / remaining gate |
+| --- | --- |
+| Contrastive dataset | Provenance-aware import, synthetic lineage and connected-group split tooling exist. The required public paired audio/text/alignment-label dataset remains unmet: rights, independent labels and public-download verification are missing. |
+| Forced alignment and acoustic features | Native CPU MFA and real FFT/MFCC/RMS/energy/pYIN processing executed. Automatic repeatability is not independent boundary accuracy; supported pitch can be unavailable. |
+| Temporal grounding and explainable rubric | Native regions/anchors, measured deltas, formulas and fixed eligibility are implemented. Delivery-v0 is uncalibrated; real detection metrics and cross-speaker validation remain unavailable. |
+| Interactive prototype | Import, processing, native playback, review, exports and five workspace areas have software evidence. Genuine listening usefulness and spoken accessibility remain pending. |
+| Reproducibility | Locked software/native resources, immutable artifacts, fixed configuration and same-host replay are documented. Independent second-machine replay remains open. |
+| Public deliverables | Public code, current six-page report and owner-supplied YouTube link exist. This cleanup requires authorized push and exact-commit CI. Dataset and submission receipt remain missing. |
 
-This is the historical Phase 5 readiness snapshot. Current product repairs and the later user-supplied private practice takes are recorded in [product validation](product-validation.md) and [the recording guide](recording-import-guide.md). No newly supplied take is automatically a verified/public competition example; official scientific/public deliverable gates remain open.
+Official weights are **Data Engineering & Stress Testing 30%; Causal Explainability
+& Temporal Grounding 25%; Feature Extraction 20%; Visualization & Dashboard 15%;
+Reproducibility & Code Quality 10%**. These are distinct from the four equal rubric
+weights. Explanations describe acoustic associations, not psychological causes.
 
-TakeTwo — Speech analysis workspace. Audit date: 2026-10-12; baseline `9551d73`. Authority: all three pages of the unchanged [official statement](../requirments/Track%20C.pdf). The October 15 deadline comes from the project owner's instruction, not this PDF. This is a local preparation audit, not submission certification.
+Software fixtures, intended severity, successful processing and green tests cannot
+substitute for permissions or independent ground truth. A one-family pilot does
+not establish held-out generalization. No mandatory requirement is waived.
 
-Statuses: **implemented** = working code exists; **validated** = stated scope has executed evidence; **incomplete** = some required work remains; **blocked** = missing external inputs prevent acceptance; **not applicable** = outside the stated requirement. Software and scientific acceptance are separate. No mandatory requirement is dismissed as not applicable.
-
-| Official requirement | Software / component | Scientific or deliverable acceptance | Evidence and remaining gate |
-| --- | --- | --- | --- |
-| Challenge: reproducible custom rubric | Validated: comparison engine, fixed delivery-v0, replay | Blocked: perceptual calibration/valid human scores | [Scoring policy](scoring-policy.md), [Phase 3 tests](phase3-validation.md); no calibrated confidence |
-| Challenge: actionable feedback | Implemented: numeric explanations and replay guidance | Blocked: independent listening/explanation audit | Every region binds measurements; no genuine eligible regions available |
-| R1a: effective public speakers, transcribed | Validated: import/provenance tools; genuine source ingestion | Incomplete: two JFK masters, one unverified 17.3 s salutation; no substantive verified baseline | [Acquisition ledger](pilot-collection.md); both masters share one speaker group |
-| R1b: exact-text severe-to-near-perfect mirrors | Validated: canonical identity, human import, synthetic transformations | Blocked: no consented participant recordings or reviewed spectrum | Intention/recipe strength never substitutes for listening severity |
-| R1c: accurate temporal labels, training/testing | Validated: annotation/review contracts, connected-group splits | Blocked: zero independent human labels; no valid held-out corpus | [Recording kit](human-pilot-kit.md), [worksheet](annotation-worksheet.md) |
-| R2a: forced alignment | Validated: native CPU MFA word/phone output | Blocked: independent boundary accuracy | 19 words/115 phones on genuine source; automatic repeatability is not accuracy |
-| R2b: acoustic footprint | Validated: FFT/MFCC/RMS/energy/pYIN/activity extraction | Incomplete: cross-speaker/noisy/flawed-speech validation | Genuine frames measured; accepted F0 fraction 0. Rates/pauses withheld with unverified text. Vocal clarity is not independently scored |
-| R3a: exact flaw start/end | Validated: native-time region/event software and matching fixtures | Blocked: human region IoU/boundary benchmark | Phrase/word/gap resolution is declared; missing pauses are anchors |
-| R3b: structured mathematical rationale | Validated: hand calculations, evidence templates | Blocked: independent genuine explanation audit | Explains the trigger, not a proven psychological cause |
-| R4a: audio/transcript uploads | Validated: actual local HTTP/browser workflow | Incomplete: eligible human-pair acceptance | Real import/MFA/features/playback/export; error/recovery tests |
-| R4b: overlay, highlights, explanations | Validated: generated-signal correspondence/evidence tests; genuine native tracks | Blocked: genuine reviewed pair overlay/flag demonstration | Numeric alternatives, keyboard seeking; no hardcoded regions |
-| T1: quality before quantity | Implemented: provenance/QA/publication gates | Incomplete: release-worthy corpus | Strict gates retained rather than declaring draft sources complete |
-| T2: speaker-agnostic comparison | Validated: median-centered dB, relative semitones, invariance fixtures | Blocked: independent cross-speaker results | No per-recording variance normalization; speaker fairness unmeasured |
-| T3: sufficient temporal precision | Implemented: correspondence/coverage/uncertainty gates | Blocked: independent timing/region evaluation | Human annotations and engine uncertainty remain distinct |
-| T4: repeatable runs/environments | Validated: same-Windows replay, locks/hashes | Incomplete: clean second-environment replay | No cross-platform equivalence claim |
-| D1: GitHub code and documentation | Incomplete: local package/commits prepared | Blocked: owner review and public release verification | Existing remote URL alone does not verify publication of this work |
-| D2: public paired audio/transcripts/alignment labels, README link | Implemented: release preflight/export tools | Blocked: missing real corpus, release and public download audit | [Publication guide](dataset-publication.md); no public dataset claimed |
-| D3: functional prototype | Validated: local Windows prototype, real reference workflow | Incomplete: valid human-pair demonstration/accessibility review | Four workspaces use actual backend contracts |
-| D4: technical document, maximum six pages | Validated: six-page PDF rendered and visually inspected | Incomplete: final evidence reconciliation/owner approval; current document is a draft | [Editable report](technical-report.md), [Phase 5 evidence](phase5-validation.md) |
-| D5: 3–10 minute YouTube demonstration | Incomplete: five-minute script/checklist prepared | Blocked: genuine caught-deviation evidence, recording/upload/public verification | [Script](submission-draft.md); no uploaded video |
-
-Official judging weights: **Data Engineering & Stress Testing 30%; Causal Explainability & Temporal Grounding 25%; Feature Extraction 20%; Visualization & Dashboard 15%; Reproducibility & Code Quality 10%**. They sum to 100% and are unrelated to the four equal rubric weights.
-
-Stress testing has executed known-signal, gain/register, malformed media, clipping/silence, timing, cancellation/crash/cache and resource-limit checks. These validate software. Human severity ordering, acceptable alternatives, difficult alignment and speaker generalization remain blocked. Prior evidence: [Phase 4B](phase4b-validation.md); current executed checks: [Phase 5](phase5-validation.md).
-
-The original [requirements matrix](requirements-matrix.md) retains requirement IDs and acceptance criteria. This final audit governs current readiness. Prior phase reports are dated historical evidence, not claims about today's complete corpus. Human and public-artifact actions are consolidated in [ACTION-REQUIRED](ACTION-REQUIRED.md).
+Rhythm Sanghi created and directed TakeTwo. Disclose **OpenAI Codex** for
+implementation/testing/documentation and **ChatGPT** for planning/review in README
+and Devpost Built With. Verify live organizer rules and portal state before final
+submission; prepared repository files are not a submission receipt.

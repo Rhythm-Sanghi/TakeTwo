@@ -1,6 +1,12 @@
-# Phase 2 acoustic and alignment engine
+# Acoustic extraction and alignment
 
-TakeTwo — Speech analysis workspace. This guide describes the Phase 2 local CLI on imported recordings. The [local web service](backend-api.md) and [frontend](frontend-workspace.md) now wrap these engines. The separate [Phase 3 engine](comparison-engine.md) adds gated detection/scoring without modifying Phase 2 artifacts. Dataset v1 manifests remain unchanged. Current gates and actual measurements are in [Phase 2 validation](phase2-validation.md); genuine source acquisition and missing human gates are in [pilot collection](pilot-collection.md).
+TakeTwo — Speech analysis workspace. The local CLI aligns imported recordings and
+extracts acoustic measurements. The [web service](backend-api.md) and
+[frontend](frontend-workspace.md) wrap these engines; the separate
+[comparison engine](comparison-engine.md) consumes immutable artifacts. Native
+Windows CPU processing has executed, while independent timing/transcript accuracy
+remains unmeasured. See [verification](verification.md) and the
+[acquisition/provenance ledger](pilot-collection.md).
 
 ## Native Windows MFA setup
 

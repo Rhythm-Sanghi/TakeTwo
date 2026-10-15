@@ -1,6 +1,6 @@
-# Phase 3 comparison and review tools
+# Comparison and review tools
 
-TakeTwo — Speech analysis workspace. The CPU-only engine reuses immutable Phase 2 JSON artifacts. It does not invoke MFA, extract spectra again, read transformation windows for detection, or require new dependencies. Dataset v1 and analysis v1 remain unchanged. [Validation evidence](phase3-validation.md) distinguishes software verification from missing human evaluation.
+TakeTwo — Speech analysis workspace. The CPU-only engine reuses immutable Phase 2 JSON artifacts. It does not invoke MFA, extract spectra again, read transformation windows for detection, or require new dependencies. Dataset v1 and analysis v1 remain unchanged. [Validation evidence](verification.md) distinguishes software verification from missing human evaluation.
 
 ## Contracts and storage
 
@@ -38,7 +38,7 @@ Policy `delivery-v0` fixes the initial tolerances, widths, masks and equal weigh
 
 ## Independent review workflow
 
-The [browser Review Workspace](review-workspace.md) now authors these same `Review` v1 records without hand-written JSON. Versioned lifecycle drafts, listening/inspection evidence and uncertainty supplement rather than replace this scientific schema; their public schemas are in [OpenAPI](api-v1.json). Final submitted exports/imports use the unchanged [comparison schema](comparison-schema-v1.json). Operator adjudication is separate history and cannot bypass the existing agreement rules; explicit same-author superseding reviews remain the reconciliation mechanism. [Actual verification](review-workspace-validation.md) leaves genuine human review acceptance open.
+The [browser Review Workspace](review-workspace.md) now authors these same `Review` v1 records without hand-written JSON. Versioned lifecycle drafts, listening/inspection evidence and uncertainty supplement rather than replace this scientific schema; their public schemas are in [OpenAPI](api-v1.json). Final submitted exports/imports use the unchanged [comparison schema](comparison-schema-v1.json). Operator adjudication is separate history and cannot bypass the existing agreement rules; explicit same-author superseding reviews remain the reconciliation mechanism. [Actual verification](verification.md) leaves genuine human review acceptance open.
 
 Review JSON uses the schema's `Review` contract: ID, scope (`transcript`, `timing`, `flaws`), exact Phase 2 provenance, reviewer ID/date, evidence reference, explicit independence/blinding declarations, decision (`approved`, `rejected`, `unresolved`), notes and scope-specific evidence. No checkbox defaults a human record to approved. Keep private consent and personal reviewer information outside Git.
 

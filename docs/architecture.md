@@ -1,6 +1,18 @@
 # TakeTwo architecture
 
-Speech analysis workspace. Status: Phase 1 dataset tooling and Phase 2 alignment/acoustic modules are implemented. Native Windows CPU MFA and real-audio extraction have run; independent timing/transcript review remains open. See [analysis engine](analysis-engine.md) and [actual validation](phase2-validation.md). Phase 3 comparison/scoring, review evidence and evaluation are implemented; [contracts and workflow](comparison-engine.md) and [validation](phase3-validation.md) are the current authority. Phase 4 now provides the FastAPI service, SQLite job history and React workspace; see [HTTP/lifecycle contracts](backend-api.md), [frontend guide](frontend-workspace.md) and [validation](phase4-validation.md). Target: Windows 11, Intel Core i7-1365U, 16 GB RAM, integrated graphics, local CPU processing. Start with single-speaker English excerpts; other languages, overlapping speech and unverified transcripts receive an explicit unsupported/review state.
+Speech analysis workspace. A local Python/FastAPI service and serial supervised
+workers process immutable recording and scientific artifacts; React presents
+analysis, native playback, review and dataset/evaluation workflows. SQLite stores
+job and review lifecycle state. [HTTP contracts](backend-api.md),
+[frontend boundaries](frontend-workspace.md), [acoustic extraction](analysis-engine.md)
+and [comparison methods](comparison-engine.md) describe the component interfaces.
+
+The measured target is Windows 11, Intel Core i7-1365U, 16 GB RAM and local CPU
+processing. Start with single-speaker English excerpts. Other languages,
+overlapping speech and unverified transcripts receive explicit unsupported/review
+states. Native processing and software checks have executed; independent speech
+accuracy and broader hardware compatibility remain open. See [verification](verification.md).
+
 
 ## Technology decisions
 

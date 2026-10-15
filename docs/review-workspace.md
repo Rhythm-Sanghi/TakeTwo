@@ -1,6 +1,6 @@
 # Human Review Workspace
 
-TakeTwo — Speech analysis workspace. This browser editor wraps the existing Phase 3 `Review` v1, `Interval`, `Label`, provenance, validation and consensus contracts. It does not alter acoustic algorithms, `delivery-v0`, dataset schemas or independent-review requirements. [Executed verification](review-workspace-validation.md) distinguishes software checks from outstanding human acceptance.
+TakeTwo — Speech analysis workspace. This browser editor wraps the existing Phase 3 `Review` v1, `Interval`, `Label`, provenance, validation and consensus contracts. It does not alter acoustic algorithms, `delivery-v0`, dataset schemas or independent-review requirements. [Executed verification](verification.md) distinguishes software checks from outstanding human acceptance.
 
 ## Operator preparation and sequential handoff
 

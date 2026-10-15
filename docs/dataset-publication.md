@@ -4,7 +4,7 @@ TakeTwo — Speech analysis workspace. **No releasable paired dataset or public 
 
 ## Release gate
 
-1. Collect real substantive references, exact reviewed text, permitted faithful/flawed mirrors and independent temporal labels using [ACTION-REQUIRED](ACTION-REQUIRED.md). Separate human takes and controlled synthetic derivatives. Preserve originals and transformation lineage/maps; never call synthetic alterations real speeches.
+1. Collect real substantive references, exact reviewed text, permitted faithful/flawed mirrors and independent temporal labels using [owner checklist](publication-readiness.md#owner-checklist). Separate human takes and controlled synthetic derivatives. Preserve originals and transformation lineage/maps; never call synthetic alterations real speeches.
 2. Complete item-specific rights/attribution and actual consent. Check recording, words, excerpts, derivatives, public metadata and demonstration permissions. A code license does not license audio. Redact identity mappings/signatures/private evidence; do not merely rename consent scans.
 3. Freeze connected source/work/text/speaker/family/hash/lineage groups before derivatives/calibration. Audit coverage by origin, dimension, intended and reviewed severity, speaker and split. Include near-perfect/acceptable alternatives. Record exclusions; do not increase counts with unusable clips.
 4. Run `uv run taketwo-dataset validate <workspace> --publication --reproduce`. Resolve every error without weakening gates. Replay current alignment/features/comparison reports and independently inspect labels. Validation is structural preflight; actual rights/listening/release review remains necessary.

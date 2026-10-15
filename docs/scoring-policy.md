@@ -74,7 +74,7 @@ Report failure/abstention rates and results by origin/dimension/severity/family.
 
 ## Phase 3 implementation notes
 
-The executable [contracts and CLI](comparison-engine.md) implement the formulas above without changing dimension weights, saturation widths or score gates. The [validation report](phase3-validation.md) records checks actually executed. No real human-reviewed accuracy result exists.
+The executable [contracts and CLI](comparison-engine.md) implement the formulas above without changing dimension weights, saturation widths or score gates. The [validation report](verification.md) records checks actually executed. No real human-reviewed accuracy result exists.
 
 Small clarifications: all reviewed phrases remain in the expected reference-duration denominator even if too short/unusable; eligibility cannot improve by deleting missing observations. Complete observed frame supports must cover >=80% of a region; pitch additionally needs >=50% reliable frames. Two independent agreeing timing/phrase reviews are required, with median reviewed word boundaries and retained originals. A missing/short pause is a boundary event with null participant interval and an actual word-end anchor; no zero-width or invented silence interval is published. These clarify the existing evidence/grounding policy rather than weaken it.
 

@@ -1,6 +1,6 @@
 # TakeTwo risk register
 
-Phase 0 identifies risks; no mitigation is considered proven until its evidence gate passes. Phase 1 adds tested audio/path/schema safeguards, connected-group leakage checks and locked-runtime replay; see [validation evidence](phase1-validation.md). These fixture-based checks do not close real-source rights, human annotation, cross-platform reproducibility or alignment risks. Likelihood/impact are qualitative planning judgments. Role owners describe responsibilities, not assigned fictional team members.
+Phase 0 identifies risks; no mitigation is considered proven until its evidence gate passes. Phase 1 adds tested audio/path/schema safeguards, connected-group leakage checks and locked-runtime replay; see [validation evidence](verification.md). These fixture-based checks do not close real-source rights, human annotation, cross-platform reproducibility or alignment risks. Likelihood/impact are qualitative planning judgments. Role owners describe responsibilities, not assigned fictional team members.
 
 | ID | Risk / likelihood / impact | Practical mitigation and trigger | Owner / evidence gate | Current state |
 | --- | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ Phase 0 identifies risks; no mitigation is considered proven until its evidence 
 | K5 | Noisy/flawed speech defeats forced alignment / high / high | Expose coverage/diagnostics, transcript correction and reviewed import; abstain on unsupported spans; evaluate alternative CPU aligner only if gate fails | Analysis lead / 2: difficult-case failure inventory | Open |
 | K6 | Resampling/downmixing/level handling destroys timing or hides flaws / medium / high | Immutable originals, fixed time origin, channel-cancellation checks; no automatic trimming/gain normalization; inspect derivative duration and quality | Engine lead / 2: impulse/duration/channel/level tests | Open |
 | K7 | F0 errors or normalization biases across speakers / high / high | Voice-relative semitones and median-centered energy, no per-recording variance scaling; mask unreliable pitch; evaluate register/gain/accent stress cases | Analysis lead / 2, 4: invariance and per-speaker results | Open |
-| K8 | CPU latency or memory exceeds workstation capacity / medium / high | One heavy job, capped threads, cached immutable artifacts, bounded clips; measure cold/warm timing and RSS; profile before optimizing | Engineering lead / 2: target-machine benchmark | Short-clip CPU measurements recorded; larger clips/true peak pending |
+| K8 | CPU latency or memory exceeds workstation capacity / medium / high | One heavy job, capped threads, cached immutable artifacts, bounded clips; measure cold/warm timing and RSS; profile before optimizing | Engineering lead / 2: target-machine benchmark | 45 s paired workload and worker commit measured; other hardware/worst cases pending |
 | K9 | Synthetic shortcuts or family/speaker leakage inflate results / high / high | Split connected source/transcript/speaker families before derivation, inspect transform artifacts, separate real/synthetic metrics, sealed test | Evaluation lead / 1, 4: leakage and origin audit | Open |
 | K10 | Small corpus yields unstable metrics or weak rubric validity / high / high | Publish counts, family uncertainty, abstentions and failure cases; no universal rhetoric score; use conservative pilot scope and collect better labels before larger models | Evaluation lead / 4: held-out report and limitations | Open |
 | K11 | Dependency/model drift breaks reproducibility / medium / high | Pin software, models, dictionary, command signature, config, seeds and hashes; verify clean Windows and another environment; document floating-point tolerance | Engineering lead / all, 6: repeat-run manifests | Runtime/model locks recorded; cross-environment check open |
@@ -20,22 +20,28 @@ Phase 0 identifies risks; no mitigation is considered proven until its evidence 
 | K14 | Untrusted uploads, private audio or interrupted jobs cause damage/data loss / medium / high | Local-only service, size/format/path validation, private managed storage, consent-aware release, atomic artifacts, interrupted-state retry | Engineering lead / 5: malformed input and lifecycle tests | Open |
 | K15 | Dataset, technical report or video fails official submission rules / medium / critical | Track D1-D5; public audio/labels link in README, report <=6 pages and YouTube video 3-10 minutes; check public access separately from local success | Project lead / 6: submission checklist | Open |
 
-## Blockers and decisions still requiring evidence
+## Current evidence and open gates
 
-Phase 0 itself needs no external data or model downloads. Later gates require actual rights-cleared source recordings, consenting mirror speakers, independent annotators, compatible licensed MFA artifacts and Windows runtime verification. The present target corpus, rubric tolerances and utility thresholds are proposals awaiting those inputs. Phase 1B/2 adds item-specific public-domain acquisition, model license review and limited native CPU measurements; see [current validation](phase2-validation.md). Human reviews and public-release gates remain open.
+Five private practice takes form one speaker/family; independent text, timing and
+flaw reviews, public-release consent and held-out groups remain missing. Corpus
+and rubric targets are proposals, not available data or validated thresholds.
+Keep item-specific recording/model rights and independent review requirements
+explicit; improve evidence rather than relaxing eligibility.
 
-Keep candidate rights and model terms as explicit acquisition decisions; no user decision is needed merely to select the documented initial stack. Public dataset/video publication and any licensing uncertainty must be resolved with the rights-holder and project owner before release. Record new risks and changed decisions with the supporting evidence rather than quietly weakening requirements.
+Known-signal, replay, provenance, review disagreement, matching, crash containment,
+leases, bounded allocation, interruption/retry and corrupt-cache tests mitigate
+implementation risks. They do not close human accuracy, fairness or calibration
+risks. Power-loss recovery and second-machine replay remain unverified. Unknown
+legacy/CLI locks are left for operator inspection.
 
-## Phase 3 update
+The default analysis limit is 45 seconds per member, import 600 seconds/100 MiB,
+one worker, 4 GiB aggregate worker commit and 600-second job deadline. Actual
+[duration measurements](duration-validation.md) and [Windows restoration trials](windows-hardening-evidence.md)
+are workload-specific; cold requests still time out under contention. Do not equate
+sampled working set, process RSS and kernel commit measurements.
 
-Evidence-gated comparison, null confidence, review disagreements, native frame coverage, local clipping, provenance-separated evaluation and cached-artifact replay now have software tests. These mitigate implementation mistakes in K3/K6/K7/K9/K11/K13; they do not close real human-data or accuracy risks. No new runtime dependency or GPU requirement was introduced. Numerical thresholds and engineering severity bins remain uncalibrated. Strict review consensus may increase abstentions; acquire better evidence rather than bypassing it. Review imports are assertions, not authenticated proof of independent listening. See [Phase 3 validation](phase3-validation.md).
-
-Current phase numbering reserves Phase 4 for the service/frontend and Phase 5 for final corpus/held-out evaluation. Earlier owner phase references describe the historical plan; the [requirements matrix](requirements-matrix.md) is authoritative. Human collection/review continues before and alongside later interface work.
-
-## Phase 4 update
-
-The local service/workspace now exercises actual public-source import, CPU MFA/features, measured waveform playback, typed evidence/abstention and safe exports. HTTP/lifecycle tests cover untrusted requests, managed media, limits, deduplication, cancellation/timeout and retained artifacts; native Windows stage-publication sharing violations have a bounded retry regression. These mitigate K8/K11/K14 without closing human-data/accuracy risks. Graceful cleanup is verified; abrupt crash-orphan recovery remains manual. Eligible real-pair inspection, manual screen-reader/zoom review, independent alignment/detection accuracy and public submission remain open. See [Phase 4 evidence](phase4-validation.md).
-
-## Phase 4B update
-
-Windows kernel leases, bounded kill-on-close Job Objects, startup interruption marking and managed temporary cleanup now mitigate abrupt process-crash risks with actual termination tests. Legacy/CLI locks remain operator-inspected, and power-loss/filesystem recovery is unverified. Scrollable table focus, distinct timeline labels, loading announcements and exact-request retry mitigate usability defects. All four workspaces have desktop/narrow automated checks; actual screen-reader speech and 200% browser zoom remain unverified. No participant recordings or reviews exist: K1–K7/K9/K10 scientific and dataset risks remain open, and `delivery-v0` remains experimental. Recording/review materials are available without fabricated approvals. See [Phase 4B evidence](phase4b-validation.md).
+Automated native 200% zoom and focus/axe checks have passed. Actual human listening,
+manual native-zoom visual acceptance, Narrator/NVDA speech and PDF assistive reading
+order remain pending. See [verification and failure cases](verification.md),
+[official criteria](requirements-matrix.md) and [submission readiness](publication-readiness.md).
+Record changed risk decisions with evidence; preserve historic artifacts and approvals.

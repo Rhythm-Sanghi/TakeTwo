@@ -1,37 +1,33 @@
 # TakeTwo
 
-**Compare speech. Understand the difference.**
-
 Speech analysis workspace
 
-TakeTwo is a local Windows workstation for comparing two recordings of the same words. It connects acoustic and timing differences to native audio intervals, so you can listen, inspect the evidence and understand what changed.
+**Compare speech. Understand the difference.**
 
-## Demonstration
+TakeTwo is a local Windows workstation for comparing recordings of the same words. It connects acoustic and timing differences to each recording's native audio intervals, with evidence inspection, A/B playback and exports.
 
-**Watch the demonstration:** [TakeTwo — Speech Analysis Demo](https://youtu.be/DfFTmNTAB6E)
+[Watch the demonstration](https://youtu.be/DfFTmNTAB6E) · [Technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf)
 
-The 6:23 video opens and plays while signed out; its description links to this repository. Sampled footage shows TakeTwo. This access check does not establish scientific accuracy or recording redistribution rights.
+![TakeTwo speech analysis workspace](docs/images/taketwo-exploratory-software.png)
 
-![TakeTwo exploratory speech analysis](docs/images/taketwo-exploratory-software.png)
-
-Actual application screenshot using generated software signals to exercise the interface. Private speech recordings and screenshots are excluded from Git.
+Actual application screenshot using generated software signals. Private speech recordings are excluded from the repository.
 
 ## Features
 
-- Import WAV/FLAC recordings and transcripts with retained originals and provenance.
+- Import WAV/FLAC recordings and transcripts, preserving originals and provenance.
 - Inspect duration, digital level, energy, activity and supported pitch.
-- Compare grouped observations, provisional word timing and alignment anomalies.
-- Replay reference and participant intervals on their own native timelines with A/B controls.
-- Export concise Analysis Summaries, searchable Full Evidence Reports and JSON/CSV.
-- Collect independent transcript/timing/flaw reviews and inspect dataset/evaluation prerequisites.
+- Compare grouped acoustic observations, provisional word timing and alignment anomalies.
+- Replay reference and participant intervals on independent native timelines.
+- Export Analysis Summaries, searchable Full Evidence Reports and JSON/CSV.
+- Collect independent transcript, timing and flaw reviews; inspect dataset and evaluation prerequisites.
 
 ## Technology
 
-Python 3.11, FastAPI, React, TypeScript, SQLite, librosa, NumPy, SciPy, soundfile, uPlot and CPU Montreal Forced Aligner/Kaldi. Serial supervised workers provide cancellation, timeouts, crash containment and integrity-checked caches. No GPU, cloud account or paid inference API is required.
+Python 3.11, FastAPI, SQLite, React, TypeScript, Vite, uPlot, librosa, NumPy, SciPy, soundfile and CPU Montreal Forced Aligner/Kaldi. Supervised serial workers provide cancellation, timeouts and integrity-checked caching. No GPU, cloud account or paid inference API is required.
 
-## Getting started
+## Installation
 
-Install Windows 11, Python **3.11**, **uv**, Git and Node.js **24** with npm. From PowerShell:
+Install Windows 11, Python **3.11**, **uv**, Git and Node.js **24** with npm. In PowerShell:
 
 ```powershell
 git clone https://github.com/Rhythm-Sanghi/TakeTwo.git
@@ -39,57 +35,49 @@ cd TakeTwo
 .\scripts\start-local.ps1 -Setup
 ```
 
-Open [the workspace](http://127.0.0.1:8765). Stop with **Ctrl+C**. Next time, run `.\scripts\start-local.ps1` without `-Setup`. Use `-Port 8876` if the default port is occupied. First-time downloads can take several minutes.
+Open [the workspace](http://127.0.0.1:8765). Stop with **Ctrl+C**. Next time, run `.\scripts\start-local.ps1`. Use `-Port 8876` if the default port is occupied. First-time downloads can take several minutes.
 
-[Windows setup and recovery](docs/windows-setup.md) covers prerequisites and manual commands. The default workspace is `%LOCALAPPDATA%\TakeTwo\workspace`; `-Workspace .\local-data\practice` selects a separate private workspace. No human corpus is bundled.
+The default private workspace is `%LOCALAPPDATA%\TakeTwo\workspace`; `-Workspace .\local-data\practice` selects another. [Windows setup and troubleshooting](docs/windows-setup.md) provides prerequisites and manual commands.
 
-Import, acoustic inspection and playback work before MFA is configured. For word alignment, follow the separate [locked MFA/model setup](docs/analysis-engine.md#native-windows-mfa-setup), then launch:
+Import, acoustic inspection and playback work before MFA is configured. Word alignment requires the separate [locked MFA/model setup](docs/analysis-engine.md#native-windows-mfa-setup), then:
 
 ```powershell
 .\scripts\start-local.ps1 -AlignmentConfig .\local-data\alignment-config.json
 ```
 
-MFA resources are installed separately, not downloaded by analysis requests. Analysis supports **45 seconds per recording** by default; imports support **100 MiB / 600 seconds**. Longer originals remain playable and can be explicitly excerpted. The Python wheel supplies the API/CLI; the frontend must be built from the checkout.
+Analysis supports **45 seconds per recording** by default; import supports **100 MiB / 600 seconds**. Longer originals remain playable and support explicit excerpts. No human corpus or model files are bundled. The Python wheel supplies API/CLI; build the frontend from the checkout.
 
-## How it works
+## How to use
 
-1. Import a permitted reference recording with its actual spoken words.
+1. Import a permitted reference with its actual spoken words.
 2. Add a participant take with the intended same-text relationship and run analysis.
-3. Inspect measured differences, provisional alignment and highlighted intervals; alternate native A/B playback.
-4. Export a summary or complete evidence report. Use independent human reviews before requesting verified assessments or evaluation.
+3. Inspect measured differences and highlighted intervals; alternate native A/B playback.
+4. Export a summary or complete evidence report. Complete independent reviews before requesting verified assessments or evaluation.
 
-Supplied transcripts and automatic timestamps remain unverified. Read the [user guide](docs/user-guide.md), [comparison methods](docs/comparative-insights.md) and [review workflow](docs/reviewed-evidence-workflow.md) for details.
+Supplied text and automatic timestamps remain unverified. The [user guide](docs/user-guide.md) covers import, pairing, analysis, playback and export; the [review workflow](docs/reviewed-evidence-workflow.md) covers independent evidence.
 
-## Reports and reproducibility
+## Technical documentation
 
-Read the [six-page technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf) or its [editable source](docs/technical-report.md). [Architecture](docs/architecture.md), [scoring formulas](docs/scoring-policy.md) and [reproduction commands](docs/reproducibility.md) describe the pipeline and evidence contracts. [Report exports](docs/report-export-guide.md) explains searchable PDF generation.
+| Topic | Documentation |
+| --- | --- |
+| Architecture and API | [Component boundaries](docs/architecture.md), [backend/API lifecycle](docs/backend-api.md) |
+| Methodology | [Acoustic extraction/alignment](docs/analysis-engine.md), [comparative insights](docs/comparative-insights.md), [scoring formulas](docs/scoring-policy.md) |
+| Dataset and evaluation | [Schemas and engineering](docs/dataset-engineering.md), [publication/provenance requirements](docs/dataset-publication.md) |
+| Verification | [Results, failure cases and limitations](docs/verification.md), [reproduction commands](docs/reproducibility.md), [browser tests](docs/browser-testing.md) |
+| Submission | [Current six-page report](output/pdf/taketwo-technical-report-2026-10-15.pdf), [editable source](docs/technical-report.md), [deliverables and owner actions](docs/publication-readiness.md) |
 
-Python/npm/native resources are locked. Reports bind input, transcript, configuration, model, implementation and review hashes. [Browser tests](docs/browser-testing.md) distinguish software fixtures from genuine private inputs. Public release `faebbc9` passed its [Windows CI run](https://github.com/Rhythm-Sanghi/TakeTwo/actions/runs/38617800894). New cleanup commits require their own CI. Current submission links are in [submission readiness](docs/publication-readiness.md).
+## Scientific limitations
 
-```powershell
-uv run pytest -q
-npm --prefix frontend test -- --maxWorkers=1
-npm --prefix frontend run typecheck
-npm --prefix frontend run build
-uv run python scripts/check_repository.py
-```
+TakeTwo is a research prototype. Delivery-v0 is uncalibrated; independent speech annotations, held-out accuracy and cross-speaker generalization are unavailable. Automatic alignment can fit incorrect words. Pitch support was insufficient on the private practice takes, so affected scores abstain. Cold evidence requests can time out under contention. Human listening, spoken accessibility and clean second-machine acceptance remain pending.
 
-## Limitations
+**The required public paired dataset is not available.** Five private practice takes are not redistribution-approved ground truth. Acoustic differences do not establish persuasion, emotion or psychological causes.
 
-TakeTwo is a working research prototype. Delivery-v0 remains uncalibrated; independent speech annotations, held-out accuracy and cross-speaker generalization are unavailable. Automatic alignment can fit incorrect words. Pitch coverage was insufficient on the private practice takes, so affected scores abstain. Human listening, spoken accessibility and clean second-machine acceptance remain pending; cold evidence requests can time out under contention.
+## Creator and AI assistance
 
-**The required public paired dataset is not yet available.** Five private practice takes are not redistribution-approved ground truth. See [dataset publication requirements](docs/dataset-publication.md). Acoustic differences do not establish persuasion, emotion or a psychological cause.
+**Created by Rhythm Sanghi**, who directed the product, interface and workflows, supplied practice recordings and intended transcripts, reviewed results and guided submission preparation.
 
-## Creator
-
-**Created by Rhythm Sanghi**
-
-I developed TakeTwo around a question I wanted to explore: how can we compare two speech recordings and understand the differences without relying on an unexplained score? I defined the product direction and use cases, shaped the visual identity and workflows, made scope decisions, supplied practice recordings and intended transcripts, reviewed analysis results and reports, and guided improvements and submission preparation.
-
-## AI assistance
-
-OpenAI Codex assisted with software implementation, integration, testing and documentation. ChatGPT supported planning, technical review and development guidance. The project direction, product decisions, practice recordings, review of results and submission decisions were directed by Rhythm Sanghi. Both tools are included in the [Devpost Built With checklist](docs/submission-draft.md).
+OpenAI Codex assisted implementation, integration, testing and documentation. ChatGPT assisted planning and technical review. Both tools are disclosed in the [submission checklist](docs/submission-draft.md).
 
 ## License
 
-Original code and documentation use the [MIT License](LICENSE), copyright (c) 2026 Rhythm Sanghi. Recordings, consent/review records, models and third-party materials retain separate rights. [Licenses and attribution](docs/attributions.md).
+Original code and documentation: [MIT](LICENSE), copyright (c) 2026 Rhythm Sanghi. Recordings, consent/review records, models and third-party materials retain separate rights. See [licenses and attribution](docs/attributions.md).
