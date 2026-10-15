@@ -1,11 +1,11 @@
 # Local backend API v1
 
-## Exploratory result additions
+## Exploratory results
 
 `GET /api/v1/analyses/{job_id}/insights` and `/insights/export` supply the separate
 [comparative-insights-v1 contract](comparative-insights-schema-v1.json): complete
 exploratory provenance/raw windows, groups, native paired measurements, gap diagnostics
-and explained inspection order. [Methods](comparative-insights.md) specify abstention,
+and explained inspection order. [Methods](comparison-engine.md#comparative-insights-v1) specify abstention,
 reviewed phrase partitions and bounded caching. Reviewer handoffs deny these endpoints.
 Missing job IDs return `not_found` 404; absent stored evidence returns `artifact_missing`
 404; failed artifact validation returns `artifact_corrupt` 422. Storage access failures
@@ -18,9 +18,9 @@ completed acoustic feature stage is required (otherwise HTTP 409). Missing membe
 produce a partial result; integrity/provenance failures do not produce replacement
 measurements. `/exploratory/export?format=json|csv` exports checksum-bound reports
 or native automatic-event rows. General-API handoff restrictions apply unchanged.
-See [methods and cache boundaries](exploratory-analysis.md).
+See [methods and cache boundaries](analysis-engine.md#exploratory-speech-analysis-v1).
 
-## Dataset presentation additions
+## Dataset readiness
 
 `GET /api/v1/dataset` retains existing fields and adds default-empty `inventory_counts`
 and `review_readiness`. The generated [contract](api-v1.json) and TypeScript adapter
@@ -38,7 +38,7 @@ original alignment, pair, coverage, acoustic and split gates remain authoritativ
 at comparison/evaluation. Active-handoff middleware still denies this endpoint;
 navigation preselects operator preparation only and grants no session or capability.
 
-## Human review lifecycle additions
+## Human review lifecycle
 
 The [review workflow](review-workspace.md) defines sequential operator/reviewer handoff and its local security limits. Prefix below is `/api/v1/review-workspace`. All lifecycle payloads are in the generated [OpenAPI contract](api-v1.json); final scientific evidence remains unchanged `Review` v1. Requests are capped at 1 MiB. Operator routes require `X-Review-Operator`, except unlock which takes an explicit key body. Reviewer routes use the active capability in a scoped HttpOnly/SameSite cookie; a session ID alone grants no access.
 
@@ -92,7 +92,7 @@ TakeTwo — Speech analysis workspace. The executable HTTP contract is [api-v1.j
 
 List responses intentionally cover the compact local workspace. No pagination contract or large-corpus scaling is claimed. SQLite stores lifecycle/history only; the immutable Phase 1 manifest remains the recording/transcript/pair authority. Duplicating its metadata into parallel mutable tables would create unnecessary consistency risks. `PRAGMA user_version=1`, WAL and a five-second busy timeout define the first application database version.
 
-## Product stabilization additions
+## Imports, pairing and stored report identity
 
 `POST /recordings` also accepts multipart metadata matching generated `LocalImportRequest`: `recording_type=public_reference|controlled_reference|human_participant`, exact draft transcript, local permission assertion, optional title/reference/speaker/rights/channel/intent. The original nested `ImportRequest` remains supported. Internal collection IDs and actual import time are generated on the server; selected reference supplies family/work. Unknown ownership/license/evidence/attribution stay null in schema v2. Missing intended labels stay `unspecified` with null severity. Explicit clearance still needs all actual rights fields and adaptation/redistribution permissions. Local permission never grants public release or verifies text. Unassigned speakers conservatively share an ID; same-speaker association requires an explicit choice.
 
@@ -127,7 +127,7 @@ Errors use `{error:{code,message,recovery}}`. Request/metadata validation lists 
 
 Visualization windows retain real sample/frame coordinates. Waveforms are actual min/max bins. Feature windows return original frames when small; otherwise grouped extrema with conservative null gap markers. Any group containing missing measurements becomes a gap, sacrificing detail rather than bridging unobserved pitch. Full spectra/MFCCs and raw series remain in immutable artifacts, not repeated navigation responses.
 
-The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](verification.md#analysis-duration-and-capacity).
 
 ## Comparative presentation and printing
 

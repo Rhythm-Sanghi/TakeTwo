@@ -62,7 +62,7 @@ Each explanation is assembled from computed evidence: transcript span, native/re
 
 Initial reliability states: `reviewed` (human-checked relevant alignment/evidence), `automatic` (all checks passed, not manually checked), `limited` (some usable evidence with warnings), `unavailable` (insufficient evidence). They are evidence categories, not calibrated probabilities. Show alignment coverage, pitch-valid fraction, quality flags and thresholds alongside them. Numeric timing uncertainty remains null until a reviewed benchmark supports a bound; display annotation uncertainty separately from engine uncertainty. Do not display arbitrary "95% confidence" on an individual score.
 
-Evaluation uses sealed human labels from the [dataset plan](dataset-plan.md):
+Evaluation uses sealed human labels from the [dataset plan](dataset-engineering.md#collection-and-evaluation-design):
 
 - Alignments: median/p90 absolute word-start/end error, coverage, failures and annotation uncertainty; no removal of failed cases from the denominator without reporting them.
 - Regions: temporal IoU `intersection_duration/union_duration`; within each recording and dimension maximize eligible one-to-one match cardinality, then total IoU (ID-sorted solver ties under pinned SciPy; matching-v2), with main threshold 0.5 and sensitivity at 0.3/0.7. Report precision/recall/F1, unmatched predictions/labels and matched boundary errors. Use boundary tolerance +/-200 ms for missing-pause events, separately from interval IoU. Publish false flags/minute on reviewed clean spans and near-perfect examples.
@@ -72,7 +72,7 @@ Evaluation uses sealed human labels from the [dataset plan](dataset-plan.md):
 
 Report failure/abstention rates and results by origin/dimension/severity/family. Compute 1000 family-level bootstrap resamples with a recorded seed for metric uncertainty; three held-out families are too few for strong statistical conclusions, and an interval is not a guarantee. When an entire resample has no positives, keep its metric undefined and report the count. No accuracy result or gate attainment is claimed in Phase 0.
 
-## Phase 3 implementation notes
+## Implementation and evaluation semantics
 
 The executable [contracts and CLI](comparison-engine.md) implement the formulas above without changing dimension weights, saturation widths or score gates. The [validation report](verification.md) records checks actually executed. No real human-reviewed accuracy result exists.
 

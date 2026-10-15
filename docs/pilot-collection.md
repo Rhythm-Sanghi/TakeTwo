@@ -1,6 +1,6 @@
-# Phase 1B pilot acquisition and human recording procedure
+# Source acquisition and rights ledger
 
-TakeTwo — Speech analysis workspace. Acquisition reviewed 2026-10-11. This is an engineering pilot, **not a completed competition corpus**. No human mirror, consent or independent review exists. No recordings are committed or published.
+TakeTwo — Speech analysis workspace. Acquisition reviewed 2026-10-11. This is an engineering pilot, **not a completed competition corpus**. The acquisition record below predates the later five private practice takes; it supplies no independent human review or release consent. No recordings are committed or published.
 
 ## Genuine sources and rights evidence
 
@@ -28,18 +28,21 @@ The [published inaugural transcript](https://commons.wikimedia.org/wiki/File:JFK
 
 Before recording mirrors, two reviewers independently check every word, repetition and excerpt edge. Correct the draft and record real reviewer IDs/date only after review. The initial 24 s clip may contain subsequent speech outside this draft; keep it as an exploratory run. Use the shorter candidate only after listening QA confirms it contains exactly these words. For a substantive passage, select and verify its full spoken text separately.
 
-1. Recruit consenting adults. Obtain explicit recording, annotation, adaptation and public-release permission; retain private consent evidence outside Git. Assign pseudonymous speaker IDs. Never create a fictional consent marker.
-2. Use a quiet room, fixed microphone/distance/gain, mono PCM WAV at 16/44.1/48 kHz or FLAC. Avoid AGC, denoising and effects where controllable; document unavoidable device processing. Leave short natural leading/trailing room tone; do not clip.
-3. Read the verified script exactly, including repetitions if present. Record one comfortable faithful delivery and separate intended mild/moderate/severe changes to pacing, pauses or emphasis. Describe the intention, not a confirmed flaw. Do not impersonate JFK or synthesize a human mirror.
-4. Listen for omitted/added words and clipping; re-record rather than hide mismatches. Record microphone/settings/date and actual consent evidence in `ImportSpec`. Use `origin=self_recorded`, the same family/work, distinct source/speaker IDs and canonical words.
-5. Import with `taketwo-dataset import-flawed`; do not assign detected intervals. Two independent labelers listen without engine/recipe windows, mark native-time flaw/acceptable/quality intervals and uncertainty, then adjudicate disagreements. Import their actual records with `annotate`.
-6. Obtain split-disjoint speakers before freezing groups. Run draft and publication validation separately; missing mirrors/reviews/coverage must continue to fail publication.
+### Imported draft candidate
 
-```powershell
-uv run taketwo-dataset import-flawed .\local-data\pilot-v2 --reference $referenceId --audio .\mirror.wav --metadata .\mirror-metadata.json --category pacing --severity 2
-uv run taketwo-dataset annotate .\local-data\pilot-v2 --annotations .\independent-labels.json
-uv run taketwo-dataset validate .\local-data\pilot-v2 --reproduce
-uv run taketwo-dataset validate .\local-data\pilot-v2 --publication --reproduce
-```
+The 17.3 s salutation candidate is `r-478a9405c1b10a75fda31972`, family
+`jfk-inaugural-1961-opening`. Canonical WAV SHA-256 is
+`a342f051ea3b4ae23a40d293264bdee3946be235cb73c77e7e582c65dc873bc8`.
+The original master SHA above identifies the source; canonical-container bytes are a
+different identity from decoded sample hashes. Retain both in actual manifests.
+No verified script, consented spectrum or independent boundary labels are asserted.
 
-The paths/IDs in this example require genuine collected files. No microphone capture, human performance or annotation review was performed in this development run. The Phase 1B pilot gate remains open.
+Use the [recording/review protocol](review-protocol.md) for consent, microphone settings,
+same-text recording, independent annotation, import/evaluation and blank forms. The
+[dataset engineering guide](dataset-engineering.md) and [reproduction commands](reproducibility.md)
+retain the actual `import-flawed`, `annotate` and draft/publication validation commands.
+This ledger records acquired source evidence; it does not claim a complete corpus.
+
+## Unacquired source lead
+
+The [FDR Presidential Library audio index](https://www.fdrlibrary.org/utterancesfdr) was inspected as an acquisition lead. Its MP3 downloads and general reference-use notice do not by themselves clear a particular recording for adaptation/public dataset release. No asset was downloaded or marked cleared; obtain item-specific terms/permission and a supported archival WAV/FLAC or document a reviewed external conversion separately. No MP3 dependency was added.

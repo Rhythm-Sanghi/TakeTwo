@@ -69,7 +69,7 @@ The Vite UI at `http://127.0.0.1:5173` proxies `/api` to port 8765. `scripts/sta
 The Windows launcher uses a Selector event loop after a reproduced Proactor
 accept-socket failure during abrupt client resets. Worker processes retain kernel
 supervision and synchronous thread-based launching. See
-[measured Windows hardening evidence](windows-hardening-evidence.md) for cold/warm
+[measured Windows hardening evidence](verification.md#windows-restoration-transport-and-cold-load-failures) for cold/warm
 timings, tested recovery, the bounded local-server tradeoff and remaining latency
 and WinError 10054 limits.
 
@@ -86,9 +86,9 @@ out or raised a permission error. This is a reproducible test setup to try, not 
 proven path-length fix. Preserve original data/drafts and their hashes; do not
 migrate them silently. See [full execution evidence](verification.md).
 
-The [recording guide](recording-import-guide.md) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
+The [recording guide](user-guide.md#import-recordings) covers public, controlled and participant imports, exact-text pairing, explicit excerpting and review handoff. New workspaces use schema v2; an existing v1 workspace needs **Enable private draft imports** before local compact imports. This retains an exact manifest backup and does not grant rights or verification. No clean-machine compatibility is inferred from same-host setup testing.
 
-Optional private pilot acceptance uses the explicit private fixture kit and `TAKETWO_TEST_ALIGNMENT_CONFIG` described in [browser testing](browser-testing.md); set `TAKETWO_PILOT_SMOKE=1` only after preparing those authorized inputs. It performs no public release or human approval. Native zoom uses an isolated profile; a host launch failure is unverified. Spoken screen-reader testing remains separate.
+Optional private pilot acceptance uses the explicit private fixture kit and `TAKETWO_TEST_ALIGNMENT_CONFIG` described in [browser testing](reproducibility.md#browser-verification-and-fixture-configuration); set `TAKETWO_PILOT_SMOKE=1` only after preparing those authorized inputs. It performs no public release or human approval. Native zoom uses an isolated profile; a host launch failure is unverified. Spoken screen-reader testing remains separate.
 
 ```powershell
 uv sync --locked
@@ -112,10 +112,10 @@ uv run python scripts/check_repository.py
 git diff --check
 ```
 
-Generated oscillator fixtures are software tests only. E2E creates a fresh ignored workspace and performs actual HTTP imports and CPU extraction; no scientific route is mocked. Optional genuine source and 45-second suites require the external fixture kit and actual native MFA configuration documented in [browser testing](browser-testing.md). No hardcoded private path is required in a fresh checkout. Missing inputs mean not configured; models/audio are not shipped. Historical capacity evidence remains in [duration validation](duration-validation.md).
+Generated oscillator fixtures are software tests only. E2E creates a fresh ignored workspace and performs actual HTTP imports and CPU extraction; no scientific route is mocked. Optional genuine source and 45-second suites require the external fixture kit and actual native MFA configuration documented in [browser testing](reproducibility.md#browser-verification-and-fixture-configuration). No hardcoded private path is required in a fresh checkout. Missing inputs mean not configured; models/audio are not shipped. Historical capacity evidence remains in [duration validation](verification.md#analysis-duration-and-capacity).
 
 Graceful stop: Ctrl+C in the service terminal. Phase 4B Windows kernel leases release even after hard termination, and kill-on-close Job Objects terminate CPU/MFA descendants. Restart marks unfinished history failed/interrupted and cleans only managed job temporary directories after stopping surviving named trees. It never requeues interrupted work or deletes originals/complete artifacts. Use **Retry this analysis** for a new job; active identical requests still deduplicate. Worker aggregate commit is limited to 4 GiB, with one serial worker and one-thread numerical pools.
 
 Migration from older versions: unknown pre-Phase-4B or CLI lock files are deliberately not deleted automatically. If startup reports a legacy lease, verify all old service/worker/MFA and CLI processes for that exact workspace are stopped. Preserve the workspace, then inspect/remove only its stale `.service.lock` / `.dataset.lock`; never remove a live lock. New crash recovery does not change the scientific CLI lock convention. Windows hard-process interruption is tested; OS power-loss/filesystem recovery and a packaged installer remain unverified. See [Phase 4B evidence](verification.md).
 
-The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](duration-validation.md).
+The shared `TAKETWO_MAX_ANALYSIS_DURATION_S` setting accepts integer seconds 1–45, default 45. Restart after changing it. See [duration configuration and verification](verification.md#analysis-duration-and-capacity).

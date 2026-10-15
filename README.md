@@ -54,17 +54,11 @@ Analysis supports **45 seconds per recording** by default; import supports **100
 3. Inspect measured differences and highlighted intervals; alternate native A/B playback.
 4. Export a summary or complete evidence report. Complete independent reviews before requesting verified assessments or evaluation.
 
-Supplied text and automatic timestamps remain unverified. The [user guide](docs/user-guide.md) covers import, pairing, analysis, playback and export; the [review workflow](docs/reviewed-evidence-workflow.md) covers independent evidence.
+Supplied text and automatic timestamps remain unverified. The [user guide](docs/user-guide.md) covers import, pairing, analysis, playback and export; the [review workflow](docs/review-protocol.md#transcript-timing-flaw-review-and-scientific-eligibility) covers independent evidence.
 
-## Technical documentation
+## Technical report and documentation
 
-| Topic | Documentation |
-| --- | --- |
-| Architecture and API | [Component boundaries](docs/architecture.md), [backend/API lifecycle](docs/backend-api.md) |
-| Methodology | [Acoustic extraction/alignment](docs/analysis-engine.md), [comparative insights](docs/comparative-insights.md), [scoring formulas](docs/scoring-policy.md) |
-| Dataset and evaluation | [Schemas and engineering](docs/dataset-engineering.md), [publication/provenance requirements](docs/dataset-publication.md) |
-| Verification | [Results, failure cases and limitations](docs/verification.md), [reproduction commands](docs/reproducibility.md), [browser tests](docs/browser-testing.md) |
-| Submission | [Current six-page report](output/pdf/taketwo-technical-report-2026-10-15.pdf), [editable source](docs/technical-report.md), [deliverables and owner actions](docs/publication-readiness.md) |
+The current six-page report is linked above; its [editable source](docs/technical-report.md) retains the dated submission evidence. See [architecture](docs/architecture.md) for component boundaries and method references, [reproducibility](docs/reproducibility.md) for verification commands, and [submission](docs/submission.md) for current deliverables and remaining owner actions.
 
 ## Scientific limitations
 
@@ -76,7 +70,7 @@ TakeTwo is a research prototype. Delivery-v0 is uncalibrated; independent speech
 
 **Created by Rhythm Sanghi**, who directed the product, interface and workflows, supplied practice recordings and intended transcripts, reviewed results and guided submission preparation.
 
-OpenAI Codex assisted implementation, integration, testing and documentation. ChatGPT assisted planning and technical review. Both tools are disclosed in the [submission checklist](docs/submission-draft.md).
+OpenAI Codex assisted implementation, integration, testing and documentation. ChatGPT assisted planning and technical review. Both tools are disclosed in the [submission checklist](docs/submission.md#devpost-fields).
 
 ## License
 

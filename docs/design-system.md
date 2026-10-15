@@ -1,6 +1,6 @@
 # TakeTwo design system
 
-Product name: **TakeTwo**. Description: **Speech analysis workspace**. Implemented by the React workspace. See [interaction guide](frontend-workspace.md) and [actual verification](verification.md); human-pair/manual accessibility acceptance remains open.
+Product name: **TakeTwo**. Description: **Speech analysis workspace**. Implemented by the React workspace. See [interaction guide](architecture.md#browser-interaction-contracts) and [actual verification](verification.md); human-pair/manual accessibility acceptance remains open.
 
 ## Workshop + Gridline + Studio Utility
 
@@ -71,3 +71,25 @@ Review steps show the assigned scope and acknowledged save/validation state, nev
 an inferred percentage or completion based on navigation.
 
 Outcome panels have a 1120 px maximum reading width; comparison charts retain working width. Reference inspection describes measurements and processing, with participant selection as the next action. It does not present comparison abstention as a failed reference analysis. Print layouts distinguish single-input evidence from paired reference agreement.
+
+
+## Accessibility and asynchronous state contracts
+
+Each native track has distinct names for seek, pan, selection and features. A pending
+waveform hides obsolete recording/window samples. Live regions remain mounted for
+import/stage/completion/error announcements; the moving playhead is not continuously
+announced. Scrollable tables and nonvisual measurements accept keyboard focus.
+Use native landmark/heading/skip navigation, visible focus, table headers and numeric
+chart alternatives; reference/participant also differ by labels and solid/dashed lines.
+
+Phones use a labeled native workspace selector; collection cards form a vertical list
+with wrapping names and complete controls, at least 44 px high. Analysis outcomes,
+findings and next actions precede secondary precision/provenance controls. On wide
+screens transports sit side by side; below 1250 px they stack. At 800 px and below
+the explicit native-track switch preserves each mounted cursor/interval. Reduced
+motion disables optional motion. Loading, unavailable, empty, partial, eligible and
+eligible-zero results remain distinct; do not substitute fabricated empty counts.
+
+Automated axe, keyboard routing, responsive layout and native 200% zoom are distinct
+from human visual/spoken acceptance. Use the blank [acceptance forms](review-protocol.md)
+for actual observations; DOM snapshots or canvas pixels cannot supply those results.

@@ -4,7 +4,7 @@ Speech analysis workspace. Requirement IDs and acceptance criteria below map the
 unchanged official statement to implementation and evidence. Software checks and
 genuine processing have executed; independent scientific validation and the
 required public paired dataset remain incomplete. See [verification](verification.md)
-and [submission readiness](publication-readiness.md) for results and deliverables.
+and [submission readiness](submission.md#deliverables-and-current-evidence) for results and deliverables.
 
 Authority: [official Track C specification](../requirments/Track%20C.pdf), all three pages, reviewed on 2026-10-11. Keep its existing path and bytes. SHA-256: `0e621d35e6bfdbb9d9e169b259ebf9d3d923d1efcbab38ba2a4331f6958fb280`.
 
@@ -22,7 +22,7 @@ These weights total 100%. They determine delivery priorities, not the acoustic r
 
 ## Required behavior and evidence
 
-Status **Planned** means specified here, not implemented or verified. IDs R1a-R4b follow the PDF's numbered requirements. C rows cover the challenge; T rows cover technical considerations. Numeric gates elsewhere are proposed TakeTwo gates, not official thresholds. See the [requirements below](#required-behavior-and-evidence) for evidence ownership and the [risk register](risk-register.md) for blockers.
+Status **Planned** means specified here, not implemented or verified. IDs R1a-R4b follow the PDF's numbered requirements. C rows cover the challenge; T rows cover technical considerations. Numeric gates elsewhere are proposed TakeTwo gates, not official thresholds. See the [requirements below](#required-behavior-and-evidence) for evidence ownership and the [risk register](verification.md#evidence-boundaries-and-open-requirements) for blockers.
 
 | ID / source | Requirement | Component / phase | Acceptance criterion | Required evaluation evidence | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ The PDF calls R3b "causal" explainability. TakeTwo will explain the calculation 
 
 | ID / source p2 | Deliverable | Component / phase | Acceptance criterion | Evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public baseline exists; see [exact release evidence](publication-readiness.md) | Public code exists; local cleanup requires authorization and exact-commit CI |
+| D1 | GitHub codebase and documentation | Repository / 6 | Public repository contains runnable code, setup and documentation | Public baseline exists; see [exact release evidence](submission.md#deliverables-and-current-evidence) | Public code exists; local cleanup requires authorization and exact-commit CI |
 | D2 | Public custom paired dataset, transcripts and alignment labels | Dataset release / 6 | Files in GitHub or public Google Drive linked from README; rights permit release | Public download check, manifest checksums and dataset card | Unmet: no approved public dataset |
 | D3 | Functional interactive dashboard prototype | Workspace / 4 | Demonstrates real upload, extraction and visual/text results | Recorded browser run and end-to-end tests | Local prototype implemented; genuine-reference and generated-pair runs verified, eligible human-pair demonstration open |
 | D4 | Technical documentation, maximum 6 pages | Submission report / 6 | Covers dataset construction, rubric, architecture and scoring within six rendered pages | [Current report](../output/pdf/taketwo-technical-report-2026-10-15.pdf), page/content checks | Six-page report retained; see verification |
@@ -59,7 +59,7 @@ These engineering documents are working specifications, not the six-page submiss
 ## Acceptance evidence
 
 The [verification record](verification.md) consolidates actual engineering results,
-failed attempts and historical sources. [Submission readiness](publication-readiness.md)
+failed attempts and historical sources. [Submission readiness](submission.md#deliverables-and-current-evidence)
 tracks public links and remaining owner actions. The [review workflow](review-workspace.md)
-and [human pilot kit](human-pilot-kit.md) support independent evidence collection.
+and [human pilot kit](review-protocol.md#recording-preparation-and-participant-permissions) support independent evidence collection.
 Software execution does not close scientific or publication gates.

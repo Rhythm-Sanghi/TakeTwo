@@ -179,8 +179,8 @@ uv run taketwo-comparison evaluate $newWorkspace --report $eligibleReport --revi
                     Import returns the actual reference ID. Regenerate
                     alignment/features before collecting hash-bound timing and
                     flaw reviews. The full ordered procedure and prerequisites
-                    are in <code>docs/reviewed-evidence-workflow.md</code>;
-                    these snippets do not supply reviews, rights or labels.
+                    are in <code>docs/review-protocol.md</code>; these snippets
+                    do not supply reviews, rights or labels.
                   </p>
                 </details>
               )}

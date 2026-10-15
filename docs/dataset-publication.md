@@ -4,7 +4,7 @@ TakeTwo — Speech analysis workspace. **No releasable paired dataset or public 
 
 ## Release gate
 
-1. Collect real substantive references, exact reviewed text, permitted faithful/flawed mirrors and independent temporal labels using [owner checklist](publication-readiness.md#owner-checklist). Separate human takes and controlled synthetic derivatives. Preserve originals and transformation lineage/maps; never call synthetic alterations real speeches.
+1. Collect real substantive references, exact reviewed text, permitted faithful/flawed mirrors and independent temporal labels using [owner checklist](submission.md#owner-checklist). Separate human takes and controlled synthetic derivatives. Preserve originals and transformation lineage/maps; never call synthetic alterations real speeches.
 2. Complete item-specific rights/attribution and actual consent. Check recording, words, excerpts, derivatives, public metadata and demonstration permissions. A code license does not license audio. Redact identity mappings/signatures/private evidence; do not merely rename consent scans.
 3. Freeze connected source/work/text/speaker/family/hash/lineage groups before derivatives/calibration. Audit coverage by origin, dimension, intended and reviewed severity, speaker and split. Include near-perfect/acceptable alternatives. Record exclusions; do not increase counts with unusable clips.
 4. Run `uv run taketwo-dataset validate <workspace> --publication --reproduce`. Resolve every error without weakening gates. Replay current alignment/features/comparison reports and independently inspect labels. Validation is structural preflight; actual rights/listening/release review remains necessary.
@@ -40,3 +40,19 @@ Generate checksums from the final staged bytes; do not hash an earlier draft. In
 After owner authorization/publication, download as a signed-out reader into a new directory. Verify every checksum, paired inventory, transcript identity and label bounds; run `uv run taketwo-dataset validate <download-directory>/workspace --publication --reproduce` and the documented analysis/comparison replay against those downloaded managed paths. Record URL, access date, exact archive hash, downloader commands and results. A sharing screen or logged-in preview is insufficient. Preserve prior versions. No private consent record is uploaded to demonstrate release permission.
 
 Current blocker: no human corpus/labels or publication approval. The release checklist must stay open. [Attributions](attributions.md) record current sources/resources; they are not a blanket license for future media.
+
+
+## Release contents and provenance
+
+A release needs actual approved audio, exact transcripts, independently reviewed
+alignment/region labels, versioned manifests, transformation recipes/maps, connected
+split membership, checksums, required attribution and a dataset card describing scope,
+collection, exclusions, coverage gaps, limitations and item-specific rights. Distinguish
+original, human take and synthetic lineage in paths and metadata. Keep signed consents,
+identity mappings and unapproved media private. A redacted permission summary is public
+only when its release is itself permitted. Public availability is not permission.
+
+Publish only after the complete rights/review gate, then verify download hashes and link
+the approved dataset from README as Track C requires. No public dataset URL or completed
+human review is supplied by this documentation. Substantive public sources, same-text
+spectrum and independent temporal labels remain mandatory acceptance requirements.

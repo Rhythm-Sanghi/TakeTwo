@@ -1,6 +1,6 @@
-# TakeTwo dataset engineering (Phase 1)
+# TakeTwo dataset engineering
 
-Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **incomplete, not independently annotated or ready for publication**. This guide describes the dataset tools. Alignment/acoustics, scoring and the web workspace are documented in [analysis engine](analysis-engine.md), [comparison engine](comparison-engine.md) and [frontend](frontend-workspace.md). [Dataset strategy](dataset-plan.md) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
+Speech analysis workspace. The local dataset pipeline is implemented; the competition corpus is **incomplete, not independently annotated or ready for publication**. This guide describes the dataset tools. Alignment/acoustics, scoring and the web workspace are documented in [analysis engine](analysis-engine.md), [comparison engine](comparison-engine.md) and [frontend](architecture.md#browser-interaction-contracts). [Dataset strategy](dataset-engineering.md#collection-and-evaluation-design) and [scoring policy](scoring-policy.md) remain authoritative scientific policies.
 
 ## Install and verify on Windows
 
@@ -18,7 +18,7 @@ NumPy/SciPy provide arrays and polyphase resampling, soundfile decodes audio, Py
 
 ## Workspace and schema
 
-Current imports use [schema v2](dataset-schema-v2.json), retaining readable legacy v1 data and its [frozen schema](dataset-schema-v1.json). V2 explicitly represents unknown pending rights as null and unlabeled acquisition intent as unspecified/null. Cleared rights still require actual holder/license/evidence/attribution and both permissions. New workspaces start at v2; a v1 manifest requires explicit **Enable private draft imports**, with an exact backup under managed history and unchanged audio/IDs. No migration grants consent, verification or calibration. Controlled self-recorded references are valid local baselines with actual consent/rationale assertions; only genuine public-source references count toward official publication baseline coverage. See [recording import](recording-import-guide.md) and [API additions](backend-api.md).
+Current imports use [schema v2](dataset-schema-v2.json), retaining readable legacy v1 data and its [frozen schema](dataset-schema-v1.json). V2 explicitly represents unknown pending rights as null and unlabeled acquisition intent as unspecified/null. Cleared rights still require actual holder/license/evidence/attribution and both permissions. New workspaces start at v2; a v1 manifest requires explicit **Enable private draft imports**, with an exact backup under managed history and unchanged audio/IDs. No migration grants consent, verification or calibration. Controlled self-recorded references are valid local baselines with actual consent/rationale assertions; only genuine public-source references count toward official publication baseline coverage. See [recording import](user-guide.md#import-recordings) and [API additions](backend-api.md).
 
 Initialize a new local directory, normally under ignored `local-data/` or outside the checkout. Never initialize over an existing directory. `manifest.jsonl` is the atomic source of truth, with `{kind,data}` rows: one version header, then recordings, pairs, annotations and an optional split report. Original and normalized audio live in `originals/<recording-id>.<wav|flac>` and `normalized/<recording-id>.wav`. The manifest contains no machine-specific absolute artifact paths. IDs are content-derived and stable for identical inputs/metadata/software versions; mutable recording names are not identifiers.
 
@@ -139,10 +139,56 @@ Canonical derivatives are mono 16 kHz IEEE float32 WAV with a deterministic head
 
 Mutations use an exclusive workspace lock and atomic manifest replacement; failed operations roll back their new artifacts. Existing artifacts are never overwritten. Paths reject traversal, symlinks/junctions/reparse points, UNC paths, alternate data streams and reserved Windows names. Keep the workspace under the user's exclusive local control: checks do not promise protection against a hostile process changing filesystem objects between checks. After a crash, inspect the lock and any unreferenced artifacts before removing them; do not delete originals automatically.
 
-## Acquisition status and next action
+## Acquisition status
 
-Phase 1 initially had no cleared reference. Phase 1B now has two public-domain source masters and one imported draft candidate; see [pilot collection](pilot-collection.md). No consented mirror, independent transcript review or public dataset exists. Automated tests and CLI smoke runs use explicitly labeled generated signal fixtures outside the competition dataset. They establish software behavior only.
+Two public-domain JFK source masters and one unverified imported salutation candidate
+are documented in the [rights ledger](pilot-collection.md). Both masters share one
+speaker group. The later five private practice takes form another controlled local
+speech family; they have no independent text/timing/flaw labels or release consent.
+No approved public paired dataset exists. Generated fixtures exercise software only.
 
-The [FDR Presidential Library audio index](https://www.fdrlibrary.org/utterancesfdr) was inspected as an acquisition lead. Its MP3 downloads and general reference-use notice do not by themselves clear a particular recording for adaptation/public dataset release. No asset was downloaded or marked cleared; obtain item-specific terms/permission and a supported archival WAV/FLAC or document a reviewed external conversion separately. No MP3 dependency was added.
+## Collection and evaluation design
 
-Next: identify two suitable public-speech excerpts, archive asset-specific rights evidence, verify exact transcripts with two reviewers, recruit consenting split-disjoint mirror speakers, record near-perfect/severe variants and import independent interval annotations. Until then the original Phase 1 **dataset pilot** gate remains open even though the software pipeline is available.
+Select substantive intelligible single-speaker public excerpts with item-specific
+recording/text adaptation and redistribution rights, retained master-relative offsets
+and a human selection rationale. A selected reference is not a universal ideal.
+Private controlled practice references do not replace Track C's public-speaker corpus.
+Two JFK masters share one source speaker/group; see [acquisition](pilot-collection.md).
+The five private practice takes are one family with no independent labels or public
+release consent. Historical acquisition targets are not counts of available data.
+
+Collect permitted exact-text faithful/near-reference, mild, moderate and severe takes,
+acceptable alternatives and mixed flaws. Record intended delivery separately and hide
+it from blinded flaw reviewers. Unknown demographics/consent stay unknown. Independently
+verify every spoken repetition and cut edge; reject/re-record mismatched words rather
+than concealing them with alignment. Preserve original text/token maps and hashes.
+
+Keep mono 16 kHz derivatives at the original time origin, without silence trimming,
+denoising or loudness normalization. Inspect channel cancellation, clipping/noise and
+sample/duration identity. Synthetic pause/tempo/gain/pitch controls retain algorithm,
+version, seed, parameters, hashes and piecewise source/output maps; inserted/deleted
+regions remain explicit. Whole-file gain/register shifts test invariance, not flaws.
+Recipes are metadata, never independent perceptual labels. Inspect edit-boundary
+artifacts and prevent synthetic shortcuts becoming detector evidence.
+
+Freeze connected original/excerpt/work/text/speaker/hash/lineage groups before any
+derivation or tuning. Recruit disjoint split-level speakers; if a recurring speaker
+collapses groups, redesign acquisition rather than moving related files between splits.
+Never adapt the aligner on held-out audio. Retain known/unknown model-training overlap;
+group separation cannot prove absence of pretrained exposure. Training here means
+threshold/procedure development and requires no learned model.
+
+Two independent blinded reviewers annotate validation/test intervals and a pilot sample
+of training data. Retain acceptable negatives, overlapping dimensions, exclusions and
+uncertain/unjudgeable spans separately; unjudgeable is not negative. Report actual
+reviewed counts, category/ordinal agreement and boundary differences. A proposed manual
+alignment audit samples at least 100 word boundaries across the pilot and each held-out
+split, including pauses/difficult speech; this is a study target, not completed evidence.
+
+Freeze a separately versioned calibrated policy using train/validation evidence before
+sealed test evaluation. Report human/synthetic results separately by family, dimension,
+severity and speaker pairing, with unseen transform settings as separate stress probes.
+Full held-out acceptance needs at least three independent test groups; fewer are pilot-only
+with unavailable full-validation claims. Small group counts retain wide uncertainty.
+Collection size follows the intended claim/estimate precision, not an obsolete file quota.
+Use the [review protocol](review-protocol.md) and [publication gate](dataset-publication.md).
