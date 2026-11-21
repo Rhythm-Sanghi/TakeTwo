@@ -1,10 +1,6 @@
 # TakeTwo
 
-Speech analysis workspace
-
-**Compare speech. Understand the difference.**
-
-TakeTwo is a local Windows workstation for comparing recordings of the same words. It connects acoustic and timing differences to each recording's native audio intervals, with evidence inspection, A/B playback and exports.
+TakeTwo is a Windows workspace for comparing two recordings of the same passage. Select a timing or acoustic difference to jump to the corresponding audio in each take, then listen to them side by side. Analysis runs locally.
 
 [Watch the demonstration](https://youtu.be/DfFTmNTAB6E) · [Technical report](output/pdf/taketwo-technical-report-2026-10-15.pdf) · **Pilot dataset:** [TakeTwo Pilot Dataset v1](https://github.com/Rhythm-Sanghi/TakeTwo/releases/tag/pilot-dataset-v1)
 
